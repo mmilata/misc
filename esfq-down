@@ -1,0 +1,19 @@
+#!/bin/bash
+
+TC=$(which tc)
+IP=$(which ip)
+IPT=$(which iptables)
+
+if [ $# -eq 1 ]; then
+	IF="eth$1"
+	IMQ=$1
+elif [ $# -eq 2 ]; then
+	IF=$1
+	IMQ=$2
+else
+	echo "usage: $0 <ethnum> OR $0 <iface> <imqnum>"
+	exit
+fi
+
+$IPT  -t mangle -D PREROUTING -i $IF -j IMQ --todev $IMQ
+

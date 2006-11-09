@@ -1,0 +1,55 @@
+#!/bin/bash
+
+SMAPI=/sys/devices/platform/smapi/BAT0
+ACPI=/proc/acpi/battery/BAT0
+
+if [ "$1" = "-s" ]; then
+   [ -d $ACPI ] && [ -d $SMAPI ] || { echo "BAT:?"; exit; }
+   SHORT=1
+else
+   [ -d $ACPI ] || { echo "ACPI directory not present"; exit; }
+   [ -d $SMAPI ] || { echo "SMAPI directory not present"; exit; }
+   SHORT=0
+fi
+
+STATE=`cat $SMAPI/state`
+PERCENT=`cat $SMAPI/remaining_percent`
+
+case "$STATE" in
+   "charging")
+      TIME=`cat $SMAPI/remaining_charging_time`
+      if [ "$TIME" = "not_charging" ]; then TIME="N/A"; fi
+      if [ $SHORT -eq 1 ]; then
+         echo "C:${PERCENT}%|${TIME}m"
+      else 
+         echo "Charging: ${PERCENT}% (${TIME}m remaining)"
+      fi
+      ;;
+   "discharging")
+      TIME=`cat $SMAPI/remaining_running_time`
+      CAP=`cat $SMAPI/remaining_capacity`
+      #FULL=`cat $SMAPI/last_full_capacity`
+      FULL=`cat $SMAPI/design_capacity`
+      RATE=`grep "present rate" $ACPI/state | egrep -o "[0-9]+"`
+      if [ "$TIME" = "not_discharging" ]; then TIME="N/A"; fi
+      if [ $SHORT -eq 1 ]; then
+         echo "D:${PERCENT}%|${TIME}m" 
+      else
+         echo "Discharging: ${PERCENT}% (${TIME}m remaining, ${CAP}mWh/${FULL}mWh @ ${RATE}mW)"
+      fi
+      ;;
+   "idle")
+      if [ $SHORT -eq 1 ]; then
+         echo "I:${PERCENT}%"
+      else
+         echo "Idle: ${PERCENT}%"
+      fi
+      ;;
+   *)
+      if [ $SHORT -eq 1 ]; then
+         echo "BAT:?"
+      else
+         echo "Unknown state: $STATE"
+      fi
+      ;;
+esac

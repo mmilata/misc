@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TC=$(which tc)
+IP=$(which ip)
+IPT=$(which iptables)
+
+if [ $# -eq 1 ]; then
+	IF="eth$1"
+	IMQ=$1
+elif [ $# -eq 2 ]; then
+	IF=$1
+	IMQ=$2
+else
+	echo "usage: $0 <ethnum> OR $0 <iface> <imqnum>"
+	exit
+fi
+
+echo "esfq: $IF/imq$IMQ"
+
+$TC qdisc del dev $IF root 2> /dev/null || true
+$TC qdisc add dev $IF root esfq perturb 20 hash src
+$IPT -t mangle -A PREROUTING -i $IF -j IMQ --todev $IMQ
+$IP link set imq$IMQ up
+$TC qdisc del dev imq$IMQ root 2> /dev/null || true
+$TC qdisc add dev imq$IMQ root esfq perturb 20 hash dst
+
