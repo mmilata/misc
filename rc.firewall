@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# personal firewall
+# 2006 by b42, b42@centrum.cz
+#
+# good luck if you're using this
+
+IPT=$(which iptables)
+
+fw_up(){
+	$IPT -F
+
+	$IPT -P INPUT DROP
+	$IPT -P OUTPUT ACCEPT
+	$IPT -P FORWARD DROP
+
+	$IPT -A INPUT -i lo -j ACCEPT
+
+	$IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+	#$IPT -A INPUT -p tcp --dport auth -j ACCEPT
+	$IPT -A INPUT -p tcp --dport 22 -j ACCEPT
+	$IPT -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+}
+
+fw_openall(){
+	$IPT -F
+	$IPT -P INPUT ACCEPT
+	$IPT -P OUTPUT ACCEPT
+	$IPT -P FORWARD ACCEPT
+}
+
+fw_closeall(){
+	$IPT -F
+	$IPT -P INPUT DROP
+	$IPT -P OUTPUT DROP
+	$IPT -P FORWARD DROP
+	$IPT -A INPUT -i lo -j ACCEPT
+	$IPT -A OUTPUT -o lo -j ACCEPT
+}
+
+case "$1" in
+	'start')
+	   fw_up 
+	   ;;
+	'up')
+	   fw_up
+	   echo "Firewall: up"
+	   ;;
+	'stop')
+	   fw_openall
+	   ;;
+	'down')
+	   fw_openall
+	   echo "Firewall: down, all ports set to ACCEPT"
+	   ;;
+	'close')
+	   echo "Firewall: all ports dropped"
+	   fw_closeall
+	   ;;
+	'restart')
+	   fw_up
+	   ;;
+	*)
+	   echo "usage: `basename $0` up|down|close"
+	   ;;
+esac

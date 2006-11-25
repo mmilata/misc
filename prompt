@@ -1,0 +1,47 @@
+#!/bin/bash
+
+GREEN="\[\033[0;32m\]"
+BLUE="\[\033[0;34m\]"
+RED="\[\033[0;31m\]"
+WHITE="\[\033[0;37m\]"
+YELLOW="\[\033[0;33m\]"
+GREY="\[\033[1;30m\]"
+CYAN="\[\033[0;36m\]"
+L_GREEN="\[\033[1;32m\]"
+L_RED="\[\033[1;31m\]"
+L_WHITE="\[\033[1;37m\]"
+L_BLUE="\[\033[1;34m\]"
+L_YELLOW="\[\033[1;33m\]"
+NC="\[\033[0m\]"
+
+### COLOR CONFIG ###
+HOST=$BLUE
+USR=$GREEN
+### END CONFIG ###
+
+case $TERM in
+    xterm*|rxvt*)
+        TITLEBAR='\[\033]0;\u@\h: \w [\l]\007\]'
+        ;;
+    *)
+        TITLEBAR=""
+        ;;
+esac
+
+if [ "$(id -u)" = "0" ]; then
+ USR=$RED
+ DOL=$L_RED
+else
+ DOL=$GREY
+fi
+
+PS1="$TITLEBAR\
+$GREY[$WHITE\D{%H%M}$GREY]\
+[$WHITE\l$GREY]\
+[$WHITE\j$GREY]\
+[$WHITE\$?$GREY]\
+$WHITE \w\n\
+$USR\u$GREY@$HOST\h$DOL\\\$$USR> $NC"
+
+PS2="$USR>$NC "
+
