@@ -1,0 +1,5 @@
+make
+su
+insmod ./dev_one.ko
+./dev_one.init start
+echo "Enjoy (and say goodbye to your data)!"

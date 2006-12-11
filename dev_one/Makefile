@@ -12,4 +12,4 @@ default:
 endif
 
 clean:
-	rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions
+	rm -rf *.o *~ core .depend .*.cmd *.mod.c .tmp_versions Module.symvers

@@ -1,3 +1,6 @@
+/*
+ * mostly stolen from mem driver by <b42@centrum.cz>
+ */
 
 #include <linux/module.h>
 #include <linux/init.h>
@@ -12,10 +15,12 @@
 
 MODULE_AUTHOR("b42");
 MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("/dev/one driver");
 
 static dev_t device;
 static struct cdev cdev;
-#define SEASIZE 1024
+#define SEASIZE PAGE_SIZE
+/* #define SEASIZE 1024 */
 static char * sea_of_ones;
 
 static ssize_t dev_one_write(struct file * filp, const char __user * buf,
@@ -24,8 +29,8 @@ static ssize_t dev_one_write(struct file * filp, const char __user * buf,
 	return count;
 }
 
-static ssize_t dev_one_read(struct file * filp, char __user * buf, size_t count,
-		     loff_t *fpos)
+static ssize_t dev_one_read(struct file * filp, char __user * buf,
+			    size_t count, loff_t *fpos)
 {
 	size_t todo = count;
 
@@ -38,33 +43,28 @@ static ssize_t dev_one_read(struct file * filp, char __user * buf, size_t count,
 			return -EFAULT;
 		buf += chunk;
 		todo -= chunk;
-#if 0
-		if (put_user(0xff, buf))
-			return -EFAULT;
-		buf++;
-		todo--;
-#endif
+
 		cond_resched(); /* asi by bylo super zjistit co dela tohle */
 	}
 	return count;
 }
 
-loff_t dev_one_seek(struct file * filp, loff_t offset, int orig)
+static loff_t dev_one_seek(struct file * filp, loff_t offset, int orig)
 {
         return filp->f_pos = 0;
 }
 
-struct file_operations fops = {
+static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = dev_one_read,
 	.write = dev_one_write,
 	.llseek = dev_one_seek
 };
 
-int __init dev_one_init(void)
+static int __init dev_one_init(void)
 {
 	int res;
-	//registrace zarizeni
+
 	res = alloc_chrdev_region(&device, 0, 1, "dev_one");
 	if (res) {
 		printk(KERN_ERR "Failed to alloc device number\n");
@@ -99,12 +99,12 @@ fail_alloc:
 	return res;
 }
 
-void __exit dev_one_cleanup(void)
+static void __exit dev_one_cleanup(void)
 {
 	kfree(sea_of_ones);
 	cdev_del(&cdev);
 	unregister_chrdev_region(device, 1);
-	printk(KERN_INFO "/dev/one says bye bye");
+	printk(KERN_INFO "/dev/one says bye bye\n");
 }
 
 module_init(dev_one_init);

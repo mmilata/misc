@@ -1,0 +1,43 @@
+#!/bin/sh
+
+DEVICE="/dev/one"
+
+create ()
+{
+  if ! ( grep dev_one /proc/devices >/dev/null ); then
+    echo " ... driver not loaded"
+    exit 1
+  fi
+  MAJOR=`grep dev_one /proc/devices | cut -d ' ' -f 1`
+  mknod /dev/one c $MAJOR 0	
+  chmod 666 /dev/one
+}
+
+remove ()
+{
+  rm /dev/one
+}
+
+case "$1" in
+  start)
+     echo -n "Creating $DEVICE"
+     create
+     echo "."
+     ;;
+  stop)
+     echo -n "Removing $DEVICE"
+     remove
+     echo "."
+     ;;
+  force-reload|restart)
+     echo -n "Recreating $DEVICE"
+     remove
+     create
+     echo "."
+     ;;
+  *)
+     echo "Usage: $0 {start|stop|restart|force-reload}"
+     exit 1
+esac
+
+exit 0
