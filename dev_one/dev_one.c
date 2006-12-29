@@ -13,6 +13,7 @@
 #include <linux/fs.h>
 #include <linux/errno.h>
 #include <linux/cdev.h>
+#include <linux/device.h>
 
 #include <asm/uaccess.h>
 
@@ -20,9 +21,11 @@ MODULE_AUTHOR("b42 <b42@srck.net>");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("/dev/one");
 
-static dev_t device;
+static dev_t device = MKDEV(0,0);
 static struct cdev cdev;
-static char * sea_of_ones;
+static struct class *class = NULL;
+static char * sea_of_ones = NULL;
+static int initialized = 0;
 
 static ssize_t dev_one_write(struct file * filp, const char __user * buf,
 		      size_t count, loff_t *fpos)
@@ -65,6 +68,21 @@ static struct file_operations fops = {
 	.llseek = dev_one_seek
 };
 
+static void dev_one_cleanup(void)
+{
+	if (initialized)
+		cdev_del(&cdev);
+	if (class) {
+		class_device_destroy(class,device);
+		class_destroy(class);
+	}
+	if (sea_of_ones)
+		free_page((unsigned long)sea_of_ones);
+	if (device != MKDEV(0,0))
+		unregister_chrdev_region(device, 1);
+	printk(KERN_INFO "/dev/one unloaded\n");
+}
+
 static int __init dev_one_init(void)
 {
 	int res;
@@ -72,13 +90,14 @@ static int __init dev_one_init(void)
 	res = alloc_chrdev_region(&device, 0, 1, "dev_one");
 	if (res) {
 		printk(KERN_ERR "Failed to alloc device number\n");
-		goto fail_alloc;
+		goto fail;
 	}
 
 	sea_of_ones = (char *)__get_free_page(GFP_KERNEL);
 	if (sea_of_ones == NULL) {
 		printk(KERN_ERR "Out of memory! We're all gonna die!\n");
-		goto fail_memory;
+		res = -ENOMEM;
+		goto fail;
 	}
 	memset(sea_of_ones, 0xff, PAGE_SIZE);
 
@@ -86,29 +105,26 @@ static int __init dev_one_init(void)
 	cdev.owner = THIS_MODULE;
 	cdev.ops = &fops;
 
+	class = class_create(THIS_MODULE, "dev_one");
+	if (IS_ERR(class)) {
+		printk(KERN_ERR "Failed to create device class\n");
+		res = -PTR_ERR(class);
+		goto fail;
+	}
+	class_device_create(class, NULL, device, NULL, "one");
+
 	res = cdev_add(&cdev, device, 1);
 	if (res) {
 		printk(KERN_ERR "Failed to create cdev\n");
-		goto fail_addcdev;
+		goto fail;
 	}
 
+	initialized = 1;
 	printk(KERN_INFO "/dev/one initialized\n");
 	return 0;
-
-fail_addcdev:
-	free_page((unsigned long)sea_of_ones);
-fail_memory:
-	unregister_chrdev_region(device, 1);	
-fail_alloc:
+fail:
+	dev_one_cleanup();
 	return res;
-}
-
-static void __exit dev_one_cleanup(void)
-{
-	cdev_del(&cdev);
-	free_page((unsigned long)sea_of_ones);
-	unregister_chrdev_region(device, 1);
-	printk(KERN_INFO "/dev/one says bye bye\n");
 }
 
 module_init(dev_one_init);

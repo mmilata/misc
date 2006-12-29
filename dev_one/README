@@ -1,5 +1,27 @@
-make
-su
-insmod ./dev_one.ko
-./dev_one.init start
-echo "Enjoy (and say goodbye to your data)!"
+INSTALLATION:
+
+1. Build the module. Use make KERNELDIR=xxx to specify custom kernel dir.
+
+	$ make
+
+2. Become superuser.
+
+	$ su
+
+3. (only if you use udev) Install udev rules file.
+
+	# cp dev_one.rules /etc/udev/rules.d/ #or to another directory
+	                                      #containing your udev rules
+
+4. Insert the module.
+
+	# insmod ./dev_one.ko
+
+5. (only if you use static /dev) Create static device node.
+
+	# ./dev_one.init start
+
+6. Enjoy the mighty power of /dev/one (and say goodbye to your data)!
+
+	# dd if=/dev/one of=???
+

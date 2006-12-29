@@ -15,12 +15,13 @@ create ()
 
 remove ()
 {
-  rm /dev/one
+  rm /dev/one 2>/dev/null
 }
 
 case "$1" in
   start)
      echo -n "Creating $DEVICE"
+     remove
      create
      echo "."
      ;;

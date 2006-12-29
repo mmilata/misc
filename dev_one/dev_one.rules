@@ -1,0 +1,4 @@
+# udev rules file for /dev/one
+# <b42@srck.net>
+
+KERNEL=="one",		NAME="%k", MODE="0666"
