@@ -1,26 +1,27 @@
 /*
- * mostly stolen from mem driver by <b42@centrum.cz>
+ * /dev/one
+ * So the balance of 0's and 1's in the universe can be restored again.
+ *
+ * by <b42@srck.net> (mostly stolen from mem driver)
+ *
  */
 
+#include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
-
 #include <linux/types.h>
 #include <linux/fs.h>
-#include <linux/kernel.h>
 #include <linux/errno.h>
 #include <linux/cdev.h>
 
 #include <asm/uaccess.h>
 
-MODULE_AUTHOR("b42");
+MODULE_AUTHOR("b42 <b42@srck.net>");
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("/dev/one driver");
+MODULE_DESCRIPTION("/dev/one");
 
 static dev_t device;
 static struct cdev cdev;
-#define SEASIZE PAGE_SIZE
-/* #define SEASIZE 1024 */
 static char * sea_of_ones;
 
 static ssize_t dev_one_write(struct file * filp, const char __user * buf,
@@ -34,17 +35,20 @@ static ssize_t dev_one_read(struct file * filp, char __user * buf,
 {
 	size_t todo = count;
 
+	if(!access_ok(VERIFY_WRITE, buf, count))
+		return -EFAULT;
+
 	while (todo) {
 		size_t chunk = todo;
 
-		if (chunk > SEASIZE)
-			chunk = SEASIZE;
-		if (copy_to_user(buf, sea_of_ones, chunk))
+		if (chunk > PAGE_SIZE)
+			chunk = PAGE_SIZE;
+		if (__copy_to_user(buf, sea_of_ones, chunk))
 			return -EFAULT;
 		buf += chunk;
 		todo -= chunk;
 
-		cond_resched(); /* asi by bylo super zjistit co dela tohle */
+		cond_resched(); /* not 100% sure what this does */
 	}
 	return count;
 }
@@ -71,6 +75,13 @@ static int __init dev_one_init(void)
 		goto fail_alloc;
 	}
 
+	sea_of_ones = (char *)__get_free_page(GFP_KERNEL);
+	if (sea_of_ones == NULL) {
+		printk(KERN_ERR "Out of memory! We're all gonna die!\n");
+		goto fail_memory;
+	}
+	memset(sea_of_ones, 0xff, PAGE_SIZE);
+
 	cdev_init(&cdev, &fops);
 	cdev.owner = THIS_MODULE;
 	cdev.ops = &fops;
@@ -81,19 +92,12 @@ static int __init dev_one_init(void)
 		goto fail_addcdev;
 	}
 
-	sea_of_ones = (char *)kmalloc(SEASIZE, GFP_KERNEL);
-	if (sea_of_ones == NULL) {
-		printk(KERN_ERR "kmalloc failed\n");
-		goto fail_kmalloc;
-	}
-	memset(sea_of_ones, 0xff, SEASIZE);
-
 	printk(KERN_INFO "/dev/one initialized\n");
 	return 0;
 
-fail_kmalloc:
-	cdev_del(&cdev);
 fail_addcdev:
+	free_page((unsigned long)sea_of_ones);
+fail_memory:
 	unregister_chrdev_region(device, 1);	
 fail_alloc:
 	return res;
@@ -101,8 +105,8 @@ fail_alloc:
 
 static void __exit dev_one_cleanup(void)
 {
-	kfree(sea_of_ones);
 	cdev_del(&cdev);
+	free_page((unsigned long)sea_of_ones);
 	unregister_chrdev_region(device, 1);
 	printk(KERN_INFO "/dev/one says bye bye\n");
 }
