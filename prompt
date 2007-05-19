@@ -36,12 +36,11 @@ else
 fi
 
 PS1="$TITLEBAR\
-$GREY[$WHITE\D{%H%M}$GREY]\
-[$WHITE\l$GREY]\
+$GREY[$WHITE\l$GREY]\
 [$WHITE\j$GREY]\
 [$WHITE\$?$GREY]\
 $WHITE \w\n\
-$USR\u$GREY@$HOST\h$DOL\\\$$USR> $NC"
+$USR\u$GREY@$HOST\h$DOL\\\$$NC "
 
 PS2="$USR>$NC "
 
