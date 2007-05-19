@@ -15,7 +15,7 @@ create ()
 
 remove ()
 {
-  rm /dev/one 2>/dev/null
+  rm -f /dev/one
 }
 
 case "$1" in
