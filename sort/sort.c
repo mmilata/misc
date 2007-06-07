@@ -318,46 +318,12 @@ struct sort_stat sys_qsort(int *array, unsigned n)
 	return sys_qsort_stats;
 }
 
-struct sort_stat do_merge(int *array, unsigned mid, unsigned n)
-{
-	struct sort_stat stats = { .cmp = 0, .swap = 0, .call = 0 };
-
-	unsigned a1 = 0;
-	unsigned a2 = mid;
-	unsigned max1 = mid;
-	unsigned max2 = n;
-
-	int *tmp = (int*)malloc(n*sizeof(int));
-	unsigned i = 0;
-
-	while(a1 < max1 && a2 < max2){
-		if(array[a1] < array[a2]){ /* stable? */
-			tmp[i++] = array[a1++];
-		}else{
-			tmp[i++] = array[a2++];
-		}
-		stats.cmp++;
-	}
-
-	while(a1 < max1)
-		tmp[i++] = array[a1++];
-
-	while(a2 < max2)
-		tmp[i++] = array[a2++];
-
-	for(i=0; i<n; i++)
-		array[i] = tmp[i];
-
-	free(tmp);
-	stats.swap = n/2;
-
-	return stats;
-}
-
 struct sort_stat merge(int *array, unsigned n)
 {
 	struct sort_stat tmp, stats = { .cmp = 0, .swap = 0, .call = 0 };
-	unsigned mid;
+	unsigned mid, i = 0;
+	unsigned a1, a2, max1, max2;
+	int *t;
 
 	if(n > 1){
 		mid = n/2;
@@ -371,10 +337,33 @@ struct sort_stat merge(int *array, unsigned n)
 		stats.swap += tmp.swap;
 		stats.call += tmp.call;
 
-		tmp = do_merge(array, mid, n);
-		stats.cmp += tmp.cmp;
-		stats.swap += tmp.swap;
+		a1 = 0;
+		a2 = mid;
+		max1 = mid;
+		max2 = n;
+		t = (int*)malloc(n*sizeof(int)); /* O(N) */
 
+		while(a1 < max1 && a2 < max2){
+			if(array[a1] < array[a2]){ /* stable? */
+				t[i++] = array[a1++];
+			}else{
+				t[i++] = array[a2++];
+			}
+			stats.cmp++;
+		}
+
+		while(a1 < max1)
+			t[i++] = array[a1++];
+
+		while(a2 < max2)
+			t[i++] = array[a2++];
+
+		for(i=0; i<n; i++) /* memcpy ... */
+			array[i] = t[i];
+
+		free(t);
+
+		stats.swap += n/2;
 		stats.call += 2;
 	}
 
