@@ -4,12 +4,15 @@
 #include <string.h>
 
 #define MAXNUM 16384
+#define CMP_INC "cmp.inc"
+#define SWAP_INC "swap.inc"
+#define DATA_FILE "sort.dat"
 
 struct sort_stat {
 	unsigned long long cmp;
 	unsigned long long swap;
 	unsigned long long call;
-};
+} sys_qsort_stats;
 
 struct sort_fun {
 	struct sort_stat (*fun)(int*, unsigned);
@@ -52,6 +55,19 @@ int check(int *array, unsigned n)
 	return 1;
 }
 
+int comp(const void *a, const void *b)
+{
+	sys_qsort_stats.cmp++;
+	if(*(int*)a == *(int*)b){
+		return 0;
+	}else if(*(int*)a > *(int*)b){
+		return 1;
+	}else{
+		return -1;
+	}
+}
+
+
 struct sort_stat bubble(int *array, unsigned n)
 {
 	struct sort_stat stats = { .cmp = 0, .swap = 0, .call = 0 };
@@ -90,6 +106,50 @@ struct sort_stat bubble2(int *array, unsigned n)
 		if(!swapped) break;
 	}
 
+	return stats;
+}
+
+struct sort_stat selection(int *array, unsigned n)
+{
+	struct sort_stat stats = { .cmp = 0, .swap = 0, .call = 0 };
+	unsigned i, j, min;
+
+	for(j = 0; j < n-1; j++){
+		min = j;
+		for(i = j+1; i < n; i++){
+			stats.cmp++;
+			if(array[i] < array[min])
+				min = i;
+		}
+		swap(array, j, min);
+		stats.swap++;
+	}
+
+	return stats;
+}
+
+struct sort_stat insert(int *array, unsigned n)
+{
+	struct sort_stat stats = { .cmp = 0, .swap = 0, .call = 0 };
+	unsigned i, j;
+	int val;
+
+	for(i = 1; i < n; i++){
+		val = array[i];
+		j = i;
+		while(j > 0 && array[j-1] > val){
+			array[j] = array[j-1];
+			j--;
+			stats.cmp++;
+			stats.swap++;
+		}
+		array[j] = val;
+		stats.swap++;
+	}
+
+	/* normalne je swap 2x cteni a 2x zapis, zde inkrementujeme swap
+	 * pro 1x cteni a 1x zapis ... */
+	stats.swap /= 2;
 	return stats;
 }
 
@@ -162,6 +222,42 @@ struct sort_stat quick(int *array, unsigned n)
 	return stats;
 }
 
+struct sort_stat quick2(int *array, unsigned n)
+{
+	struct sort_stat tmp, stats = { .cmp = 0, .swap = 0, .call = 0 };
+
+	if(n > 1){
+		if(n < 7)
+			return insert(array, n);
+
+		unsigned i, ins = 0;
+
+		for(i = 1; i < n; i++){
+			stats.cmp++;
+			if(array[i] < array[0]){
+				swap(array, ++ins, i);
+				stats.swap++;
+			}
+		}
+		swap(array, 0, ins);
+		stats.swap++;
+
+		tmp = quick2(array, ins);
+		stats.cmp += tmp.cmp;
+		stats.swap += tmp.swap;
+		stats.call += tmp.call;
+
+		tmp = quick2(array+ins+1, n-ins-1);
+		stats.cmp += tmp.cmp;
+		stats.swap += tmp.swap;
+		stats.call += tmp.call;
+
+		stats.call += 2;
+	}
+
+	return stats;
+}
+
 struct sort_stat siftdown(int *array, unsigned size, unsigned item)
 {
 	unsigned toswap = item;
@@ -194,7 +290,7 @@ struct sort_stat heap(int *array, unsigned n)
 	struct sort_stat tmp, stats = { .cmp = 0, .swap = 0, .call = 0 };
 
 	int i;
-	//leafy nemusime siftovat
+	/* leafy nemusime siftovat */
 	for(i = n/2; i>=0; i--){
 		tmp = siftdown(array, n, i);
 		stats.cmp += tmp.cmp;
@@ -213,19 +309,97 @@ struct sort_stat heap(int *array, unsigned n)
 	return stats;
 }
 
+struct sort_stat sys_qsort(int *array, unsigned n)
+{
+	sys_qsort_stats.cmp = 0;
+
+	qsort(array, n, sizeof(int), comp);
+
+	return sys_qsort_stats;
+}
+
+struct sort_stat do_merge(int *array, unsigned mid, unsigned n)
+{
+	struct sort_stat stats = { .cmp = 0, .swap = 0, .call = 0 };
+
+	unsigned a1 = 0;
+	unsigned a2 = mid;
+	unsigned max1 = mid;
+	unsigned max2 = n;
+
+	int *tmp = (int*)malloc(n*sizeof(int));
+	unsigned i = 0;
+
+	while(a1 < max1 && a2 < max2){
+		if(array[a1] < array[a2]){ /* stable? */
+			tmp[i++] = array[a1++];
+		}else{
+			tmp[i++] = array[a2++];
+		}
+		stats.cmp++;
+	}
+
+	while(a1 < max1)
+		tmp[i++] = array[a1++];
+
+	while(a2 < max2)
+		tmp[i++] = array[a2++];
+
+	for(i=0; i<n; i++)
+		array[i] = tmp[i];
+
+	free(tmp);
+	stats.swap = n/2;
+
+	return stats;
+}
+
+struct sort_stat merge(int *array, unsigned n)
+{
+	struct sort_stat tmp, stats = { .cmp = 0, .swap = 0, .call = 0 };
+	unsigned mid;
+
+	if(n > 1){
+		mid = n/2;
+		tmp = merge(array, mid);
+		stats.cmp += tmp.cmp;
+		stats.swap += tmp.swap;
+		stats.call += tmp.call;
+
+		tmp = merge(array+mid, n-mid);
+		stats.cmp += tmp.cmp;
+		stats.swap += tmp.swap;
+		stats.call += tmp.call;
+
+		tmp = do_merge(array, mid, n);
+		stats.cmp += tmp.cmp;
+		stats.swap += tmp.swap;
+
+		stats.call += 2;
+	}
+
+	return stats;
+}
+
 int main(int argc, char *argv[])
 {
 	int min, max, step;
 	int i, j;
 	int *ref, *a;
 	struct sort_stat cur;
+	FILE *dataf, *cmpf, *swapf;
 
 	struct sort_fun f[] = {
-		{ bubble,	"bubble sort" },
-		{ bubble2,	"bubble sort, swap check" },
-		{ shake,	"shaker sort" },
-		{ quick,	"quick sort, inplace partition, dumb pivot"},
-		{ heap, 	"heap sort" },
+	/*	{ bubble,	"Bubble sort" }, */
+		{ bubble2,	"Bubble sort" },
+		{ shake,	"Shaker sort" },
+		{ selection,	"Selection sort" },
+		{ insert,	"Insertion sort" },
+		{ heap, 	"Heap sort" },
+		{ merge,	"Merge sort" },
+		{ quick,	"Quick sort"},
+		{ sys_qsort,	"LibC qsort" },
+	/*	{ quick2,	"Quick+Insertion sort" }, */
 		{ NULL, 	"END" }
 	};
 
@@ -253,52 +427,64 @@ int main(int argc, char *argv[])
 		min = atoi(argv[1]);
 		max = atoi(argv[2]);
 		step = atoi(argv[3]);
+		min = (min > 0 ? min : 1);
+
+		if(
+			(cmpf = fopen(CMP_INC, "w")) == NULL ||
+			(swapf = fopen(SWAP_INC, "w")) == NULL ||
+			(dataf = fopen(DATA_FILE, "w")) == NULL
+		){
+			fprintf(stderr, "Cannot open one of the output files\n");
+			perror("fopen");
+			exit(EXIT_FAILURE);
+		}
 
 		ref = (int*)malloc(max * sizeof(int));
 		a = (int*)malloc(max * sizeof(int));
 		rand_array(ref, max);
 
-		printf("#data sets:\n");
+		fprintf(cmpf, "plot\\\n");
+		fprintf(swapf, "plot\\\n");
+		fprintf(dataf, "#data sets:\n");
 		for(i = 0; f[i].fun != NULL; i++){
-			printf("# %d: %s\n", i, f[i].name);
+			fprintf(dataf, "# %d: %s\n", i, f[i].name);
+
+			fprintf(cmpf,
+				"  \"%s\" index %d using 1:2 t \"%s\" w lines%s\n",
+				DATA_FILE, i, f[i].name,
+				(f[i+1].fun ? ",\\" : "\n"));
+			fprintf(swapf,
+				"  \"%s\" index %d using 1:3 t \"%s\" w lines%s\n",
+				DATA_FILE, i, f[i].name,
+				(f[i+1].fun ? ",\\" : "\n"));
 		}
 
 		for(i = 0; f[i].fun != NULL; i++){
-			printf("\n\n# %d -- %s\n", i, f[i].name);
-			printf("# 1 array size  2 comparsions  3 swaps\n");
+			fprintf(dataf, "\n\n# %d -- %s\n", i, f[i].name);
+			fprintf(dataf, "# 1 array size  2 comparsions  3 swaps\n");
 			for(j = min; j <= max; j += step){
 				memcpy(a, ref, max*sizeof(int));
 				cur = f[i].fun(a, j);
-				printf("%d", j);
+				fprintf(dataf, "%d", j);
 				if(!check(a, j)){
-					printf("\t42\t42");
+					fprintf(dataf, "\t42\t42");
 					continue;
 				}
-				printf("\t%lld\t%lld\n", cur.cmp, cur.swap);
+				fprintf(dataf, "\t%lld\t%lld\n", cur.cmp, cur.swap);
 			}
 		}
 
-		/*
-		for(j = min; j <= max; j += step){
-			printf("%d", j);
-			for(i = 0; f[i].fun != NULL; i++){
-				memcpy(a, ref, max*sizeof(int));
-				cur = f[i].fun(a, j);
-				if(!check(a, j)){
-					printf("\t42");
-					continue;
-				}
-				printf("\t%lld", cur.cmp);
-			}
-			printf("\n");
-		}
-		*/
+		printf("Data generated, now run 'gnuplot sort.gnuplot' to draw graphs\n");
+
+		fclose(dataf);
+		fclose(swapf);
+		fclose(cmpf);
 
 	}else{
 		printf("%s <num>\n", argv[0]);
 		printf("%s <min> <max> <step>\n", argv[0]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 } 
