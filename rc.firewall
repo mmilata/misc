@@ -5,7 +5,7 @@
 #
 # good luck if you're using this
 
-IPT=$(which iptables)
+IPT=`which iptables`
 
 fw_up(){
 	$IPT -F
