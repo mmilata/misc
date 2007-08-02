@@ -6,14 +6,23 @@ IPT=$(which iptables)
 
 if [ $# -eq 1 ]; then
 	IF="eth$1"
+	INDEV="imq$1"
 	IMQ=$1
+elif [ $# -eq 2 -a "${2:0:3}" = "ifb" ]; then
+	IF=$1
+	INDEV=$2
 elif [ $# -eq 2 ]; then
 	IF=$1
+	INDEV="imq$2"
 	IMQ=$2
 else
-	echo "usage: $0 <ethnum> OR $0 <iface> <imqnum>"
+	echo -e "usage: $0 <ethnum>\n       $0 <iface> <imqnum>\n       $0 <iface> <ifbdev>"
 	exit
 fi
 
-$IPT  -t mangle -D PREROUTING -i $IF -j IMQ --todev $IMQ
 
+if [ ${INDEV:0:3} = "ifb" ]; then
+	$TC qdisc del dev $INDEV ingress
+else
+	$IPT  -t mangle -D PREROUTING -i $IF -j IMQ --todev $IMQ
+fi
