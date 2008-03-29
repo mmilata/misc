@@ -3,9 +3,6 @@ module Expr where
 import Data.List
 import Data.Maybe
 
-data Function = Function String [String] Expr
-                deriving Show
-
 data Expr = Var String
           | Num Integer
           | Plus Expr Expr
@@ -14,13 +11,23 @@ data Expr = Var String
           | Div Expr Expr
           | Call String [Expr]
           | If Expr Expr Expr
+           deriving Show
 
+{-
 instance Show Expr where
          show = foldExpr show [infop "+",infop "-",infop "*",infop "/"] id call fi
                 where infop o a b = "(" ++ a ++ " " ++ o ++ " " ++ b ++ ")"
-                      call f args = f ++ "(" ++ (ccat a) ++ ")"
-                      ccat        = foldl1 (\a b -> a ++ "," ++ b)
+                      call f args = f ++ "(" ++ (parmlist args) ++ ")"
                       fi p t e    = "if " ++ p ++ " then " ++ t ++ " else " ++ e ++ " fi"
+-}
+
+data Function = Function String [String] Expr
+                deriving Show
+
+{-
+instance Show Function where
+         show (Function name args body) = name ++ "(" ++ parmlist args ++ ") = " ++ show body
+-}
 
 funArgs :: Function -> [String]
 funArgs (Function _ a _) = a
@@ -31,6 +38,12 @@ funBody (Function _ _ b) = b
 reducible :: Expr -> Bool
 reducible (Num _) = False
 reducible _       = True
+
+checkFunction :: Function -> Bool
+checkFunction (Function _ parms body) = foldExpr (const True) (repeat (&&)) fv fc fi body
+                                        where fc _ args = and args
+                                              fi p t e  = p && t && e
+                                              fv v      = v `elem` parms
 
 foldExpr :: (Integer -> a)       -- funkce na cislech
          -> [a -> a -> a]        -- funkce na binarnich operacich [+,-,*,/]
@@ -56,7 +69,6 @@ eval env = foldExpr id [(+),monus,(*),mydiv] fv fc fi
                   fi p t e  = if p > 0 then t else e
                   fc f a    = eval env (subst (funArgs fun) a (funBody fun))
                               where (Just fun) = find (\(Function name _ _) -> name == f) env
-                 
 
 step :: [Function] -> Expr -> Expr
 step _   (Num n)     = Num n
@@ -72,21 +84,6 @@ subst' :: [(String,Integer)] -> Expr -> Expr
 subst' vals = foldExpr Num [Plus,Monus,Mult,Div] fv Call If
               where fv v = Num $ fromMaybe (error "Free variable") (lookup v vals)
 
-{-
- -- call-by-name
-
-subst :: [String] -> [Expr] -> Expr -> Expr
-subst parnames vals e | length vals /= length parnames = error "Arity mismatch"
-                      | otherwise                      = subst' (zip parnames vals) e
-
-subst' :: [(String,Expr)] -> Expr -> Expr
-subst' vals expr = case expr of
-                        Num n     -> Num n
-                        Plus m n  -> Plus (subst' vals m) (subst' vals n)
-                        Monus m n -> Monus (subst' vals m) (subst' vals n)
-                        Mult m n  -> Mult (subst' vals m) (subst' vals n)
-                        Div m n   -> Div (subst' vals m) (subst' vals n)
-                        If p t e  -> If (subst' vals p) (subst' vals t) (subst' vals e)
-                        Var v     -> fromMaybe (error "Free variable") (lookup v vals)
-                        Call f ar -> Call f (map (subst' vals) ar)
- -}
+parmlist :: [String] -> String
+parmlist [w]    = w
+parmlist (w:ws) = w ++ ',':(parmlist ws)

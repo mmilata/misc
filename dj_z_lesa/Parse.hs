@@ -4,17 +4,31 @@ import Text.ParserCombinators.Parsec
 
 import Expr
 
-envExpr = many funDecl
+envExpr = do funs <- many funDecl
+             spaces
+             eof
+             return funs
 
 funDecl = do funname <- many1 letter
+             spaces
              char '('
-             args <- (many1 letter) `sepBy1` (char ',')
+             spaces
+             args <- (many1 letter) `sepBy1` (spaces >> char ',' >> spaces)
+             spaces
              char ')'
+             spaces
              char '='
+             spaces
              body <- expr
              return (Function funname args body)
 
-expr = (try callExpr) <|> (try ifExpr) <|> arExpr
+exprEof = do e <- expr
+             spaces
+             eof
+             return e
+
+expr = do spaces
+          (try callExpr) <|> (try ifExpr) <|> arExpr
 
 callExpr = do funname <- many1 letter
               char '('
@@ -22,34 +36,45 @@ callExpr = do funname <- many1 letter
               char ')'
               return (Call funname args)
 
-ifExpr = do string "if "
+ifExpr = do string "if"
+            spaces1
             cond <- expr
-            string " then "
+            spaces1
+            string "then"
+            spaces1
             thenE <- expr
-            string " else "
+            spaces1
+            string "else"
+            spaces1
             elseE <- expr
-            string " fi"
+            spaces1
+            string "fi"
             return (If cond thenE elseE)
 
-arExpr  = divExpr `chainl1` (char '/' >> return Div)
-divExpr = mulExpr `chainl1` (char '*' >> return Mult)
-mulExpr = monExpr `chainl1` (char '-' >> return Monus)
-monExpr = plusExpr `chainl1` (char '+' >> return Plus)
+arExpr   = divExpr `chainl1` (spaces >> char '/' >> return Div)
+divExpr  = mulExpr `chainl1` (spaces >> char '*' >> return Mult)
+mulExpr  = monExpr `chainl1` (spaces >> char '-' >> return Monus)
+monExpr  = plusExpr `chainl1` (spaces >> char '+' >> return Plus)
 plusExpr = parenExpr <|> numExpr <|> varExpr
 
 parenExpr = do char '('
+               spaces
                e <- expr
+               spaces
                char ')'
                return e
 
-numExpr = do n <- many1 digit
+numExpr = do spaces
+             n <- many1 digit
              return (Num (read n))
 
 varExpr = do varname <- many1 letter
              return (Var varname)
 
+spaces1 = skipMany1 space
+
 parseProgram :: String -> Expr
-parseProgram s = case parse expr "expression" s of
+parseProgram s = case parse exprEof "expression" s of
                       Left err     -> error $ "Error:\n" ++ show err
                       Right result -> result
 
