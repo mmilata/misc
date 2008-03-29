@@ -1,15 +1,28 @@
 #!/bin/bash
 
-SMAPI=/sys/devices/platform/smapi/BAT0
-ACPI=/proc/acpi/battery/BAT0
+DEFAULT_BAT="BAT0"
 
-if [ "$1" = "-s" ]; then
-   [ -d $ACPI ] && [ -d $SMAPI ] || { echo "BAT:?"; exit; }
+if [ $# -eq 2 ]; then
    SHORT=1
-else
-   [ -d $ACPI ] || { echo "ACPI directory not present"; exit; }
-   [ -d $SMAPI ] || { echo "SMAPI directory not present"; exit; }
+   BATN=$2
+elif [ $# -eq 1 ] && [ $1 = "-s" ]; then
+   SHORT=1
+   BATN=$DEFAULT_BAT
+elif [ $# -eq 1 ]; then
    SHORT=0
+   BATN=$1
+else
+   SHORT=0
+   BATN=$DEFAULT_BAT
+fi
+
+SMAPI=/sys/devices/platform/smapi/$BATN
+ACPI=/proc/acpi/battery/$BATN
+
+if [ $SHORT -eq 1 ]; then
+   [ -d $SMAPI ] || { echo "${BATN:0-1:1}:N/A"; exit; }
+else
+   [ -d $SMAPI ] || { echo "SMAPI directory not present"; exit; }
 fi
 
 STATE=`cat $SMAPI/state`
@@ -28,9 +41,12 @@ case "$STATE" in
    "discharging")
       TIME=`cat $SMAPI/remaining_running_time`
       CAP=`cat $SMAPI/remaining_capacity`
-      #FULL=`cat $SMAPI/last_full_capacity`
       FULL=`cat $SMAPI/design_capacity`
-      RATE=`grep "present rate" $ACPI/state | egrep -o "[0-9]+"`
+      if [ -d $ACPI ]; then
+         RATE=`grep "present rate" $ACPI/state | egrep -o "[0-9]+"`
+      else
+         RATE="N/A"
+      fi
       if [ "$TIME" = "not_discharging" ]; then TIME="N/A"; fi
       if [ $SHORT -eq 1 ]; then
          echo "D:${PERCENT}%|${TIME}m" 
@@ -47,7 +63,7 @@ case "$STATE" in
       ;;
    *)
       if [ $SHORT -eq 1 ]; then
-         echo "BAT:?"
+         echo "${BATN:0-1:1}:N/A"
       else
          echo "Unknown state: $STATE"
       fi
