@@ -1,75 +1,60 @@
 module Parse where
 
 import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec.Token
+import Text.ParserCombinators.Parsec.Expr
+import Text.ParserCombinators.Parsec.Language (emptyDef)
 
 import Expr
 
-envExpr = do funs <- many funDecl
-             spaces
+lexer = makeTokenParser (emptyDef
+                         {reservedOpNames = ["*","/","+","-","="],
+                          reservedNames = ["if","then","else","fi"]})
+
+envExpr = do whiteSpace lexer
+             funs <- many funDecl
              eof
              return funs
 
-funDecl = do funname <- many1 letter
-             spaces
-             char '('
-             spaces
-             args <- (many1 letter) `sepBy1` (spaces >> char ',' >> spaces)
-             spaces
-             char ')'
-             spaces
-             char '='
-             spaces
+funDecl = do funname <- identifier lexer
+             args <- parens lexer (commaSep1 lexer (identifier lexer))
+             reservedOp lexer "="
              body <- expr
              return (Function funname args body)
 
-exprEof = do e <- expr
-             spaces
+exprEof = do whiteSpace lexer
+             e <- expr
              eof
              return e
 
-expr = do spaces
-          (try callExpr) <|> (try ifExpr) <|> arExpr
+expr   = arExpr <|> factor
+factor = parens lexer expr <|> try numExpr <|> try ifExpr <|> try callExpr <|> varExpr
 
-callExpr = do funname <- many1 letter
-              char '('
-              args <- expr `sepBy1` (char ',')
-              char ')'
-              return (Call funname args)
+ifExpr = do reserved lexer "if"
+            p <- expr
+            reserved lexer "then"
+            t <- expr
+            reserved lexer "else"
+            e <- expr
+            reserved lexer "fi"
+            return (If p t e)
 
-ifExpr = do string "if"
-            spaces1
-            cond <- expr
-            spaces1
-            string "then"
-            spaces1
-            thenE <- expr
-            spaces1
-            string "else"
-            spaces1
-            elseE <- expr
-            spaces1
-            string "fi"
-            return (If cond thenE elseE)
+callExpr = do f <- identifier lexer
+              args <- parens lexer (commaSep1 lexer expr)
+              return (Call f args)
 
-arExpr   = divExpr `chainl1` (spaces >> char '/' >> return Div)
-divExpr  = mulExpr `chainl1` (spaces >> char '*' >> return Mult)
-mulExpr  = monExpr `chainl1` (spaces >> char '-' >> return Monus)
-monExpr  = plusExpr `chainl1` (spaces >> char '+' >> return Plus)
-plusExpr = parenExpr <|> numExpr <|> varExpr
+numExpr = do n <- natural lexer
+             return (Num n)
 
-parenExpr = do char '('
-               spaces
-               e <- expr
-               spaces
-               char ')'
-               return e
+varExpr = do v <- identifier lexer
+             return (Var v)
 
-numExpr = do spaces
-             n <- many1 digit
-             return (Num (read n))
+table = [[op "*" Mult],[op "/" Div],
+         [op "+" Plus],[op "-" Monus]]
+        where op s f = Infix (reservedOp lexer s >> return f) AssocLeft
 
-varExpr = do varname <- many1 letter
-             return (Var varname)
+arExpr = buildExpressionParser table factor
+
 
 spaces1 = skipMany1 space
 

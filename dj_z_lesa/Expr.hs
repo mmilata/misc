@@ -39,6 +39,7 @@ reducible :: Expr -> Bool
 reducible (Num _) = False
 reducible _       = True
 
+-- zjisti jestli funkce neobsahuje volne promenne
 checkFunction :: Function -> Bool
 checkFunction (Function _ parms body) = foldExpr (const True) (repeat (&&)) fv fc fi body
                                         where fc _ args = and args
