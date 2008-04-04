@@ -61,7 +61,7 @@ eval :: [Function] -> Expr -> Integer
 eval env = foldExpr id [(+),monus,(*),mydiv] fv fc fi
             where monus a b = if a-b < 0 then 0 else a-b
                   mydiv a b = if b == 0 then 0 else a `div` b
-                  fv v      = error "Free var"
+                  fv v      = error "Free variable"
                   fi p t e  = if p > 0 then t else e
                   fc f a    = eval env (subst (funArgs fun) a (funBody fun))
                               where (Just fun) = find (\(Function name _ _) -> name == f) env
@@ -103,4 +103,4 @@ parmlist (w:ws) = w ++ ',':(parmlist ws)
 scan :: [Function] -> Expr -> String
 scan env expr | reducible expr = toStr expr ++ "\n" ++ scan env (step env expr)
               | otherwise      = toStr expr ++ "\n"
-              
+
