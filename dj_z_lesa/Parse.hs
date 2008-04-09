@@ -49,8 +49,9 @@ numExpr = do n <- natural lx
 varExpr = do v <- identifier lx
              return (Var v)
 
-table = [[op "*" Mult],[op "/" Div],
-         [op "+" Plus],[op "-" Monus]]
+-- dle specifikace;)
+table = [[op "*" Mult,op "/" Div],
+         [op "+" Plus,op "-" Monus]]
         where op s f = Infix (reservedOp lx s >> return f) AssocLeft
 
 arExpr = buildExpressionParser table factor
