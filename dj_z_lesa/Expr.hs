@@ -1,4 +1,5 @@
 module Expr where
+-- $Id$
 
 import Data.List
 import Data.Maybe
@@ -16,11 +17,36 @@ data Expr = Var String
 data Function = Function String [String] Expr
                 deriving Show
 
+type Env = [Function]
+
+{-
 toStr :: Expr -> String
-toStr = foldExpr show [infop "+",infop "-",infop "*",infop "/"] id call fi
-                where infop o a b = "(" ++ a ++ " " ++ o ++ " " ++ b ++ ")"
-                      call f args = f ++ "(" ++ (parmlist args) ++ ")"
+toStr = foldExpr show [infop "+",infop "-",infop' "*",infop' "/"] id call fi
+                where call f args = f ++ "(" ++ (parmlist args) ++ ")"
                       fi p t e    = "if " ++ p ++ " then " ++ t ++ " else " ++ e ++ " fi"
+                      infop o a b = a ++ " " ++ o ++ " " ++ b
+                      infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
+                      paren 
+-}
+
+toStr :: Expr -> String
+toStr (Num n)     = show n
+toStr (Var s)     = s
+toStr (Plus m n)  = infop "+" m n
+toStr (Monus m n) = infop "-" m n
+toStr (Mult m n)  = infop' "*" m n
+toStr (Div m n)   = infop' "/" m n
+toStr (Call f p)  = f ++ "(" ++ parmlist (map toStr p) ++ ")"
+toStr (If p t e)  = "if " ++ toStr p ++ " then " ++ toStr t ++ " else " ++ toStr e ++ " fi"
+
+infop o a b = toStr a ++ " " ++ o ++ " " ++ toStr b
+
+infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
+               where paren e@(Plus  _ _) = "(" ++ toStr e ++ ")"
+                     paren e@(Monus _ _) = "(" ++ toStr e ++ ")"
+                     paren e            = toStr e
+
+-- infop o a b = a ++ " " ++ o ++ " " ++ b
 
 fToStr (Function name args body) = name ++ "(" ++ parmlist args ++ ") = " ++ toStr body
 
@@ -57,7 +83,7 @@ foldExpr _ _ v _ _ (Var x)     = v x
 foldExpr l b v c i (Call f ar) = c f (map (foldExpr l b v c i) ar)
 foldExpr l b v c i (If p t e)  = i (foldExpr l b v c i p) (foldExpr l b v c i t) (foldExpr l b v c i e)
 
-eval :: [Function] -> Expr -> Integer
+eval :: Env -> Expr -> Integer
 eval env = foldExpr id [(+),monus,(*),mydiv] fv fc fi
             where monus a b = if a-b < 0 then 0 else a-b
                   mydiv a b = if b == 0 then 0 else a `div` b
@@ -66,7 +92,7 @@ eval env = foldExpr id [(+),monus,(*),mydiv] fv fc fi
                   fc f a    = eval env (subst (funArgs fun) a (funBody fun))
                               where (Just fun) = find (\(Function name _ _) -> name == f) env
 
-step :: [Function] -> Expr -> Expr
+step :: Env -> Expr -> Expr
 step _   (Num n)     = Num n
 step env (Var v)     = error "Free variable"
 step env (If p t e)  | reducible p = (If (step env p) t e)
@@ -100,7 +126,7 @@ parmlist :: [String] -> String
 parmlist [w]    = w
 parmlist (w:ws) = w ++ ',':(parmlist ws)
 
-scan :: [Function] -> Expr -> String
+scan :: Env -> Expr -> String
 scan env expr | reducible expr = toStr expr ++ "\n" ++ scan env (step env expr)
               | otherwise      = toStr expr ++ "\n"
 

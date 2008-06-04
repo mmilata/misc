@@ -1,0 +1,33 @@
+fib(n) = fib1(0,1,n)
+fib1(a,b,n) = if n then fib1(b,a+b,n-1) else a fi
+
+fact(n) = if n then n*fact(n-1) else 1 fi
+
+mod(a,b) = a - (a/b*b)
+
+reverse(a) = rev(a,0)
+rev(a,b) = if a then rev(a/10,b*10+mod(a,10)) else b fi
+
+fibLog(n) = if n-1
+           then if n - (n/2*2)
+                  then if (n-(n/4*4))-1
+                         then l(fibLog((n-1)/2),fibLog((n-3)/2))-2
+                         else l(fibLog((n-1)/2),fibLog((n-3)/2))+2
+                       fi
+                  else k(fibLog(n/2),fibLog((n-2)/2))
+                fi
+           else if n
+                  then 1
+                  else 0
+                fi
+         fi
+k(a,b) = a*(a+2*b)
+l(a,b) = (2*a+b)*(2*a-b)
+
+ack(m,n) = if m
+             then if n
+                    then ack(m-1,ack(m,n-1))
+                    else ack(m-1,1)
+                  fi
+             else n+1
+           fi
