@@ -58,12 +58,12 @@ table = [[op "*" Mult,op "/" Div],
 arExpr = buildExpressionParser table factor
 
 
-parseProgram :: String -> Expr
+parseProgram :: String -> Either String Expr
 parseProgram s = case parse exprEof "expression" s of
-                      Left err     -> error $ "Error:\n" ++ show err
-                      Right result -> result
+                      Left err     -> Left (show err)
+                      Right result -> Right result
 
-parseEnv :: String -> [Function]
+parseEnv :: String -> Either String Env
 parseEnv s = case parse envExpr "environment" s of
-                  Left err -> error $ "Error:\n" ++ show err
-                  Right result -> result
+                  Left err     -> Left (show err)
+                  Right result -> Right result

@@ -19,16 +19,6 @@ data Function = Function String [String] Expr
 
 type Env = [Function]
 
-{-
-toStr :: Expr -> String
-toStr = foldExpr show [infop "+",infop "-",infop' "*",infop' "/"] id call fi
-                where call f args = f ++ "(" ++ (parmlist args) ++ ")"
-                      fi p t e    = "if " ++ p ++ " then " ++ t ++ " else " ++ e ++ " fi"
-                      infop o a b = a ++ " " ++ o ++ " " ++ b
-                      infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
-                      paren 
--}
-
 toStr :: Expr -> String
 toStr (Num n)     = show n
 toStr (Var s)     = s
@@ -46,9 +36,10 @@ infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
                      paren e@(Monus _ _) = "(" ++ toStr e ++ ")"
                      paren e            = toStr e
 
--- infop o a b = a ++ " " ++ o ++ " " ++ b
-
 fToStr (Function name args body) = name ++ "(" ++ parmlist args ++ ") = " ++ toStr body
+
+funName :: Function -> String
+funName (Function n _ _) = n
 
 funArgs :: Function -> [String]
 funArgs (Function _ a _) = a
@@ -66,6 +57,17 @@ checkFunction (Function _ parms body) = foldExpr (const True) (repeat (&&)) fv f
                                         where fc _ args = and args
                                               fi p t e  = p && t && e
                                               fv v      = v `elem` parms
+
+freeVars :: Function -> [String]
+freeVars (Function _ parms body) = foldExpr (const []) (repeat union)  fv fc fi body
+                                   where fc _ args = foldl1 union args
+                                         fi p t e  = p `union` t `union` e
+                                         fv v      = [v] \\ parms
+
+calls :: Function -> [(String,Int)]
+calls (Function _ _ body) = foldExpr (const []) (repeat union) (const []) fc fi body
+                            where fc fn args = [(fn,length args)] `union` (foldl1 union args)
+                                  fi p t e   = p `union` t `union` e
 
 foldExpr :: (Integer -> a)       -- funkce na cislech
          -> [a -> a -> a]        -- funkce na binarnich operacich [+,-,*,/]
@@ -99,7 +101,7 @@ step env (If p t e)  | reducible p = (If (step env p) t e)
                      | otherwise   = if (eval env p) > 0 then t else e
 step env (Call f ar) | all (not.reducible) ar = subst (funArgs fun) (map (eval env) ar) (funBody fun)
                      | otherwise              = (Call f (liststep ar))
-                       where (Just fun)      = find (\(Function name _ _) -> name == f) env
+                       where (Just fun)      = find (\(Function name _ _) -> name == f) env -- neznama funkce
                              liststep (x:xs) = if reducible x then (step env x):xs else x:(liststep xs)
 step env (Monus m n) | reducible m = (Monus (step env m) n)
                      | reducible n = (Monus m (step env n))
