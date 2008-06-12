@@ -68,7 +68,11 @@ runCmdLine :: Env -> String -> IO ()
 runCmdLine e s = putStrLn $ evalStr e s
 
 runStdIn :: Env -> IO ()
-runStdIn e = interact (concatMap (evalStr e).lines)
+runStdIn e = interact (unlines.map (evalStr e).map checkExit.lines)
+            where checkExit s = case s of
+                                  "quit" -> error "quit"
+                                  "exit" -> error "quit"
+                                  _      -> s
 
 
 evalStr :: Env -> String -> String

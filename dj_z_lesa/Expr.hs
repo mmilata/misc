@@ -69,12 +69,12 @@ calls (Function _ _ body) = foldExpr (const []) (repeat union) (const []) fc fi 
                             where fc fn args = [(fn,length args)] `union` (foldl1 union args)
                                   fi p t e   = p `union` t `union` e
 
-foldExpr :: (Integer -> a)       -- funkce na cislech
-         -> [a -> a -> a]        -- funkce na binarnich operacich [+,-,*,/]
-         -> (String -> a)        -- funkce na promennych
-         -> (String -> [a] -> a) -- funkce na volanich
-         -> (a -> a -> a -> a)   -- funkce na ifu
-         -> Expr                 -- vyraz
+foldExpr :: (Integer -> a)       -- function on numbers
+         -> [a -> a -> a]        -- functions on binary operators
+         -> (String -> a)        -- function on variables
+         -> (String -> [a] -> a) -- function on calls
+         -> (a -> a -> a -> a)   -- function on if
+         -> Expr                 -- expression
          -> a
 foldExpr f _ _ _ _ (Num n)     = f n
 foldExpr l b v c i (Plus m n)  = (b!!0) (foldExpr l b v c i m) (foldExpr l b v c i n)

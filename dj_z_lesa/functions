@@ -24,6 +24,14 @@ fibLog(n) = if n-1
 k(a,b) = a*(a+2*b)
 l(a,b) = (2*a+b)*(2*a-b)
 
+fibExp(n) = if n
+               then if n-1
+                       then fibExp(n-2) + fibExp(n-1)
+                       else 1
+                    fi
+               else 0
+            fi
+
 ack(m,n) = if m
              then if n
                     then ack(m-1,ack(m,n-1))
