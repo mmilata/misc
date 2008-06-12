@@ -69,7 +69,7 @@ runCmdLine e s = putStrLn $ evalStr e s
 
 runStdIn :: Env -> IO ()
 runStdIn e = interact (unlines.map (evalStr e).map checkExit.lines)
-            where checkExit s = case s of
+            where checkExit s = case s of -- ugly, ugly, ugly, ugly ...
                                   "quit" -> error "quit"
                                   "exit" -> error "quit"
                                   _      -> s
