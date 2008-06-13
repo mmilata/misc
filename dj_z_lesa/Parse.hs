@@ -22,14 +22,22 @@ funDecl = do funname <- identifier lx
              reservedOp lx "="
              body <- expr
              return (Function funname args body)
+          <?> "function declaration"
 
 exprEof = do whiteSpace lx
              e <- expr
              eof
              return e
 
-expr   = arExpr <|> factor
-factor = parens lx expr <|> try numExpr <|> try ifExpr <|> try callExpr <|> varExpr
+expr   = arExpr <|> simpleExpr
+
+simpleExpr =    parExpr
+            <|> try numExpr
+            <|> try ifExpr
+            <|> try callExpr
+            <|> varExpr
+
+parExpr = parens lx expr <?> "parenthesised expression"
 
 ifExpr = do reserved lx "if"
             p <- expr
@@ -39,23 +47,27 @@ ifExpr = do reserved lx "if"
             e <- expr
             reserved lx "fi"
             return (If p t e)
+         <?> "if-then-else-fi expression"
 
 callExpr = do f <- identifier lx
               args <- parens lx (commaSep1 lx expr)
               return (Call f args)
+           <?> "function call"
 
 numExpr = do n <- natural lx
              return (Num n)
+          <?> "natural number"
 
 varExpr = do v <- identifier lx
              return (Var v)
+          <?> "variable"
 
--- dle specifikace;)
+-- priorities according to specs;)
 table = [[op "*" Mult,op "/" Div],
          [op "+" Plus,op "-" Monus]]
         where op s f = Infix (reservedOp lx s >> return f) AssocLeft
 
-arExpr = buildExpressionParser table factor
+arExpr = buildExpressionParser table simpleExpr <?> "arithmetic expression"
 
 
 parseProgram :: String -> Either String Expr
