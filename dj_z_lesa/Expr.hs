@@ -1,4 +1,7 @@
-module Expr where
+module Expr
+   ( Expr(Var, Num, Plus, Monus, Mult, Div, Call, If),
+     Function(Function), Env, funName, funArgs, funBody, calls,
+     freeVars, parmlist, evalScan, evalScanS ) where
 -- $Id$
 
 import Data.List
@@ -30,13 +33,17 @@ toStr (Call f p)  = f ++ "(" ++ parmlist (map toStr p) ++ ")"
 toStr (If p t e)  = "if " ++ toStr p ++ " then " ++ toStr t ++ " else " ++ toStr e ++ " fi"
 
 infop o a b = toStr a ++ " " ++ o ++ " " ++ toStr b
-
 infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
                where paren e@(Plus  _ _) = "(" ++ toStr e ++ ")"
                      paren e@(Monus _ _) = "(" ++ toStr e ++ ")"
                      paren e            = toStr e
 
 fToStr (Function name args body) = name ++ "(" ++ parmlist args ++ ") = " ++ toStr body
+
+getFunction :: Env -> String -> Function
+getFunction env str = case find (\(Function name _ _) -> name == str) env of
+                        Nothing -> error "Function not in environment"
+                        Just f  -> f
 
 funName :: Function -> String
 funName (Function n _ _) = n
@@ -92,7 +99,7 @@ eval env = foldExpr id [(+),monus,(*),mydiv] fv fc fi
                   fv v      = error "Free variable"
                   fi p t e  = if p > 0 then t else e
                   fc f a    = eval env (subst (funArgs fun) a (funBody fun))
-                              where (Just fun) = find (\(Function name _ _) -> name == f) env
+                              where fun = getFunction env f
 
 step :: Env -> Expr -> Expr
 step _   (Num n)     = Num n
@@ -101,7 +108,7 @@ step env (If p t e)  | reducible p = (If (step env p) t e)
                      | otherwise   = if (eval env p) > 0 then t else e
 step env (Call f ar) | all (not.reducible) ar = subst (funArgs fun) (map (eval env) ar) (funBody fun)
                      | otherwise              = (Call f (liststep ar))
-                       where (Just fun)      = find (\(Function name _ _) -> name == f) env -- neznama funkce
+                       where fun             = getFunction env f
                              liststep (x:xs) = if reducible x then (step env x):xs else x:(liststep xs)
 step env (Monus m n) | reducible m = (Monus (step env m) n)
                      | reducible n = (Monus m (step env n))
@@ -128,7 +135,10 @@ parmlist :: [String] -> String
 parmlist [w]    = w
 parmlist (w:ws) = w ++ ',':(parmlist ws)
 
-scan :: Env -> Expr -> String
-scan env expr | reducible expr = toStr expr ++ "\n" ++ scan env (step env expr)
-              | otherwise      = toStr expr ++ "\n"
+evalScan :: Env -> Expr -> [Expr]
+evalScan env expr | reducible expr = expr : (evalScan env (step env expr))
+                  | otherwise      = [expr]
+
+evalScanS :: Env -> Expr -> String
+evalScanS env expr = unlines $ map toStr $ evalScan env expr
 
