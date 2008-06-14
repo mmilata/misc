@@ -80,7 +80,7 @@ evalStr env s = case parseProgram s of
                  Left err -> "Parse error: " ++ err
                  Right e  -> case checkProgram env e of
                                Just err -> err
-                               Nothing  -> scan env e
+                               Nothing  -> evalScanS env e
 
 testExpr = (If (Monus (Num 2) (Num 4)) (Call "fun" [(Num 42),(If (Num 666) (Var "var") (Num 0))]) (Div (Num 1) (Num 0)))
 goodFun = Function "good" ["x","y","z"] (If (Var "x") (Var "y") (Plus (Num 42) (Var "z")))

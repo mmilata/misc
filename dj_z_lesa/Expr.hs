@@ -1,7 +1,7 @@
 module Expr
    ( Expr(Var, Num, Plus, Monus, Mult, Div, Call, If),
      Function(Function), Env, funName, funArgs, funBody, calls,
-     freeVars, parmlist, evalScan, evalScanS ) where
+     freeVars, parmlist, evalScan, evalScanS, debugShowExpr ) where
 -- $Id$
 
 import Data.List
@@ -15,30 +15,53 @@ data Expr = Var String
           | Div Expr Expr
           | Call String [Expr]
           | If Expr Expr Expr
-           deriving Show
+
+instance Show Expr where
+   show (Num n)     = show n
+   show (Var s)     = s
+   show (Plus m n)  = infop "+" m n
+   show (Monus m n) = infop "-" m n
+   show (Mult m n)  = infop' "*" m n
+   show (Div m n)   = infop' "/" m n
+   show (Call f p)  = f ++ "(" ++ parmlist (map show p) ++ ")"
+   show (If p t e)  = "if " ++ show p ++ " then " ++ show t ++ " else " ++ show e ++ " fi"
+
+infop o a b = show a ++ " " ++ o ++ " " ++ show b
+infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
+               where paren e@(Plus  _ _) = "(" ++ show e ++ ")"
+                     paren e@(Monus _ _) = "(" ++ show e ++ ")"
+                     paren e            = show e
+
+debugShowExpr :: Expr -> String
+debugShowExpr = foldExpr (\n -> "Num " ++ show n)
+                         [ bop "Plus", bop "Minus", bop "Mult", bop "Div" ]
+                         (\s -> "Var " ++ s)
+                         (\s ar -> "Call " ++ s ++ " " ++ show ar)
+                         (\p t e -> "If ("++p++") ("++t++") ("++e++")")
+                where bop str a b = str ++ " (" ++ a ++ ") (" ++ b ++ ")"
 
 data Function = Function String [String] Expr
-                deriving Show
+
+instance Show Function where
+   show (Function name args body) = name ++ "(" ++ parmlist args ++ ") = " ++ show body
 
 type Env = [Function]
 
-toStr :: Expr -> String
-toStr (Num n)     = show n
-toStr (Var s)     = s
-toStr (Plus m n)  = infop "+" m n
-toStr (Monus m n) = infop "-" m n
-toStr (Mult m n)  = infop' "*" m n
-toStr (Div m n)   = infop' "/" m n
-toStr (Call f p)  = f ++ "(" ++ parmlist (map toStr p) ++ ")"
-toStr (If p t e)  = "if " ++ toStr p ++ " then " ++ toStr t ++ " else " ++ toStr e ++ " fi"
-
-infop o a b = toStr a ++ " " ++ o ++ " " ++ toStr b
-infop' o a b = paren a ++ " " ++ o ++ " " ++ paren b
-               where paren e@(Plus  _ _) = "(" ++ toStr e ++ ")"
-                     paren e@(Monus _ _) = "(" ++ toStr e ++ ")"
-                     paren e            = toStr e
-
-fToStr (Function name args body) = name ++ "(" ++ parmlist args ++ ") = " ++ toStr body
+foldExpr :: (Integer -> a)       -- function on numbers
+         -> [a -> a -> a]        -- functions on binary operators
+         -> (String -> a)        -- function on variables
+         -> (String -> [a] -> a) -- function on calls
+         -> (a -> a -> a -> a)   -- function on if
+         -> Expr                 -- expression
+         -> a
+foldExpr f _ _ _ _ (Num n)     = f n
+foldExpr l b v c i (Plus m n)  = (b!!0) (foldExpr l b v c i m) (foldExpr l b v c i n)
+foldExpr l b v c i (Monus m n) = (b!!1) (foldExpr l b v c i m) (foldExpr l b v c i n)
+foldExpr l b v c i (Mult m n)  = (b!!2) (foldExpr l b v c i m) (foldExpr l b v c i n)
+foldExpr l b v c i (Div m n)   = (b!!3) (foldExpr l b v c i m) (foldExpr l b v c i n)
+foldExpr _ _ v _ _ (Var x)     = v x
+foldExpr l b v c i (Call f ar) = c f (map (foldExpr l b v c i) ar)
+foldExpr l b v c i (If p t e)  = i (foldExpr l b v c i p) (foldExpr l b v c i t) (foldExpr l b v c i e)
 
 getFunction :: Env -> String -> Function
 getFunction env str = case find (\(Function name _ _) -> name == str) env of
@@ -58,13 +81,6 @@ reducible :: Expr -> Bool
 reducible (Num _) = False
 reducible _       = True
 
--- zjisti jestli funkce neobsahuje volne promenne
-checkFunction :: Function -> Bool
-checkFunction (Function _ parms body) = foldExpr (const True) (repeat (&&)) fv fc fi body
-                                        where fc _ args = and args
-                                              fi p t e  = p && t && e
-                                              fv v      = v `elem` parms
-
 freeVars :: Function -> [String]
 freeVars (Function _ parms body) = foldExpr (const []) (repeat union)  fv fc fi body
                                    where fc _ args = foldl1 union args
@@ -75,22 +91,6 @@ calls :: Function -> [(String,Int)]
 calls (Function _ _ body) = foldExpr (const []) (repeat union) (const []) fc fi body
                             where fc fn args = [(fn,length args)] `union` (foldl1 union args)
                                   fi p t e   = p `union` t `union` e
-
-foldExpr :: (Integer -> a)       -- function on numbers
-         -> [a -> a -> a]        -- functions on binary operators
-         -> (String -> a)        -- function on variables
-         -> (String -> [a] -> a) -- function on calls
-         -> (a -> a -> a -> a)   -- function on if
-         -> Expr                 -- expression
-         -> a
-foldExpr f _ _ _ _ (Num n)     = f n
-foldExpr l b v c i (Plus m n)  = (b!!0) (foldExpr l b v c i m) (foldExpr l b v c i n)
-foldExpr l b v c i (Monus m n) = (b!!1) (foldExpr l b v c i m) (foldExpr l b v c i n)
-foldExpr l b v c i (Mult m n)  = (b!!2) (foldExpr l b v c i m) (foldExpr l b v c i n)
-foldExpr l b v c i (Div m n)   = (b!!3) (foldExpr l b v c i m) (foldExpr l b v c i n)
-foldExpr _ _ v _ _ (Var x)     = v x
-foldExpr l b v c i (Call f ar) = c f (map (foldExpr l b v c i) ar)
-foldExpr l b v c i (If p t e)  = i (foldExpr l b v c i p) (foldExpr l b v c i t) (foldExpr l b v c i e)
 
 eval :: Env -> Expr -> Integer
 eval env = foldExpr id [(+),monus,(*),mydiv] fv fc fi
@@ -140,5 +140,5 @@ evalScan env expr | reducible expr = expr : (evalScan env (step env expr))
                   | otherwise      = [expr]
 
 evalScanS :: Env -> Expr -> String
-evalScanS env expr = unlines $ map toStr $ evalScan env expr
+evalScanS env expr = unlines $ map show $ evalScan env expr
 
