@@ -39,3 +39,6 @@ ack(m,n) = if m
                   fi
              else n+1
            fi
+
+loopForever(x) = loopForever(x)
+loopMore(x) = loopMore(loopMore(x))
