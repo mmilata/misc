@@ -1,9 +1,6 @@
 module Main where
 -- $Id$
 
--- $ runhaskell  Main.hs soubor_s_definicemi "vyraz na vyhodnoceni"
--- $ runhugs -98 Main hs soubor_s_definicemi "vyraz na vyhodnoceni"
-
 import System.Environment
 
 import Parse

@@ -1,0 +1,47 @@
+
+Neoficialni offline vyhodnocovatko DJ Z PÚDY.
+
+
+INSTALACE
+
+Neni nutne instalovat. Pokud mate ghc, je kompilaci mozne spustit prikazem:
+
+  make
+
+Vysledny binarni soubor se jmenuje "rundj". Pro vetsi pohodli je mozne jej
+zkopirovat do nejakeho adresare ktery se nachazi v promenne prostredi $PATH.
+
+Program neni nutne kompilovat, da se rovnou spustit za cenu toho ze je
+mirne pomalejsi. Pomoci ghc:
+
+  runhaskell Main.hs [argumenty]
+
+Nebo pomoci hugsu:
+
+  runhugs -98 Main hs [argumenty]
+
+
+
+SPUSTENI
+
+ Program je mozno spustit dvema zpusoby. Prvni nacte deklarace funkci ze
+souboru zadaneho prvnim parametrem a vyhodnoti vyraz ktery je dany jako
+druhy parametr:
+
+  rundj soubor_s_funkcemi "vyraz ktery se ma vyhodnotit"
+
+Pri vynechani druheho parametru se nacte soubor s deklaracemi a vyrazy 
+na vyhodnoceni se ctou po radcich ze standardniho vstupu:
+
+  rundj soubor_s_funkcemi
+
+Program skonci pri precteni konce souboru nebo radku "quit".
+
+
+MISC
+
+Nerucim za to ze se vyhodnocovatko chova korektne podle specifikaci ze slidu
+IB000.
+
+Pokud najdete chybu, pripadne mate nejaky napad, napiste na
+<256615@mail.muni.cz>.
