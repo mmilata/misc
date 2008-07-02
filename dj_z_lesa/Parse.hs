@@ -1,4 +1,4 @@
-module Parse where
+module Parse (parseProgram, parseEnv) where
 -- $Id$
 
 import Text.ParserCombinators.Parsec
