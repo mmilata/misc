@@ -1,5 +1,6 @@
 
 Neoficialni offline vyhodnocovatko DJ Z PÚDY.
+Verze 080702.
 
 
 INSTALACE
@@ -11,8 +12,8 @@ Neni nutne instalovat. Pokud mate ghc, je kompilaci mozne spustit prikazem:
 Vysledny binarni soubor se jmenuje "rundj". Pro vetsi pohodli je mozne jej
 zkopirovat do nejakeho adresare ktery se nachazi v promenne prostredi $PATH.
 
-Program neni nutne kompilovat, da se rovnou spustit za cenu toho ze je
-mirne pomalejsi. Pomoci ghc:
+Program neni nutne kompilovat, da se rovnou spustit za cenu toho ze je mirne
+pomalejsi. Pomoci ghc:
 
   runhaskell Main.hs [argumenty]
 
@@ -24,13 +25,13 @@ Nebo pomoci hugsu:
 
 SPUSTENI
 
- Program je mozno spustit dvema zpusoby. Prvni nacte deklarace funkci ze
-souboru zadaneho prvnim parametrem a vyhodnoti vyraz ktery je dany jako
-druhy parametr:
+Program je mozno spustit dvema zpusoby. Prvni nacte deklarace funkci ze
+souboru zadaneho prvnim parametrem a vyhodnoti vyraz ktery je dany jako druhy
+parametr:
 
   rundj soubor_s_funkcemi "vyraz ktery se ma vyhodnotit"
 
-Pri vynechani druheho parametru se nacte soubor s deklaracemi a vyrazy 
+Pri vynechani druheho parametru se nacte soubor s deklaracemi a vyrazy
 na vyhodnoceni se ctou po radcich ze standardniho vstupu:
 
   rundj soubor_s_funkcemi
@@ -40,8 +41,13 @@ Program skonci pri precteni konce souboru nebo radku "quit".
 
 MISC
 
-Nerucim za to ze se vyhodnocovatko chova korektne podle specifikaci ze slidu
-IB000.
+Program s nejvetsi pravdepodobnosti obsahuje chyby a je mozne ze se nechova
+podle specifikaci ze slajdu IB000. Nerucim za nej.
+
+Pocet vypocetnich kroku neni omezen, pokud vas program cykli, zacykli se i
+vyhodnocovatko a nezbyva nez ho ho ukoncit (^C).
+
+Soubor "functions" obsahuje nekolik vzorovych deklaraci funkci.
 
 Pokud najdete chybu, pripadne mate nejaky napad, napiste na
 <256615@mail.muni.cz>.
