@@ -28,7 +28,7 @@ sub sig_privmsg {
   my @regexes = split(/\s*,\s*/, Irssi::settings_get_str('hilight_mailer_regexes'));
 
   foreach $re (@regexes) {
-    if($text =~ /$re/){
+    if($text =~ /$re/i){
 
       # send the message
       my %mail = (
