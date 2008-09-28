@@ -10,6 +10,7 @@ $VERSION = "0.1";
 	description     => "Sends messages matching regexp to email",
 	license         => "WTFPL"
 );
+# todo match actions
 
 $block = 0;
 
@@ -23,7 +24,10 @@ sub sig_privmsg {
             && not $server->{usermode_away});
 
   # do nothing if we did something recently
-  return if $block;
+  if($block){
+    Irssi::print "hilight_mailer: temporarily blocked, not sending anything";
+    return;
+  }
 
   my @regexes = split(/\s*,\s*/, Irssi::settings_get_str('hilight_mailer_regexes'));
 
