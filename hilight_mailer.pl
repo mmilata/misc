@@ -23,16 +23,16 @@ sub sig_privmsg {
   return if(Irssi::settings_get_bool('hilight_mailer_awayonly')
             && not $server->{usermode_away});
 
-  # do nothing if we did something recently
-  if($block){
-    Irssi::print "hilight_mailer: temporarily blocked, not sending anything";
-    return;
-  }
-
   my @regexes = split(/\s*,\s*/, Irssi::settings_get_str('hilight_mailer_regexes'));
 
   foreach $re (@regexes) {
     if($text =~ /$re/i){
+
+      # do nothing if we did something recently
+      if($block){
+        Irssi::print "hilight_mailer: temporarily blocked, not sending anything";
+        return;
+      }
 
       # send the message
       my %mail = (
