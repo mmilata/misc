@@ -28,19 +28,38 @@ case $TERM in
         ;;
 esac
 
-if [ "$(id -u)" = "0" ]; then
- USR=$RED
- DOL=$L_RED
-else
- DOL=$GREY
-fi
+prompt_cmd () {
 
-PS1="$TITLEBAR\
-$GREY[$WHITE\l$GREY]\
-[$WHITE\j$GREY]\
-[$WHITE\$?$GREY]\
+ RETCODE=$?
+
+ if [ "$(id -u)" = "0" ]; then
+  USR=$RED
+  DOL=$L_RED
+ else
+  DOL=$GREY
+ fi
+
+ if [ "$(jobs | wc -l)" -gt 0 ]; then
+  JOBS=$GREEN
+ else
+  JOBS=$WHITE
+ fi
+
+ if [ $RETCODE -gt 0 ]; then
+  RETCOL=$RED
+ else
+  RETCOL=$WHITE
+ fi
+
+ PS1="$TITLEBAR\
+$PCMD$GREY[$WHITE\l$GREY]\
+[$JOBS\j$GREY]\
+[$RETCOL$RETCODE$GREY]\
 $WHITE \w\n\
 $USR\u$GREY@$HOST\h$DOL\\\$$NC "
 
+}
+
 PS2="$USR>$NC "
 
+PROMPT_COMMAND=prompt_cmd
