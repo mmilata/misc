@@ -29,6 +29,9 @@ class Pos {
 		Pos& operator += (const Pos &pos) {x += pos.x; y += pos.y; return *this;};
 		bool operator == (const Pos &pos) const { return x == pos.x && y == pos.y; };
 		bool operator != (const Pos &pos) const { return !(this->operator ==(pos));};
+		Pos operator - (const Pos &pos) const {return Pos(x - pos.x, y - pos.y);};
+
+		double distance(const Pos &pos) const;
 };
 
 typedef std::pair<Pos,char> botPos;
@@ -43,7 +46,6 @@ class State {
 		void dump(void) const;
 
 		Pos getDestination(const Pos&, Action) const;
-		int getDistance(const Pos&, const Pos&) const;
 		double getScore(std::vector<botPos> &bots, const Pos &flag) const;
 
 		std::vector<FieldType> fMap;

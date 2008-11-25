@@ -7,6 +7,13 @@
 
 using namespace std;
 
+double Pos::distance(const Pos &pos) const
+{
+	Pos tmp = *this - pos;
+
+	return sqrt((tmp.x*tmp.x) + (tmp.y*tmp.y));
+}
+
 void State::setDimensions(int inRows, int inColumns)
 {
 	rows = inRows;
@@ -55,24 +62,13 @@ Pos State::getDestination(const Pos &position, Action action) const {
 	return destination;
 }
 
-int State::getDistance(const Pos &position1, const Pos &position2) const {
-	double dist;
-	dist = sqrt(
-		(position1.x - position2.x) * (position1.x - position2.x)
-		+
-		(position1.y - position2.y) * (position1.y - position2.y)
-	);
-
-	return round(dist);
-}
-
 /* vrati nejmensi vzdalenost jednotlivych robotu bots od vlajky flag
  */
 double State::getScore(vector<botPos> &bots, const Pos &flag) const {
 	vector<botPos>::iterator i;
 	double ret_val = -1;
 	for (i = bots.begin(); i != bots.end(); i++) {
-		int dist = getDistance(i->first, flag);
+		int dist = flag.distance(i->first);
 		if (dist < ret_val || ret_val < 0) {
 			ret_val = dist;
 		}
