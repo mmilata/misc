@@ -1,5 +1,8 @@
-#include <cmath>
+#include "error.h"
 #include "state.h"
+#include <cmath>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -17,7 +20,6 @@ void State::setDimensions(int inRows, int inColumns)
 
 Pos State::getDestination(const Pos position, const char direction) {
   int moveX = 0, moveY = 0, newX = 0, newY = 0;
-
   Pos destination(position.x, position.y);
 
   switch (direction) {
@@ -60,10 +62,84 @@ int State::getDistance(const Pos position1, const Pos position2) {
   return round(dist);
 }
 
-    
-    
+State::State(const char *filename)
+{
+	int sirka, vyska, hracnatahu;
+	int flag1s, flag1r, flag2s, flag2r;
+	char square;
+	ifstream statefile(filename);
 
+	statefile >> sirka >> vyska >> zbyva_kol >> hracnatahu;
+	statefile >> flag1s >> flag1r >> flag2s >> flag2r;
 
+	setDimensions(vyska, sirka);
 
+	for(int i=0; i<vyska; i++){
+		for(int j=0; j<sirka; j++){
+			statefile >> square;
+			FieldType t;
+			if(square == '#'){
+				t = ftWall;
+			}else if(square >= 'A' && square <= 'Z'){
+				if((hracnatahu==1 && square <= 'M') || hracnatahu==2 && square >= 'N'){
+					t = ftOurBot;
+					fOurBots.push_back(new Pos(i,j));
+				}else{
+					t = ftTheirBot;
+					fTheirBots.push_back(new Pos(i,j));
+				}
+			}else{ /* melo by byt square == '.' */
+				t = ftEmpty;
+			}
+			set(i,j,t);
+		}
+	}
+	set(flag1r-1, flag1s-1, ftFlag);
+	set(flag2r-1, flag2s-1, ftFlag);
 
+	if(hracnatahu==1){
+		fOurFlag.x = flag1s-1;
+		fOurFlag.y = flag1r-1;
+		fTheirFlag.x = flag2s-1;
+		fTheirFlag.y = flag2r-1;
+	}else{
+		fOurFlag.x = flag2s-1;
+		fOurFlag.y = flag2r-1;
+		fTheirFlag.x = flag1s-1;
+		fTheirFlag.y = flag1r-1;
+	}
 
+	statefile.close();
+}
+
+void State::dump(void)
+{
+	for(int i=0; i<rows; i++){
+		for(int j=0; j<columns; j++){
+			switch(get(i,j)){
+				case ftEmpty:
+					cout << '.';
+					break;
+				case ftWall:
+					cout << '#';
+					break;
+				case ftOurBot:
+					cout << 'O';
+					break;
+				case ftTheirBot:
+					cout << 'T';
+					break;
+				case ftFlag:
+					cout << 'f';
+					break;
+				default:
+					throw new Error("dump: neznamy typ policka");
+					break;
+			}
+		}
+		cout << endl;
+	}
+	cout << "Nase vlajka: " << fOurFlag.x << "x" << fOurFlag.y << endl;
+	cout << "Jejich vlajka: " << fTheirFlag.x << "x" << fTheirFlag.y << endl;
+	cout << "Zbyva kol: " << zbyva_kol << endl;
+}
