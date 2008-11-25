@@ -7,10 +7,11 @@
 
 using namespace std;
 
-static void run();
+static void run(State &state);
 
-void run()
+void run(State &state)
 {
+	
 }
 
 int
@@ -26,9 +27,9 @@ main(int argc, char **argv)
 		State initstate(filename);
 		initstate.dump();
 
-		Pos dst = initstate.getDestination(Pos(3,4), dSever);
+		Pos dst = initstate.getDestination(Pos(3,4), aSever);
 		cout << dst.x << dst.y << endl;
-		run();
+		run(initstate);
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;

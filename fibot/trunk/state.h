@@ -12,11 +12,13 @@ enum FieldType {
 	ftFlag
 };
 
-enum Direction {
-	dSever,
-	dJih,
-	dZapad,
-	dVychod
+enum Action {
+	aSever,
+	aJih,
+	aZapad,
+	aVychod,
+	aBoom,
+	aNOOP
 };
 
 class Pos {
@@ -41,7 +43,7 @@ class State {
 		void setDimensions(int inRows, int inColumns);
 		void dump(void) const;
 
-		Pos getDestination(const Pos&, Direction) const;
+		Pos getDestination(const Pos&, Action) const;
 		int getDistance(const Pos&, const Pos&) const;
 		int getScore(std::vector<botPos> &bots, const Pos &flag);
 

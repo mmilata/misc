@@ -19,24 +19,27 @@ void State::setDimensions(int inRows, int inColumns)
 
 }
 
-Pos State::getDestination(const Pos &position, Direction direction) const {
+Pos State::getDestination(const Pos &position, Action action) const {
 	Pos delta;
 	Pos destination;
 	Pos tmp(position);
 
-	switch (direction) {
-		case dSever:
+	switch (action) {
+		case aSever:
 			delta = Pos(0, -1);
 			break;
-		case dVychod:
+		case aVychod:
 			delta = Pos(1, 0);
 			break;
-		case dJih:
+		case aJih:
 			delta = Pos(0, 1);
 			break;
-		case dZapad: 
+		case aZapad: 
 			delta = Pos(-1, 0);
 			break;
+		case aBoom:
+		case aNOOP:
+			return position;
 	}
 
 	do {
