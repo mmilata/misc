@@ -31,8 +31,8 @@ class State {
 		int getDistance(const Pos, const Pos);
 
 		std::vector<FieldType> fMap;
-		std::vector<Pos*> fOurBots;
-		std::vector<Pos*> fTheirBots;
+		std::vector<Pos> fOurBots;
+		std::vector<Pos> fTheirBots;
 		int rows, columns;
 		int zbyva_kol;
 		Pos fOurFlag, fTheirFlag;

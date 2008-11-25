@@ -81,21 +81,21 @@ State::State(const char *filename)
 			if(square == '#'){
 				t = ftWall;
 			}else if(square >= 'A' && square <= 'Z'){
-				if((hracnatahu==1 && square <= 'M') || hracnatahu==2 && square >= 'N'){
+				if((hracnatahu==1 && square <= 'M') || (hracnatahu==2 && square >= 'N')){
 					t = ftOurBot;
-					fOurBots.push_back(new Pos(i,j));
+					fOurBots.push_back(Pos(j,i));
 				}else{
 					t = ftTheirBot;
-					fTheirBots.push_back(new Pos(i,j));
+					fTheirBots.push_back(Pos(j,i));
 				}
 			}else{ /* melo by byt square == '.' */
 				t = ftEmpty;
 			}
-			set(i,j,t);
+			set(j,i,t);
 		}
 	}
-	set(flag1r-1, flag1s-1, ftFlag);
-	set(flag2r-1, flag2s-1, ftFlag);
+	set(flag1s-1, flag1r-1, ftFlag);
+	set(flag2s-1, flag2r-1, ftFlag);
 
 	if(hracnatahu==1){
 		fOurFlag.x = flag1s-1;
@@ -116,7 +116,7 @@ void State::dump(void)
 {
 	for(int i=0; i<rows; i++){
 		for(int j=0; j<columns; j++){
-			switch(get(i,j)){
+			switch(get(j,i)){
 				case ftEmpty:
 					cout << '.';
 					break;
@@ -139,7 +139,17 @@ void State::dump(void)
 		}
 		cout << endl;
 	}
-	cout << "Nase vlajka: " << fOurFlag.x << "x" << fOurFlag.y << endl;
-	cout << "Jejich vlajka: " << fTheirFlag.x << "x" << fTheirFlag.y << endl;
+	cout << "Nase vlajka: (" << fOurFlag.x << "," << fOurFlag.y << ")\n";
+	cout << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
 	cout << "Zbyva kol: " << zbyva_kol << endl;
+	cout << "Nasi boti:";
+	for(vector<Pos>::iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+		cout << " (" << it->x << "," << it->y << ")";
+	}
+	cout << endl;
+	cout << "Jejich boti:";
+	for(vector<Pos>::iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+		cout << " (" << it->x << "," << it->y << ")";
+	}
+	cout << endl;
 }
