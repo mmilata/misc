@@ -18,10 +18,15 @@ class Pos {
 
 class State {
 	public:
-		std::vector<std::vector<FieldType>*> fMap;
+		FieldType get(int x, int y) const {return fMap[(y*columns) + x]};
+		void set(int x, int y, FieldType ft) {fMap[(y*columns) + x] = ft;};
+		void setDimensions(int inRows, int inColumns);
+
+		std::vector<FieldType> fMap;
 		std::vector<Pos*> fOurBots;
 		std::vector<Pos*> fTheirBots;
-		int sizeX, sizeY;
+		int rows, columns;
+		int kolo;
 		Pos fOurFlag, fTheirFlag;
 };
 
