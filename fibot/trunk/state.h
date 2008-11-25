@@ -19,6 +19,8 @@ class Pos {
 		Pos() {};
 };
 
+typedef std::pair<Pos,char> botPos;
+
 class State {
 	public:
 		State(const char *filename);
@@ -31,11 +33,12 @@ class State {
 		int getDistance(const Pos, const Pos);
 
 		std::vector<FieldType> fMap;
-		std::vector<Pos> fOurBots;
-		std::vector<Pos> fTheirBots;
+		std::vector<botPos> fOurBots;
+		std::vector<botPos> fTheirBots;
 		int rows, columns;
 		int zbyva_kol;
 		Pos fOurFlag, fTheirFlag;
 };
 
 #endif
+/* vim: noexpandtab */

@@ -85,10 +85,10 @@ State::State(const char *filename)
 			}else if(square >= 'A' && square <= 'Z'){
 				if((hracnatahu==1 && square <= 'M') || (hracnatahu==2 && square >= 'N')){
 					t = ftOurBot;
-					fOurBots.push_back(Pos(j,i));
+					fOurBots.push_back(botPos(Pos(j,i),square));
 				}else{
 					t = ftTheirBot;
-					fTheirBots.push_back(Pos(j,i));
+					fTheirBots.push_back(botPos(Pos(j,i),square));
 				}
 			}else{ /* melo by byt square == '.' */
 				t = ftEmpty;
@@ -145,13 +145,14 @@ void State::dump(void)
 	cout << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
 	cout << "Zbyva kol: " << zbyva_kol << endl;
 	cout << "Nasi boti:";
-	for(vector<Pos>::iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
-		cout << " (" << it->x << "," << it->y << ")";
+	for(vector<botPos>::iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+		cout << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cout << endl;
 	cout << "Jejich boti:";
-	for(vector<Pos>::iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
-		cout << " (" << it->x << "," << it->y << ")";
+	for(vector<botPos>::iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+		cout << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cout << endl;
 }
+/* vim: noexpandtab */
