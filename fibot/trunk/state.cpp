@@ -139,39 +139,39 @@ void State::dump(void) const
 		for(int j=0; j<columns; j++){
 			switch(get(j,i)){
 				case ftEmpty:
-					cout << '.';
+					cerr << '.';
 					break;
 				case ftWall:
-					cout << '#';
+					cerr << '#';
 					break;
 				case ftOurBot:
-					cout << 'O';
+					cerr << 'O';
 					break;
 				case ftTheirBot:
-					cout << 'T';
+					cerr << 'T';
 					break;
 				case ftFlag:
-					cout << 'f';
+					cerr << 'f';
 					break;
 				default:
 					throw new Error("dump: neznamy typ policka");
 					break;
 			}
 		}
-		cout << endl;
+		cerr << endl;
 	}
-	cout << "Nase vlajka: (" << fOurFlag.x << "," << fOurFlag.y << ")\n";
-	cout << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
-	cout << "Zbyva kol: " << zbyva_kol << endl;
-	cout << "Nasi boti:";
+	cerr << "Nase vlajka: (" << fOurFlag.x << "," << fOurFlag.y << ")\n";
+	cerr << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
+	cerr << "Zbyva kol: " << zbyva_kol << endl;
+	cerr << "Nasi boti:";
 	for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
-		cout << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
+		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
-	cout << endl;
-	cout << "Jejich boti:";
+	cerr << endl;
+	cerr << "Jejich boti:";
 	for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
-		cout << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
+		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
-	cout << endl;
+	cerr << endl;
 }
 /* vim: set noexpandtab: */
