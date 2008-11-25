@@ -8,7 +8,7 @@ enum FieldType {
 	ftEmpty,
 	ftOurBot,
 	ftTheirBot,
-	ftWall,
+	ftWall
 };
 
 enum Action {
