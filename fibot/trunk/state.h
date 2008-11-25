@@ -18,7 +18,7 @@ class Pos {
 
 class State {
 	public:
-		FieldType get(int x, int y) const {return fMap[(y*columns) + x]};
+		FieldType get(int x, int y) const {return fMap[(y*columns) + x];};
 		void set(int x, int y, FieldType ft) {fMap[(y*columns) + x] = ft;};
 		void setDimensions(int inRows, int inColumns);
 

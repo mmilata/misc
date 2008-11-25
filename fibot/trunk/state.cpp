@@ -2,10 +2,10 @@
 
 using namespace std;
 
-State::setDimensions(int inRows, int inColumns)
+void State::setDimensions(int inRows, int inColumns)
 {
-	fRows = inRows;
-	fColumns = inColumns;
+	rows = inRows;
+	columns = inColumns;
 
 	fMap.resize(inRows * inColumns);
 	for (vector<FieldType>::iterator it = fMap.begin(); it != fMap.end(); it++) {
