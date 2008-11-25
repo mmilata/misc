@@ -73,7 +73,7 @@ double State::getScore(vector<botPos> &bots, const Pos &flag) const {
 	double ret_val = -1;
 	for (i = bots.begin(); i != bots.end(); i++) {
 		int dist = getDistance(i->first, flag);
-		if (dist < ret_val || ret_val == -1) {
+		if (dist < ret_val || ret_val < 0) {
 			ret_val = dist;
 		}
 	}
