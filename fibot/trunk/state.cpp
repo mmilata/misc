@@ -18,42 +18,41 @@ void State::setDimensions(int inRows, int inColumns)
 
 }
 
-Pos State::getDestination(const Pos position, const char direction) {
-	int moveX = 0, moveY = 0, newX = 0, newY = 0;
-	Pos destination(position.x, position.y);
+Pos State::getDestination(const Pos &position, Direction direction) const {
+	Pos delta;
+	Pos destination;
+	Pos tmp(position);
 
 	switch (direction) {
-		case 'S':
-			moveX = 0; moveY = -1;
+		case dSever:
+			delta = Pos(0, -1);
 			break;
-		case 'V':
-			moveX = 1; moveY = 0;
+		case dVychod:
+			delta = Pos(1, 0);
 			break;
-		case 'J':
-			moveX = 0; moveY = 1;
+		case dJih:
+			delta = Pos(0, 1);
 			break;
-		case 'Z': 
-			moveX = -1; moveY = 0;
+		case dZapad: 
+			delta = Pos(-1, 0);
 			break;
 	}
-	
-	newX = position.x + moveX; newY = position.y + moveY;
 
-	while ( 
-		newX > 0 && newX <= columns && newY > 0 && newY <= rows && (
-			get(newX, newY) == ftEmpty ||
-			get(newX, newY) == ftFlag 
+	do {
+		destination = tmp;
+		tmp += delta;
+
+	} while ( 
+		tmp.x >= 0 && tmp.x < columns && tmp.y >= 0 && tmp.y < rows && (
+			get(tmp) == ftEmpty ||
+			get(tmp) == ftFlag 
 		)
-	) {
-		destination.x = newX;
-		destination.y = newY;
-		newX = newX + moveX; newY = newY + moveY;
-	}
+	);
 
 	return destination;
 }
 
-int State::getDistance(const Pos position1, const Pos position2) {
+int State::getDistance(const Pos &position1, const Pos &position2) const {
 	double dist;
 	dist = sqrt(
 		(position1.x - position2.x) * (position1.x - position2.x)
@@ -114,7 +113,7 @@ State::State(const char *filename)
 	statefile.close();
 }
 
-void State::dump(void)
+void State::dump(void) const
 {
 	for(int i=0; i<rows; i++){
 		for(int j=0; j<columns; j++){
@@ -145,12 +144,12 @@ void State::dump(void)
 	cout << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
 	cout << "Zbyva kol: " << zbyva_kol << endl;
 	cout << "Nasi boti:";
-	for(vector<botPos>::iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+	for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
 		cout << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cout << endl;
 	cout << "Jejich boti:";
-	for(vector<botPos>::iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+	for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
 		cout << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cout << endl;

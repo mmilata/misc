@@ -26,7 +26,7 @@ main(int argc, char **argv)
 		State initstate(filename);
 		initstate.dump();
 
-		Pos dst = initstate.getDestination(Pos(3,4), 'S');
+		Pos dst = initstate.getDestination(Pos(3,4), dSever);
 		cout << dst.x << dst.y << endl;
 		run();
 	}
