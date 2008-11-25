@@ -13,7 +13,9 @@ enum FieldType {
 };
 
 class Pos {
-	int x,y;
+  public:
+  	int x,y;
+    Pos(int x, int y):x(x),y(y) {};
 };
 
 class State {
@@ -21,6 +23,9 @@ class State {
 		FieldType get(int x, int y) const {return fMap[(y*columns) + x];};
 		void set(int x, int y, FieldType ft) {fMap[(y*columns) + x] = ft;};
 		void setDimensions(int inRows, int inColumns);
+
+    Pos getDestination(const Pos, const char);
+    int getDistance(const Pos, const Pos);
 
 		std::vector<FieldType> fMap;
 		std::vector<Pos*> fOurBots;
