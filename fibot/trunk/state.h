@@ -26,6 +26,8 @@ class Pos {
 		Pos() : x(0),y(0) {};
 
 		Pos& operator += (const Pos &pos) {x += pos.x; y += pos.y; return *this;};
+		bool operator == (const Pos &pos) const { return x == pos.x && y == pos.y; };
+		bool operator != (const Pos &pos) const { return !(this->operator ==(pos));};
 };
 
 typedef std::pair<Pos,char> botPos;
