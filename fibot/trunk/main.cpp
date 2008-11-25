@@ -15,11 +15,17 @@ void run()
 int
 main(int argc, char **argv)
 {
-	(void)argc; (void)argv;
-	State test("state");
-	test.dump();
+	char filename[256];
+
 	try {
-		Pos dst = test.getDestination(Pos(3,4), 'S');
+		if(argc != 2)
+			throw Error("chybny pocet argumentu programu");
+		strcpy(filename, argv[1]);
+		strcat(filename, "/state");
+		State initstate(filename);
+		initstate.dump();
+
+		Pos dst = initstate.getDestination(Pos(3,4), 'S');
 		cout << dst.x << dst.y << endl;
 		run();
 	}
