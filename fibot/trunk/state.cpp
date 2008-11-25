@@ -19,49 +19,49 @@ void State::setDimensions(int inRows, int inColumns)
 }
 
 Pos State::getDestination(const Pos position, const char direction) {
-  int moveX = 0, moveY = 0, newX = 0, newY = 0;
-  Pos destination(position.x, position.y);
+	int moveX = 0, moveY = 0, newX = 0, newY = 0;
+	Pos destination(position.x, position.y);
 
-  switch (direction) {
-    case 'S':
-      moveX = 0; moveY = -1;
-      break;
-    case 'V':
-      moveX = 1; moveY = 0;
-      break;
-    case 'J':
-      moveX = 0; moveY = 1;
-      break;
-    case 'Z': 
-      moveX = -1; moveY = 0;
-      break;
-  }
-  
-  newX = position.x + moveX; newY = position.y + moveY;
+	switch (direction) {
+		case 'S':
+			moveX = 0; moveY = -1;
+			break;
+		case 'V':
+			moveX = 1; moveY = 0;
+			break;
+		case 'J':
+			moveX = 0; moveY = 1;
+			break;
+		case 'Z': 
+			moveX = -1; moveY = 0;
+			break;
+	}
+	
+	newX = position.x + moveX; newY = position.y + moveY;
 
-  while ( 
-    newX > 0 && newX <= columns && newY > 0 && newY <= rows && (
-      get(newX, newY) == ftEmpty ||
-      get(newX, newY) == ftFlag 
-    )
-  ) {
-    destination.x = newX;
-    destination.y = newY;
-    newX = newX + moveX; newY = newY + moveY;
-  }
+	while ( 
+		newX > 0 && newX <= columns && newY > 0 && newY <= rows && (
+			get(newX, newY) == ftEmpty ||
+			get(newX, newY) == ftFlag 
+		)
+	) {
+		destination.x = newX;
+		destination.y = newY;
+		newX = newX + moveX; newY = newY + moveY;
+	}
 
-  return destination;
+	return destination;
 }
 
 int State::getDistance(const Pos position1, const Pos position2) {
-  double dist;
-  dist = sqrt(
-    (position1.x - position2.x) * (position1.x - position2.x)
-    +
-    (position1.y - position2.y) * (position1.y - position2.y)
-  );
+	double dist;
+	dist = sqrt(
+		(position1.x - position2.x) * (position1.x - position2.x)
+		+
+		(position1.y - position2.y) * (position1.y - position2.y)
+	);
 
-  return round(dist);
+	return round(dist);
 }
 
 State::State(const char *filename)
