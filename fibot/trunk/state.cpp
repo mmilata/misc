@@ -69,9 +69,9 @@ int State::getDistance(const Pos &position1, const Pos &position2) const {
 
 /* vrati nejmensi vzdalenost jednotlivych robotu bots od vlajky flag
  */
-int State::getScore(vector<botPos> &bots, const Pos &flag) {
+double State::getScore(vector<botPos> &bots, const Pos &flag) const {
 	vector<botPos>::iterator i;
-	int ret_val = 0;
+	double ret_val = 0;
 	for (i = bots.begin(); i != bots.end(); i++) {
 		int dist = getDistance(i->first, flag);
 		if (dist < ret_val) {
