@@ -1,5 +1,6 @@
 #include "state.h"
 #include "error.h"
+#include "generator.h"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -34,6 +35,16 @@ main(int argc, char **argv)
 		State initstate(filename);
 		initstate.dump();
 
+		Generator g(initstate, true);
+		State next(initstate);
+		botPos b;
+		Action a;
+		while(g.next(next,b,a)){
+			cerr << "---" << endl;
+			next.dump();
+		}
+
+		/*
 		// samotny kod na vypocet pozice
 		State newState;
 		botPost newBot, bestBot;
@@ -82,6 +93,7 @@ main(int argc, char **argv)
 
 			cout << bot << " " << cmd << endl;
 		}
+		*/
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;

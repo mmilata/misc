@@ -1,6 +1,6 @@
 include config.mk
 
-SRC = main.cpp state.cpp
+SRC = main.cpp state.cpp generator.cpp
 OBJ = ${SRC:.cpp=.o}
 
 all: options qid0

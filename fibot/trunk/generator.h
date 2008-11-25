@@ -5,9 +5,16 @@
 
 class Generator {
 public:
-	Generator(const State &st, bool ourTurn);
-	State* next() const;
-	bool isLast(State &st) const;
+	Generator(State &init, bool ourTurn);
+	bool next(State &state, botPos &moved, Action &action);
+
+	std::vector<botPos>::iterator curBot;
+	std::vector<botPos>::iterator endBot;
+	Action curAction;
+	bool ourTurn;
+	State initstate;
+private:
+	void increment(void);
 };
 
 #endif
