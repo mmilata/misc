@@ -43,6 +43,7 @@ class State {
 
 		Pos getDestination(const Pos&, Direction) const;
 		int getDistance(const Pos&, const Pos&) const;
+		int getScore(std::vector<botPos> &bots, const Pos &flag);
 
 		std::vector<FieldType> fMap;
 		std::vector<botPos> fOurBots;

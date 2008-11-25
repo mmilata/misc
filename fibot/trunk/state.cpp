@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -62,6 +63,22 @@ int State::getDistance(const Pos &position1, const Pos &position2) const {
 
 	return round(dist);
 }
+
+/* vrati nejmensi vzdalenost jednotlivych robotu bots od vlajky flag
+ */
+int State::getScore(vector<botPos> &bots, const Pos &flag) {
+	vector<botPos>::iterator i;
+	int ret_val = 0;
+	for (i = bots.begin(); i != bots.end(); i++) {
+		int dist = getDistance(i->first, flag);
+		if (dist < ret_val) {
+			ret_val = dist;
+		}
+	}
+
+	return ret_val;
+}
+
 
 State::State(const char *filename)
 {
