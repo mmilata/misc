@@ -155,4 +155,4 @@ void State::dump(void)
 	}
 	cout << endl;
 }
-/* vim: noexpandtab */
+/* vim: set noexpandtab: */

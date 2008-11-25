@@ -15,4 +15,4 @@ class Error : public std::exception {
 };
 		
 #endif
-/* vim: noexpandtab */
+/* vim: set noexpandtab: */

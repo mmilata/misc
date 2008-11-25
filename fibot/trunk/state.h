@@ -41,4 +41,4 @@ class State {
 };
 
 #endif
-/* vim: noexpandtab */
+/* vim: set noexpandtab: */

@@ -19,7 +19,7 @@ main(int argc, char **argv)
 	State test("state");
 	test.dump();
 	try {
-		Pos dst = test.getDestination(Pos(2,2), 'S');
+		Pos dst = test.getDestination(Pos(3,4), 'S');
 		cout << dst.x << dst.y << endl;
 		run();
 	}
@@ -30,4 +30,4 @@ main(int argc, char **argv)
 
 	return EXIT_SUCCESS;
 }
-/* vim: noexpandtab */
+/* vim: set noexpandtab: */
