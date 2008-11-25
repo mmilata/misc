@@ -48,8 +48,7 @@ Pos State::getDestination(const Pos &position, Action action) const {
 
 	} while ( 
 		tmp.x >= 0 && tmp.x < columns && tmp.y >= 0 && tmp.y < rows && (
-			get(tmp) == ftEmpty ||
-			get(tmp) == ftFlag 
+			get(tmp) == ftEmpty
 		)
 	);
 
@@ -115,8 +114,6 @@ State::State(const char *filename)
 			set(j,i,t);
 		}
 	}
-	set(flag1s-1, flag1r-1, ftFlag);
-	set(flag2s-1, flag2r-1, ftFlag);
 
 	if(hracnatahu==1){
 		fOurFlag.x = flag1s-1;
@@ -149,9 +146,6 @@ void State::dump(void) const
 					break;
 				case ftTheirBot:
 					cerr << 'T';
-					break;
-				case ftFlag:
-					cerr << 'f';
 					break;
 				default:
 					throw new Error("dump: neznamy typ policka");

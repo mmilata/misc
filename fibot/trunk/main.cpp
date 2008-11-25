@@ -4,20 +4,27 @@
 #include <fstream>
 #include <cstring>
 #include <stdlib.h>
+#include <signal.h>
 
 using namespace std;
 
-static void run(State &state);
+static void sighandler(int);
 
-void run(State &state)
+void sighandler(int unused)
 {
-	
+	(void)unused;
+
+	cout << "-" << endl;
+	exit(EXIT_SUCCESS);
 }
 
 int
 main(int argc, char **argv)
 {
 	char filename[256];
+
+	signal(SIGALRM, sighandler);
+	alarm(2);
 
 	try {
 		if(argc != 2)
@@ -27,9 +34,54 @@ main(int argc, char **argv)
 		State initstate(filename);
 		initstate.dump();
 
-		Pos dst = initstate.getDestination(Pos(3,4), aSever);
-		cout << dst.x << dst.y << endl;
-		run(initstate);
+		// samotny kod na vypocet pozice
+		State newState;
+		botPost newBot, bestBot;
+		Action newAction, bestAction(aNOOP);
+		Generator generator(initstate);
+		double newScore, bestScore = -1.0;
+
+		while (generator.next(newState, newBot, newAction)) {
+			newScore = newState.getScore(newState.fOurBots, fTheirFlag);
+			
+			if (newScore < 0)
+				continue; // neplatna pozice;
+			if (newScore > bestScore) {
+				bestScore = newScore;
+				bestBot = newBot;
+				bestAction = newAction;
+			}
+		}
+
+		if (bestAction == aNOOP) {
+			cout << "-" << endl;
+		}
+		else {
+			char bot = bestBot->second;
+			char cmd;
+
+			switch (newAction) {
+				case aBoom:
+					cmd = 'D';
+					break;
+				case aServer:
+					cmd = 'S';
+					break;
+				case aVychod:
+					cmd = 'V';
+					break;
+				case aJih:
+					cmd = 'J';
+					break;
+				case aZapad:
+					cmd = 'Z';
+					break;
+				default:
+					throw new Error("Neznama action");
+			}
+
+			cout << bot << " " << cmd << endl;
+		}
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;

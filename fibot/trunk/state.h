@@ -9,7 +9,6 @@ enum FieldType {
 	ftOurBot,
 	ftTheirBot,
 	ftWall,
-	ftFlag
 };
 
 enum Action {
