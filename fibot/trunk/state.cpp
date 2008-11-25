@@ -40,8 +40,10 @@ Pos State::getDestination(const Pos position, const char direction) {
   newX = position.x + moveX; newY = position.y + moveY;
 
   while ( 
-    get(newX, newY) == ftEmpty ||
-    get(newX, newY) == ftFlag
+    newX > 0 && newX <= columns && newY > 0 && newY <= rows && (
+      get(newX, newY) == ftEmpty ||
+      get(newX, newY) == ftFlag 
+    )
   ) {
     destination.x = newX;
     destination.y = newY;

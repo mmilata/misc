@@ -46,6 +46,8 @@ main(int argc, char **argv)
 	State test("state");
 	test.dump();
 	try {
+    Pos dst = test.getDestination(Pos(2,2), 'S');
+    cout << dst.x << dst.y << endl;
 		run();
 	}
 	catch (exception &e) {
