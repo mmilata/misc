@@ -2,6 +2,7 @@ include config.mk
 
 SRC = main.cpp state.cpp generator.cpp
 OBJ = ${SRC:.cpp=.o}
+DEMODIR = demo
 
 all: options qid0
 
@@ -24,5 +25,17 @@ qid0: ${OBJ}
 clean:
 	@echo cleaning
 	@rm -f qid0 ${OBJ}
+
+demo1: qid0
+	@cp qid0 ${DEMODIR}/strategie/tym35
+	@(cd ${DEMODIR}; ./play demo1)
+
+demo2: qid0
+	@cp qid0 ${DEMODIR}/strategie/tym35
+	@(cd ${DEMODIR}; ./play demo2)
+
+demo3: qid0
+	@cp qid0 ${DEMODIR}/strategie/tym35
+	@(cd ${DEMODIR}; ./play demo3)
 
 .PHONY: all options clean
