@@ -425,7 +425,7 @@ char State::botName(const Pos &pos) const
 	it = fBots[tah_hrace].find(pos);
 
 	if (it == fBots[tah_hrace].end())
-		throw new Error("Zadany bot k vyhledani neexistuje v ramci botu aktualniho hrace");
+		throw Error("Zadany bot k vyhledani neexistuje v ramci botu aktualniho hrace");
 	
 	return it->second;
 }
@@ -437,3 +437,10 @@ bool State::isEnemy(const Pos &pos) const
 
 /* vim: set noexpandtab: */
 
+State::~State()
+{
+	if (distMap[0])
+		delete distMap[0];
+	if (distMap[1])
+		delete distMap[1];
+}
