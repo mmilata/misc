@@ -7,32 +7,26 @@
 
 using namespace std;
 
+static const double avgDistanceInfluence = 0.7; // jaky vliv na vzdalenost aktualniho hrace ma protihracova pozice
+
 double averageFlagDistance(const State &st)
 {
 	int na_tahu = st.tah_hrace;
 	int tahnul = 1-st.tah_hrace;
 	bool flag = 1;
+	double result = 0;
 
 	vector<botPos>::const_iterator i;
 	vector<botPos> bots = st.fBots[na_tahu];
 
-	double ret_val = 1000.0;
-	for (i = bots.begin(); i != bots.end(); i++) {
-		ret_val += st.fFlag[tahnul].distance(i->first);
-		if(flag)
-			ret_val -= 1000.0;
-	}
+	for (i = bots.begin(); i != bots.end(); i++)
+		result += st.fFlag[tahnul].distance(i->first);
 
 	bots = st.fBots[tahnul];
-	double mindist = INFINITY;
-	for (i = bots.begin(); i != bots.end(); i++) {
-		double t = st.fFlag[na_tahu].distance(i->first);
+	for (i = bots.begin(); i != bots.end(); i++)
+		result -= st.fFlag[na_tahu].distance(i->first) * avgDistanceInfluence;
 
-		if(t < mindist)
-			mindist = t;
-	}
-
-	return 100.0 - (ret_val/bots.size()) - (200.0/mindist);
+	return 1.0 - (result / (st.fFlag[PRVNI].size() + st.fFlag[DRUHY].size()));
 }
 
 /*
@@ -126,33 +120,6 @@ double sensibleScore(const State &st)
 	ret_val -= 15.0*pocet_ohrozenych;
 
 	return ret_val;
-}
-
-double minimax(const State &st, ScoreFun scf, int depth)
-{
-	double bestScore = -INFINITY;
-
-	//jeste by to chtelo osetrit vyhru/prohru
-
-	if(depth==0 || st.endGame())
-		return scf(st);
-
-	Generator generator(st);
-	double newScore;
-	State newState(st);
-	botPos newBot;
-	Action newAction;
-
-	while(generator.next(newState, newBot, newAction)){
-
-		newScore = -minimax(newState, scf, depth-1);
-
-		if(newScore > bestScore){
-			bestScore = newScore;
-		}
-	}
-
-	return bestScore;
 }
 
 double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int depth)

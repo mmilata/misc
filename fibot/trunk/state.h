@@ -76,6 +76,7 @@ class State {
 		int jejich_cislo; // druhe cislo
 		int tah_hrace; // hrac, ktery je aktualne na tahu
 		int zbyva_kol;
+		double maxDistance; // nejvetsi vzdalenost od vlajky
 };
 
 #endif

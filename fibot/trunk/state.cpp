@@ -6,6 +6,8 @@
 #include <vector>
 #include <assert.h>
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 using namespace std;
 
 double Pos::distance(const Pos &pos) const
@@ -103,6 +105,14 @@ State::State(const char *filename)
 
 	fFlag[PRVNI] = Pos(flag1s-1,flag1r-1);
 	fFlag[DRUHY] = Pos(flag2s-1,flag2r-1);
+
+	maxDistance = 0.0;
+	for (int i = 0; i <= 1; i++) {
+		maxDistance = MAX(maxDistance, fFlag[i].distance(Pos(0,0)));
+		maxDistance = MAX(maxDistance, fFlag[i].distance(Pos(rows-1, columns-1)));
+		maxDistance = MAX(maxDistance, fFlag[i].distance(Pos(rows-1, 0)));
+		maxDistance = MAX(maxDistance, fFlag[i].distance(Pos(0, columns-1)));
+	}
 
 	statefile.close();
 }
