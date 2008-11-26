@@ -3,6 +3,7 @@
 #include "generator.h"
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -17,7 +18,7 @@ Generator::Generator(const State &st) : initstate(st)
  * pokud se vraci action == aNOOP je hodnota moved nedefinovana
  * pokud se bot hybal, v moved je jeho puvodni pozice
  */
-bool Generator::next(State &state, Pos &moved, Action &action)
+bool Generator::next(State &state, char &moved, Action &action)
 {
 	state = initstate;
 	// postup vysledneho stavu do dalsiho kola
@@ -37,9 +38,8 @@ bool Generator::next(State &state, Pos &moved, Action &action)
 		return false;
 
 	action = curAction;
-	moved = curBot->first;
+	moved = initstate.botName(curBot->first);
 	//snizit pocet zbyvajicich tahu?
-
 
 	if(curAction == aBoom){
 		Pos p = curBot->first;
@@ -87,11 +87,12 @@ bool Generator::next(State &state, Pos &moved, Action &action)
 		increment();
 		return next(state, moved, action);
 	}
-	state.set(moved, ftEmpty);
+
+	state.set(curBot->first, ftEmpty);
 	state.set(dest, ftBot);
 
-	state.fBots[initstate.tah_hrace][dest] = state.fBots[initstate.tah_hrace][moved];
-	state.fBots[initstate.tah_hrace].erase(state.fBots[initstate.tah_hrace].find(moved));
+	state.fBots[initstate.tah_hrace][dest] = state.fBots[initstate.tah_hrace][curBot->first];
+	state.fBots[initstate.tah_hrace].erase(state.fBots[initstate.tah_hrace].find(curBot->first));
 
 	increment();
 	return true;

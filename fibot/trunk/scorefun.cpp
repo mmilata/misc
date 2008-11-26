@@ -73,65 +73,37 @@ double yetAnotherScoreFunction(const State &st)
 
 double sensibleScore(const State &st)
 {
-	bool flag = 1;
 	int na_tahu = st.tah_hrace;
-	int tahnul  = 1 - st.tah_hrace;
-	double x = 1000.0;
+	int tahnul  = not st.tah_hrace;
+	double ret_val = 0.0;
+	int pocet_ohrozenych = 0;
+	int pocet_nasich, pocet_jejich;
+	int distance;
+
 	map<Pos, char>::const_iterator i;
 	map<Pos, char> bots = st.fBots[na_tahu];
-	for (i = bots.begin(); i != bots.end(); i++) {
-		x += st.fFlag[tahnul].distance(i->first);
-		if(flag)
-			x -= 1000.0;
-	}
 
-	bots = st.fBots[tahnul];
-	double mindist = INFINITY;
-	for (i = bots.begin(); i != bots.end(); i++) {
-		double t = st.fFlag[na_tahu].distance(i->first);
-
-		if(t < mindist)
-			mindist = t;
-	}
-
-	double ret_val = 0;
-	int pocet_ohrozenych = 0;
-	//State temp = st;
-
-	bots = st.fBots[na_tahu];
-	//vyhra
-	for (i = bots.begin(); i != bots.end(); i++){
-		if(i->first == st.fFlag[tahnul])
-			return INFINITY;
+	for(i = bots.begin(); i != bots.end(); i++){
 		if(st.inThreat(i->first, tahnul))
 			pocet_ohrozenych++;
-		//int distance = temp.countStepsTo(i->first, st.fFlag[tahnul], 10);
-		/*
+		distance = st.flagDist(tahnul, i->first);
 		if(distance > 0){
-			ret_val += 500.0/distance;
+			ret_val += powf((200.0/(double)distance),2);
 		}
-		*/
 	}
-	int pocet_nasich = bots.size();
-	ret_val += 100.0 - (x/pocet_nasich);
+	pocet_nasich = bots.size();
 
-
-	//prohra
 	bots = st.fBots[tahnul];
-	for (i = bots.begin(); i != bots.end(); i++){
-		if(i->first == st.fFlag[na_tahu])
-			return -INFINITY;
-		//int distance = temp.countStepsTo(i->first, st.fFlag[na_tahu], 10);
-		/*
+	for(i = bots.begin(); i != bots.end(); i++){
+		distance = st.flagDist(na_tahu, i->first);
 		if(distance > 0){
-			ret_val -= 600.0/distance;
+			ret_val -= powf((200.0/(double)distance),3);
 		}
-		*/
 	}
-	int pocet_nepratel = bots.size();
+	pocet_jejich = bots.size();
 
 	//bonus za niceni, penalizace za ztraty
-	ret_val += 20.0*(pocet_nasich - pocet_nepratel);
+	ret_val += 30.0*(pocet_nasich) - 20.0*(pocet_jejich);
 	//penalizace za ohrozene
 	ret_val -= 15.0*pocet_ohrozenych;
 
@@ -146,7 +118,7 @@ double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int d
 	Generator generator(st);
 	double newScore = -INFINITY;
 	State newState(st);
-	Pos newBot;
+	char newBot;
 	Action newAction;
 
 	while(generator.next(newState, newBot, newAction)){

@@ -16,10 +16,10 @@ using namespace std;
 static void sighandler(int);
 
 static Action bestAction(aNOOP);
-static Pos bestBot;
+//static Pos bestBot;
+static char bestBot;
 static State gstate;
 static bool end = false;
-static char bestBotName;
 
 void sighandler(int unused)
 {
@@ -33,11 +33,11 @@ void vypisNasledniky(State state, ScoreFun scf)
 {
 	Generator g(state);
 	State next(state);
-	Pos b;
+	char b;
 	Action a;
 	while(g.next(next,b,a)){
 		cerr << "---" << endl;
-		cerr << "Akce: " << strAction(a, state.botName(b)) << endl;
+		//cerr << "Akce: " << strAction(a, state.botName(b)) << endl;
 		cerr << "Skore: " << scf(next) << endl;
 		next.dump();
 	}
@@ -76,7 +76,7 @@ main(int argc, char **argv)
 
 		// samotny kod na vypocet pozice
 		State newState(gstate);
-		Pos newBot;
+		char newBot;
 		Action newAction;
 		Generator generator(gstate);
 		double newScore, bestScore = -INFINITY;
@@ -89,14 +89,14 @@ main(int argc, char **argv)
 			if(newScore > bestScore){
 				bestScore = newScore;
 				bestBot = newBot;
-				bestBotName = gstate.botName(bestBot);
 				bestAction = newAction;
 			}
 		}
 
 		alarm(0);
 		//cerr << "bestscore: " << bestScore << endl;
-		cout << strAction(bestAction, bestBotName) << endl;
+		//cout << strAction(bestAction, gstate.botName(bestBot)) << endl;
+		cout << strAction(bestAction, bestBot) << endl;
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;
