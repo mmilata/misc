@@ -39,6 +39,7 @@ double testWhatever(const State &st)
 {
 	int na_tahu = st.tah_hrace;
 	int tahnul = 1 - na_tahu;
+	vector<botPos> bots = st.fBots[na_tahu];
 
 	if (st.endGame()) {
 		if (st.vyhral() == na_tahu)
