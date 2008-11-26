@@ -58,11 +58,7 @@ Pos State::getDestination(const Pos &position, Action action) const {
 		destination = tmp;
 		tmp += delta;
 
-	} while ( 
-		tmp.x >= 0 && tmp.x < columns && tmp.y >= 0 && tmp.y < rows && (
-			get(tmp) == ftEmpty
-		)
-	);
+	} while (inMap(tmp) && get(tmp) == ftEmpty);
 
 	return destination;
 }
@@ -262,7 +258,7 @@ int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) 
 		for (p_i = fPositions.begin(); p_i != fPositions.end(); p_i++) {
 			//cerr << "position " << p_i->x << " " << p_i->y << " " << n <<  endl;
 			Pos nPos;
-			nPos = _getDestination((*p_i), aSever);
+			nPos = getDestination((*p_i), aSever);
 			if (nPos != fPos) {
 				if (nPos == posTo) {
 					return n;
@@ -273,7 +269,7 @@ int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) 
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
 			}
-			nPos = _getDestination((*p_i), aVychod);
+			nPos = getDestination((*p_i), aVychod);
 			if (nPos != fPos) {
 				if (nPos == posTo) {
 					return n;
@@ -284,7 +280,7 @@ int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) 
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
 			}
-			nPos = _getDestination((*p_i), aJih);
+			nPos = getDestination((*p_i), aJih);
 			if (nPos != fPos) {
 				if (nPos == posTo) {
 					return n;
@@ -295,7 +291,7 @@ int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) 
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
 			}
-			nPos = _getDestination((*p_i), aZapad);
+			nPos = getDestination((*p_i), aZapad);
 			if (nPos != fPos) {
 				if (nPos == posTo) {
 					return n;
@@ -310,42 +306,6 @@ int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) 
 		fPositions = nPositions;
 	}
 	return -1;
-}
-
-Pos State::_getDestination(const Pos &position, Action action) const {
-	Pos delta;
-	Pos destination;
-	Pos tmp(position);
-
-	switch (action) {
-		case aSever:
-			delta = Pos(0, -1);
-			break;
-		case aVychod:
-			delta = Pos(1, 0);
-			break;
-		case aJih:
-			delta = Pos(0, 1);
-			break;
-		case aZapad: 
-			delta = Pos(-1, 0);
-			break;
-		case aBoom:
-		case aNOOP:
-			return position;
-	}
-
-	do {
-		destination = tmp;
-		tmp += delta;
-
-	} while ( 
-		tmp.x >= 0 && tmp.x < columns && tmp.y >= 0 && tmp.y < rows && (
-			get(tmp) != ftWall
-		)
-	);
-
-	return destination;
 }
 
 bool State::inMap(const Pos& pos) const
