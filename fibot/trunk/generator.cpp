@@ -42,10 +42,65 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 	moved = *curBot;
 	//snizit pocet zbyvajicich tahu?
 
+
 	if(curAction == aBoom){
 		int x = curBot->first.x;
 		int y = curBot->first.y;
+		/* zacatek */
+		//spocitame kolik nepratel minus kolik pratel by zabil vybuch
+		int friends = 0; //JE TO PREHOZENE (jestli bude cas opravim to)
+		int enemies = 1;
+		FieldType f;
 
+		for(int nx = x+1;
+		    nx < state.columns && state.get(nx,y) != ftWall;
+		    nx++){
+			f = state.get(nx,y);
+			if(f == ftOurBot){
+				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
+			}else if(f == ftTheirBot){
+				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+			}
+		}
+
+		for(int nx = x-1;
+		    nx >= 0 && state.get(nx,y) != ftWall;
+		    nx--){
+			f = state.get(nx,y);
+			if(f == ftOurBot){
+				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
+			}else if(f == ftTheirBot){
+				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+			}
+		}
+
+		for(int ny = y+1;
+		    ny < state.rows && state.get(x,ny) != ftWall;
+		    ny++){
+			f = state.get(x,ny);
+			if(f == ftOurBot){
+				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
+			}else if(f == ftTheirBot){
+				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+			}
+		}
+
+		for(int ny = y-1;
+		    ny >= 0 && state.get(x,ny) != ftWall;
+		    ny--){
+			f = state.get(x,ny);
+			if(f == ftOurBot){
+				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
+			}else if(f == ftTheirBot){
+				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+			}
+		}
+		if(friends < enemies){
+			increment();
+			return next(state, moved, action);
+		}
+		//konec vypoctu
+		/* konec */
 		state.set(x,y,ftEmpty);
 		state.killBot(Pos(x,y));
 
