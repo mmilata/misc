@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ double yetAnotherScoreFunction(const State &st)
 {
 	int na_tahu = st.tah_hrace;
 	int tahnul = !na_tahu;
-	double result = -INFINITY;
+	double result = 0;
 
 	if (st.endGame()) {
 		if (st.vyhral() == na_tahu)
@@ -66,6 +67,7 @@ double yetAnotherScoreFunction(const State &st)
 		if (aktualni >=0 && shortest > aktualni)
 			shortest = aktualni;
 	}
+	result += st.maxDistance - shortest;
 	
 	return result;
 }
