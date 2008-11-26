@@ -108,3 +108,30 @@ double minimax(const State &st, ScoreFun scf, int depth)
 
 	return bestScore;
 }
+
+double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int depth)
+{
+	if(depth==0 || st.endGame())
+		return scf(st);
+
+	Generator generator(st);
+	double newScore = -INFINITY;
+	State newState(st);
+	botPos newBot;
+	Action newAction;
+
+	while(generator.next(newState, newBot, newAction)){
+
+		newScore = -alphabeta(newState, scf, -beta, -alpha, depth-1);
+
+		if(newScore > alpha){
+			alpha = newScore;
+		}
+
+		if(beta <= alpha)
+			break;
+	}
+
+	return newScore;
+
+}
