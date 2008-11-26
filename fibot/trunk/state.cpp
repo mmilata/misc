@@ -92,6 +92,7 @@ State::State(const char *filename)
 	statefile >> flag1s >> flag1r >> flag2s >> flag2r;
 
 	setDimensions(vyska, sirka);
+	tah_hrace = hracnatahu;
 
 	for(int i=0; i<vyska; i++){
 		for(int j=0; j<sirka; j++){
@@ -166,5 +167,22 @@ void State::dump(void) const
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cerr << endl;
+}
+
+bool State::endGame(void) const
+{
+	if(zbyva_kol==0)
+		return true;
+
+	for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+		if(it->first == fTheirFlag)
+			return true; /* wheee, mame vlajku */
+	}
+	for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+		if(it->first == fOurFlag)
+			return true;
+	}
+
+	return false;
 }
 /* vim: set noexpandtab: */

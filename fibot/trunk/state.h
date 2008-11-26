@@ -51,6 +51,7 @@ class State {
 		};
 		void set(const Pos &pos, FieldType ft) {set(pos.x, pos.y, ft);};
 		void setDimensions(int inRows, int inColumns);
+		bool endGame(void) const;
 		void dump(void) const;
 
 		Pos getDestination(const Pos&, Action) const;
@@ -61,6 +62,7 @@ class State {
 		std::vector<botPos> fTheirBots;
 		int rows, columns;
 		int zbyva_kol;
+		int tah_hrace;
 		Pos fOurFlag, fTheirFlag;
 };
 

@@ -26,9 +26,16 @@ Generator::Generator(State &st, bool ourTurn) : ourTurn(ourTurn), initstate(st)
  */
 bool Generator::next(State &state, botPos &moved, Action &action)
 {
+	state = initstate;
+	if(state.tah_hrace == 1){
+		state.tah_hrace = 2;
+	}else{
+		state.tah_hrace = 1;
+		state.zbyva_kol--;
+	}
+
 	//nastane jen pri prvnim volani
 	if(curAction == aNOOP){
-		state = initstate;
 		action = aNOOP;
 		curAction = aSever;
 		return true;
@@ -38,8 +45,6 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 	if(curBot == endBot)
 		return false;
 
-	//kopie pocatecniho stavu
-	state = initstate;
 	action = curAction;
 	moved = *curBot;
 	//snizit pocet zbyvajicich tahu?
@@ -82,7 +87,6 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 			i++;
 		}
 		increment();
-		/* inkrementace */
 		return true;
 	}
 
@@ -115,17 +119,15 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 void deletebot(State &st, int x, int y)
 {
 	for(vector<botPos>::iterator it = st.fOurBots.begin(); it != st.fOurBots.end(); it++){
-		if(it->first.x && it->first.y){
+		if(it->first.x == x && it->first.y == y){
 			st.fOurBots.erase(it);
-			deletebot(st, x, y);
 			break;
 		}
 	}
 
 	for(vector<botPos>::iterator it = st.fTheirBots.begin(); it != st.fTheirBots.end(); it++){
-		if(it->first.x && it->first.y){
+		if(it->first.x == x&& it->first.y == y){
 			st.fTheirBots.erase(it);
-			deletebot(st, x, y);
 			break;
 		}
 	}
