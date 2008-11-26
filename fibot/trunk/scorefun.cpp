@@ -132,6 +132,6 @@ double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int d
 			break;
 	}
 
-	return newScore;
+	return alpha;
 
 }

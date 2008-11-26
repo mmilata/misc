@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#define DEPTH 4
+#define DEPTH 5
 
 using namespace std;
 
@@ -73,8 +73,9 @@ main(int argc, char **argv)
 		double newScore, bestScore = -INFINITY;
 
 		while(generator.next(newState, newBot, newAction)){
-			newScore = -minimax(newState, scf, DEPTH);
+			//newScore = -minimax(newState, scf, DEPTH);
 			//newScore = -scf(newState);
+			newScore = -alphabeta(newState, scf, -INFINITY, INFINITY, DEPTH);
 
 			if(newScore > bestScore){
 				bestScore = newScore;
