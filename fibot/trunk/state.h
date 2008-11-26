@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include "assert.h"
 
 enum FieldType {
 	ftEmpty,
@@ -48,7 +49,7 @@ class State {
 			assert(x >= 0 && y >= 0 && x < columns && y < rows); 
 			fMap[(y*columns) + x] = ft;
 		};
-		void set(const Pos &pos, FieldType ft) {return pos(pos.x, pos.y, ft);};
+		void set(const Pos &pos, FieldType ft) {set(pos.x, pos.y, ft);};
 		void setDimensions(int inRows, int inColumns);
 		void dump(void) const;
 
