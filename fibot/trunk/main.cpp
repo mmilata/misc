@@ -1,6 +1,7 @@
 #include "state.h"
 #include "error.h"
 #include "generator.h"
+#include "scorefun.h"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -20,7 +21,7 @@ void sighandler(int unused)
 }
 
 //vypise nasledniky
-void vypisNasledniky(State initstate)
+void vypisNasledniky(State initstate, ScoreFun scf)
 {
 	Generator g(initstate, true);
 	State next(initstate);
@@ -29,7 +30,7 @@ void vypisNasledniky(State initstate)
 	while(g.next(next,b,a)){
 		cerr << "---" << endl;
 		cerr << "Akce: " << strAction(a,b) << endl;
-		cerr << "Skore: " << next.getScore(next.fOurBots, next.fTheirFlag) << endl;
+		cerr << "Skore: " << scf(next) << endl;
 		next.dump();
 	}
 }
@@ -42,6 +43,9 @@ main(int argc, char **argv)
 	signal(SIGALRM, sighandler);
 	alarm(2);
 
+	ScoreFun scf;
+	scf = averageFlagDistance;
+
 	try {
 		if(argc < 2)
 			throw Error("chybny pocet argumentu programu");
@@ -50,7 +54,7 @@ main(int argc, char **argv)
 		State initstate(filename);
 
 		if(argc == 3){
-			vypisNasledniky(initstate);
+			vypisNasledniky(initstate, scf);
 			return EXIT_SUCCESS;
 		}
 
@@ -62,7 +66,7 @@ main(int argc, char **argv)
 		double newScore, bestScore = -1.0;
 
 		while (generator.next(newState, newBot, newAction)) {
-			newScore = newState.getScore(newState.fOurBots, newState.fTheirFlag);
+			newScore = scf(newState);
 			
 			if (newScore < 0)
 				continue; // neplatna pozice;

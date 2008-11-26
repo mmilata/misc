@@ -58,7 +58,7 @@ class State {
 		void dump(void) const;
 
 		Pos getDestination(const Pos&, Action) const;
-		double getScore(std::vector<botPos> &bots, const Pos &flag) const;
+		//double getScore(std::vector<botPos> &bots, const Pos &flag) const;
 
 		std::vector<FieldType> fMap;
 		std::vector<botPos> fOurBots;

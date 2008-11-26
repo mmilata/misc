@@ -65,25 +65,6 @@ Pos State::getDestination(const Pos &position, Action action) const {
 	return destination;
 }
 
-/* vrati nejmensi vzdalenost jednotlivych robotu bots od vlajky flag
- */
-double State::getScore(vector<botPos> &bots, const Pos &flag) const {
-	vector<botPos>::iterator i;
-	double ret_val = 0;
-	for (i = bots.begin(); i != bots.end(); i++) {
-		ret_val += flag.distance(i->first);
-		/*
-		int dist = lround(flag.distance(i->first));
-		if (dist < ret_val || ret_val < 0) {
-			ret_val = dist;
-		}
-		*/
-	}
-
-	return 100 - (ret_val/bots.size());
-}
-
-
 State::State(const char *filename)
 {
 	int sirka, vyska, hracnatahu;

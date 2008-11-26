@@ -1,6 +1,6 @@
 include config.mk
 
-SRC = main.cpp state.cpp generator.cpp
+SRC = main.cpp state.cpp generator.cpp scorefun.cpp
 OBJ = ${SRC:.cpp=.o}
 DEMODIR = demo
 
