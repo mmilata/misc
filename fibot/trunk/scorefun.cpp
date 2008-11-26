@@ -57,9 +57,15 @@ double yetAnotherScoreFunction(const State &st)
 		return result;
 	}
 
-	result += st.fBots[na_tahu].size() * 1.3;
+	result += st.fBots[na_tahu].size() * 1.1;
 	result -= st.fBots[tahnul].size();
-	
+
+	int shortest = st.zbyva_kol;
+	for (map<Pos, char>::const_iterator it = st.fBots[st.tah_hrace].begin(); it != st.fBots[st.tah_hrace].end(); it++) {
+		int aktualni = st.flagDist(!st.tah_hrace, it->first);
+		if (aktualni >=0 && shortest > aktualni)
+			shortest = aktualni;
+	}
 	
 	return result;
 }

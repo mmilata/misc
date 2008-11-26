@@ -18,20 +18,13 @@ static void sighandler(int);
 static Action bestAction(aNOOP);
 static Pos bestBot;
 static State gstate;
+static bool end = false;
 
 void sighandler(int unused)
 {
 	(void)unused;
-	try {	
-		cerr << "timeout!!!" << endl;
-		cout << strAction(bestAction, gstate.botName(bestBot)) << endl << flush;
-	}
-	catch (Error &e) {
-		cerr << "Pri zpracovavani timeoutu nastala tato chyba: " << e.what() << endl << flush;
-		cout << "-" << endl;
-		abort();
-	}
-	exit(EXIT_SUCCESS);
+	cerr << "timeout!!" << endl;
+	end = true;
 }
 
 //vypise nasledniky
@@ -87,7 +80,7 @@ main(int argc, char **argv)
 		Generator generator(gstate);
 		double newScore, bestScore = -INFINITY;
 
-		while(generator.next(newState, newBot, newAction)){
+		while(generator.next(newState, newBot, newAction) && !end) {
 			//newScore = -minimax(newState, scf, DEPTH);
 			//newScore = -scf(newState);
 			newScore = -alphabeta(newState, scf, -INFINITY, INFINITY, DEPTH);
