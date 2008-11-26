@@ -78,7 +78,7 @@ double sensibleScore(const State &st)
 	double ret_val = 0.0;
 	int pocet_ohrozenych = 0;
 	int pocet_nasich, pocet_jejich;
-	int distance;
+	int distance, mindist=(2^30);
 
 	map<Pos, char>::const_iterator i;
 	map<Pos, char> bots = st.fBots[na_tahu];
@@ -88,7 +88,7 @@ double sensibleScore(const State &st)
 			pocet_ohrozenych++;
 		distance = st.flagDist(tahnul, i->first);
 		if(distance > 0){
-			ret_val += powf((200.0/(double)distance),2);
+			ret_val += (150.0/(double)distance);
 		}
 	}
 	pocet_nasich = bots.size();
@@ -96,16 +96,17 @@ double sensibleScore(const State &st)
 	bots = st.fBots[tahnul];
 	for(i = bots.begin(); i != bots.end(); i++){
 		distance = st.flagDist(na_tahu, i->first);
-		if(distance > 0){
-			ret_val -= powf((200.0/(double)distance),3);
+		if(distance > 0 && mindist > distance){
+			mindist = distance;
 		}
 	}
 	pocet_jejich = bots.size();
+	ret_val -= (300.0/(double)mindist);
 
 	//bonus za niceni, penalizace za ztraty
-	ret_val += 30.0*(pocet_nasich) - 20.0*(pocet_jejich);
+	ret_val += 20.0*(pocet_nasich - 2*pocet_jejich);
 	//penalizace za ohrozene
-	ret_val -= 15.0*pocet_ohrozenych;
+	ret_val -= 10.0*pocet_ohrozenych;
 
 	return ret_val;
 }
