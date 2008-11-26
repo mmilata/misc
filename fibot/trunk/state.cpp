@@ -69,15 +69,18 @@ Pos State::getDestination(const Pos &position, Action action) const {
  */
 double State::getScore(vector<botPos> &bots, const Pos &flag) const {
 	vector<botPos>::iterator i;
-	double ret_val = -1;
+	double ret_val = 0;
 	for (i = bots.begin(); i != bots.end(); i++) {
+		ret_val += flag.distance(i->first);
+		/*
 		int dist = lround(flag.distance(i->first));
 		if (dist < ret_val || ret_val < 0) {
 			ret_val = dist;
 		}
+		*/
 	}
 
-	return 100 - ret_val;
+	return 100 - (ret_val/bots.size());
 }
 
 

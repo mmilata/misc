@@ -77,36 +77,6 @@ main(int argc, char **argv)
 		}
 
 		cout << strAction(bestAction, bestBot) << endl;
-		/*
-		if (bestAction == aNOOP) {
-			cout << "-" << endl;
-		}
-		else {
-			char cmd;
-
-			switch (newAction) {
-				case aBoom:
-					cmd = 'D';
-					break;
-				case aServer:
-					cmd = 'S';
-					break;
-				case aVychod:
-					cmd = 'V';
-					break;
-				case aJih:
-					cmd = 'J';
-					break;
-				case aZapad:
-					cmd = 'Z';
-					break;
-				default:
-					throw new Error("Neznama action");
-			}
-
-			cout << bot << " " << cmd << endl;
-		}
-		*/
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;
