@@ -31,8 +31,8 @@ double averageFlagDistance(const State &st)
 double yetAnotherScoreFunction(const State &st)
 {
 	int na_tahu = st.tah_hrace;
-	int tahnul = 1 - na_tahu;
-	double result;
+	int tahnul = !na_tahu;
+	double result = -INFINITY;
 
 	if (st.endGame()) {
 		if (st.vyhral() == na_tahu)
@@ -47,9 +47,15 @@ double yetAnotherScoreFunction(const State &st)
 	// kdy je lepsi stratit bota ale zustat blize
 	// posledni 2 kola pracuj pouze s prumernou vzdalenosti
 
-	result = averageFlagDistance(st);
-	if (st.zbyva_kol < 2)
+	if (st.zbyva_kol < 2) {
+		map<Pos, char>::const_iterator it = st.fBots[na_tahu].begin();
+		for (; it != st.fBots[na_tahu].end(); it++) {
+			double distance = st.fFlag[tahnul].distanceNormalized(it->first, st.maxDistance);
+			if (distance < result)
+				result = distance;
+		}
 		return result;
+	}
 
 	result += st.fBots[na_tahu].size() * 1.3;
 	result -= st.fBots[tahnul].size();

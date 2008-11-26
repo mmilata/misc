@@ -15,25 +15,28 @@ using namespace std;
 
 static void sighandler(int);
 
+static Action bestAction(aNOOP);
+static Pos bestBot;
+static State gstate;
+
 void sighandler(int unused)
 {
 	(void)unused;
-
-	cerr << "timeout!\n";
-	cout << "-" << endl;
+	
+	cout << strAction(bestAction, gstate.botName(bestBot)) << endl;
 	exit(EXIT_SUCCESS);
 }
 
 //vypise nasledniky
-void vypisNasledniky(State initstate, ScoreFun scf)
+void vypisNasledniky(State state, ScoreFun scf)
 {
-	Generator g(initstate);
-	State next(initstate);
+	Generator g(state);
+	State next(state);
 	Pos b;
 	Action a;
 	while(g.next(next,b,a)){
 		cerr << "---" << endl;
-		cerr << "Akce: " << strAction(a, initstate.botName(b)) << endl;
+		cerr << "Akce: " << strAction(a, state.botName(b)) << endl;
 		cerr << "Skore: " << scf(next) << endl;
 		next.dump();
 	}
@@ -50,27 +53,31 @@ main(int argc, char **argv)
 
 	ScoreFun scf;
 	//scf = nonsenseScore;
-	//scf = sensibleScore;
-	scf = yetAnotherScoreFunction;
+	scf = sensibleScore;
+	if (getenv("YASF")) {
+		cerr << "Pouzivam YASF" << endl;
+		scf = yetAnotherScoreFunction;
+	}
 
 	try {
 		if(argc < 2)
 			throw Error("chybny pocet argumentu programu");
 		strcpy(filename, argv[1]);
 		strcat(filename, "/state");
-		State initstate(filename);
+		
+		gstate = State(filename);
 		//initstate.dump();
 
 		if(argc == 3){
-			vypisNasledniky(initstate, scf);
+			vypisNasledniky(gstate, scf);
 			return EXIT_SUCCESS;
 		}
 
 		// samotny kod na vypocet pozice
-		State newState(initstate);
-		Pos newBot, bestBot;
-		Action newAction, bestAction(aNOOP);
-		Generator generator(initstate);
+		State newState(gstate);
+		Pos newBot;
+		Action newAction;
+		Generator generator(gstate);
 		double newScore, bestScore = -INFINITY;
 
 		while(generator.next(newState, newBot, newAction)){
@@ -85,8 +92,9 @@ main(int argc, char **argv)
 			}
 		}
 
+		alarm(0);
 		//cerr << "bestscore: " << bestScore << endl;
-		cout << strAction(bestAction, initstate.botName(bestBot)) << endl;
+		cout << strAction(bestAction, gstate.botName(bestBot)) << endl;
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;

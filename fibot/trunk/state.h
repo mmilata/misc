@@ -37,12 +37,14 @@ class Pos {
 		bool operator <(const Pos &pos) const {return x < pos.x && y < pos.y;};
 
 		double distance(const Pos &pos) const;
+		double distanceNormalized(const Pos &pos, double max) const { return distance(pos)/max; };
 };
 
 const char *strAction(Action a, const char);
 
 class State {
 	public:
+		State() {};
 		State(const char *filename);
 		FieldType get(int x, int y) const {
 			assert(x >= 0 && y >= 0 && x < columns && y < rows); 
