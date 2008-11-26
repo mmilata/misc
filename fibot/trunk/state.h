@@ -58,6 +58,7 @@ class State {
 		void killBot(Pos p);
 		bool endGame(void) const;
 		void dump(void) const;
+		bool isThreat(Pos p, int player) const;
 
 		Pos getDestination(const Pos&, Action) const;
 

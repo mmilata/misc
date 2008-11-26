@@ -233,4 +233,64 @@ const char *strAction(Action a, botPos p)
 
 	return ret;
 }
+
+bool State::isThreat(Pos p, int player) const
+{
+	int x = p.x;
+	int y = p.y;
+	FieldType f;
+
+	for(int nx = x+1;
+	    nx < columns && get(nx,y) != ftWall;
+	    nx++){
+		f = get(nx,y);
+		if(f == ftOurBot){
+			if(tah_hrace != player)
+				return true;
+		}else if(f == ftTheirBot){
+			if(tah_hrace == player)
+				return true;
+		}
+	}
+
+	for(int nx = x-1;
+	    nx >= 0 && get(nx,y) != ftWall;
+	    nx--){
+		f = get(nx,y);
+		if(f == ftOurBot){
+			if(tah_hrace != player)
+				return true;
+		}else if(f == ftTheirBot){
+			if(tah_hrace == player)
+				return true;
+		}
+	}
+
+	for(int ny = y+1;
+	    ny < rows && get(x,ny) != ftWall;
+	    ny++){
+		f = get(x,ny);
+		if(f == ftOurBot){
+			if(tah_hrace != player)
+				return true;
+		}else if(f == ftTheirBot){
+			if(tah_hrace == player)
+				return true;
+		}
+	}
+
+	for(int ny = y-1;
+	    ny >= 0 && get(x,ny) != ftWall;
+	    ny--){
+		f = get(x,ny);
+		if(f == ftOurBot){
+			if(tah_hrace != player)
+				return true;
+		}else if(f == ftTheirBot){
+			if(tah_hrace == player)
+				return true;
+		}
+	}
+	return false;
+}
 /* vim: set noexpandtab: */
