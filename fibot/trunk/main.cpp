@@ -19,6 +19,7 @@ static Action bestAction(aNOOP);
 static Pos bestBot;
 static State gstate;
 static bool end = false;
+static char bestBotName;
 
 void sighandler(int unused)
 {
@@ -88,16 +89,18 @@ main(int argc, char **argv)
 			if(newScore > bestScore){
 				bestScore = newScore;
 				bestBot = newBot;
+				bestBotName = gstate.botName(bestBot);
 				bestAction = newAction;
 			}
 		}
 
 		alarm(0);
 		//cerr << "bestscore: " << bestScore << endl;
-		cout << strAction(bestAction, gstate.botName(bestBot)) << endl;
+		cout << strAction(bestAction, bestBotName) << endl;
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;
+		cout << "-" << endl;
 		return EXIT_FAILURE;
 	}
 

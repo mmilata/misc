@@ -287,16 +287,6 @@ const char *strAction(Action a, const char bot)
 	return ret;
 }
 
-/*
-int State::_get(vector<int> matrix, const Pos &pos) const {
-	return matrix[(pos.y * columns) + pos.x];
-}
-
-void State::_set(vector<int> matrix, const Pos &pos, int val) const {
-	matrix[(pos.y * columns) + pos.x] = val;
-}
-*/
-
 int State::dstGet(vector<int>* m, const Pos &pos) const
 {
 	return (*m)[(pos.y * columns) + pos.x];
@@ -366,70 +356,6 @@ vector<int>* State::computeFlagDst(const Pos &p) const
 	}
 	return matrix;
 }
-/*
-int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) const {
-	vector<int> matrix(rows * columns, 10000);
-
-	Pos fPos;
-	vector<Pos> nPositions, fPositions;
-	fPositions.push_back(posFrom);
-
-	for (int n = 1; n <= limit; n++) {
-		nPositions.clear();
-		vector<Pos>::iterator p_i;
-		for (p_i = fPositions.begin(); p_i != fPositions.end(); p_i++) {
-			//cerr << "position " << p_i->x << " " << p_i->y << " " << n <<  endl;
-			Pos nPos;
-			nPos = getDestination((*p_i), aSever);
-			if (nPos != fPos) {
-				if (nPos == posTo) {
-					return n;
-				}
-				if (_get(matrix, nPos) > n)  {
-					_set(matrix, nPos, n);
-					nPositions.push_back(nPos);
-				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
-				}
-			}
-			nPos = getDestination((*p_i), aVychod);
-			if (nPos != fPos) {
-				if (nPos == posTo) {
-					return n;
-				}
-				if (_get(matrix, nPos) > n) {
-					_set(matrix, nPos, n);
-					nPositions.push_back(nPos);
-				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
-				}
-			}
-			nPos = getDestination((*p_i), aJih);
-			if (nPos != fPos) {
-				if (nPos == posTo) {
-					return n;
-				}
-				if (_get(matrix, nPos) > n) {
-					_set(matrix, nPos, n);
-					nPositions.push_back(nPos);
-				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
-				}
-			}
-			nPos = getDestination((*p_i), aZapad);
-			if (nPos != fPos) {
-				if (nPos == posTo) {
-					return n;
-				}
-				if (_get(matrix, nPos) > n) {
-					_set(matrix, nPos, n);
-					nPositions.push_back(nPos);
-				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
-				}
-			}
-		}
-		fPositions = nPositions;
-	}
-	return -1;
-}
-*/
 
 int State::flagDist(int player, const Pos &p) const
 {

@@ -71,13 +71,6 @@ class State {
 		char botName(const Pos&) const;
 		bool isEnemy(const Pos&) const;
 
-		/*
-		int _get(std::vector<int> matrix, const Pos &pos) const;
-		void _set(std::vector<int> matrix, const Pos &pos, int val) const;
-		int countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) const;
-		Pos _getDestination(const Pos &position, Action action) const;
-		*/
-
 		int dstGet(std::vector<int> *m, const Pos &p) const;
 		void dstSet(std::vector<int> *m, const Pos &p, const int &i) const;
 		std::vector<int>* computeFlagDst(const Pos &p) const;
