@@ -19,6 +19,23 @@ void sighandler(int unused)
 	exit(EXIT_SUCCESS);
 }
 
+//vypise nasledniky a umre
+//mozno smazat
+void testGeneratoru(State initstate)
+{
+	Generator g(initstate, true);
+	State next(initstate);
+	botPos b;
+	Action a;
+	while(g.next(next,b,a)){
+		cerr << "---" << endl;
+		cerr << "Akce: " << strAction(a,b) << endl;
+		next.dump();
+		cerr << "Skore: " << next.getScore(next.fOurBots, next.fTheirFlag) << endl;
+	}
+
+}
+
 int
 main(int argc, char **argv)
 {
@@ -33,28 +50,22 @@ main(int argc, char **argv)
 		strcpy(filename, argv[1]);
 		strcat(filename, "/state");
 		State initstate(filename);
-		initstate.dump();
-
-		Generator g(initstate, true);
-		State next(initstate);
-		botPos b;
-		Action a;
-		while(g.next(next,b,a)){
-			cerr << "---" << endl;
-			cerr << "Akce: " << strAction(a,b) << endl;
-			next.dump();
-		}
+		//initstate.dump();
 
 		/*
+		testGeneratoru(initstate);
+		exit(1);
+		*/
+
 		// samotny kod na vypocet pozice
-		State newState;
-		botPost newBot, bestBot;
+		State newState(initstate);
+		botPos newBot, bestBot;
 		Action newAction, bestAction(aNOOP);
-		Generator generator(initstate);
+		Generator generator(initstate,true);
 		double newScore, bestScore = -1.0;
 
 		while (generator.next(newState, newBot, newAction)) {
-			newScore = newState.getScore(newState.fOurBots, fTheirFlag);
+			newScore = newState.getScore(newState.fOurBots, newState.fTheirFlag);
 			
 			if (newScore < 0)
 				continue; // neplatna pozice;
@@ -65,11 +76,12 @@ main(int argc, char **argv)
 			}
 		}
 
+		cout << strAction(bestAction, bestBot) << endl;
+		/*
 		if (bestAction == aNOOP) {
 			cout << "-" << endl;
 		}
 		else {
-			char bot = bestBot->second;
 			char cmd;
 
 			switch (newAction) {
