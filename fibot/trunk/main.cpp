@@ -23,6 +23,7 @@ void sighandler(int unused)
 {
 	(void)unused;
 	
+	cerr << "timeout!!!" << endl;
 	cout << strAction(bestAction, gstate.botName(bestBot)) << endl;
 	exit(EXIT_SUCCESS);
 }

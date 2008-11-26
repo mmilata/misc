@@ -1,0 +1,205 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my $name = $ARGV[0]; #nazev hry
+
+my ($s1, $s2); # jmena strategii
+my ($n, $m, $k, $h); #n sloupcu, m radku, pocet zbyvajicich kol, hrac na tahu
+my (@vx,  @vy); # polohy vlajek, cislovano od 1,
+                              # nejdriv x-ova souradnice (sloupec), pak y-ova (radek)
+my @a; # hraci plan s mantinely
+my @b; # hraci plan s mantinely pro zapis do logu
+my $finished = 0;
+my $tah;
+
+sub start_game {
+    my $tmp;
+    open Config, "$name.config" or die "Nemohu otevrit $name.config.";
+    if (not -e "$name") { `mkdir $name`;}
+    $tmp = <Config>;
+    ($s1, $s2) = split /\s+/, $tmp;
+    $tmp = <Config>;
+    ($n, $m, $k, $h) = split /\s+/, $tmp;
+    $tmp = <Config>;
+    ($vx[1], $vy[1], $vx[2], $vy[2]) = split /\s+/, $tmp;
+    for my $j (0..$m+1) {
+	for my $i (0..$n+1) {
+	    $a[$i][$j] = '#';
+	}
+    }
+    for my $j (1..$m) {
+	$tmp = <Config>;
+	chomp $tmp;
+	my @p = split //, $tmp;
+	for my $i (1..$n) {
+	    $a[$i][$j] = $p[$i-1];
+	}
+    }    
+    # promazat adresar jestli tam neco bylo
+    print `rm $name/*`;
+    write_state();
+    open Log, ">$name/log";
+    print Log "$n $m $k $h\n";
+    print Log "$vx[1] $vy[1] $vx[2] $vy[2]\n";
+}
+
+sub write_state {
+    open State, ">$name/state";
+    print State "$n $m $k $h\n";
+    print State "$vx[1] $vy[1] $vx[2] $vy[2]\n";
+    for my $j (1..$m) {
+	for my $i (1..$n) {
+	    print State $a[$i][$j];
+	}
+	print State "\n";
+    }
+    close State;
+}
+
+sub write_log_init {
+    print Log "Kolo $k, tah hrace 0: init\n";
+    for my $j (1..$m) {
+	for my $i (1..$n) {
+	    print Log $a[$i][$j];
+	}
+	print Log "\n";
+    }
+}
+
+sub write_log {
+    print Log "Kolo $k, tah hrace $h: $tah\n";
+    for my $j (1..$m) {
+	for my $i (1..$n) {
+	    print Log $b[$i][$j];
+	}
+	print Log "\n";
+    }
+}
+
+sub player {
+    my $a = shift;
+    for ('A'..'M') { return 1 if $a eq $_; }
+    for ('N'..'Z') { return 2 if $a eq $_; }
+    return 0;
+}
+
+sub make_move {
+    my $tah = shift;
+    print "Tah: $tah\n";
+    my ($robot, $akce);
+    my ($i, $j);
+    for $j (0..$m+1) {
+	for $i (0..$n+1) {
+	    $b[$i][$j] = $a[$i][$j];
+	}
+    }
+    if ($tah =~ /^\s*-\s*$/) {return;}
+    if ($tah =~ /^\s*(\S)\s+(\S)\s*$/) { $robot = $1; $akce = $2; }
+    else { print "Spatny format tahu hrace $h: $tah\n"; return; }
+    if ($robot eq '-') {return ;} 
+    if (player($robot) ne $h) { print "Neplatny tah hrace $h: spatny robot $robot\n"; return; }
+    my ($x, $y) = (-1,-1);
+    for $j (1..$m) {
+	for $i (1..$n) {
+	    if ($a[$i][$j] eq $robot) { $x = $i; $y = $j;}
+	}
+    }
+    if ($x == -1) { print "Neplatny tah hrace $h: robot $robot neexistuje\n"; return; }
+    if ($akce eq 'D') {
+	$i = $x; $j = $y;
+	while ($a[$i][$j] ne '#') { $a[$i][$j] = '.'; $b[$i][$j] = '+'; $i--; }
+	$i = $x; $j = $y;
+	while ($a[$i][$j] ne '#') { $a[$i][$j] = '.'; $b[$i][$j] = '+'; $i++; }
+	$i = $x; $j = $y;
+	while ($a[$i][$j] ne '#') { $a[$i][$j] = '.'; $b[$i][$j] = '+'; $j--; }
+	$i = $x; $j = $y;
+	while ($a[$i][$j] ne '#') { $a[$i][$j] = '.'; $b[$i][$j] = '+'; $j++; }	
+    } elsif ($akce eq 'S') {
+	while ($a[$x][$y-1] eq '.') { $a[$x][$y] = '.'; $b[$x][$y] = '|'; $y = $y-1; }
+	$a[$x][$y] = $robot; $b[$x][$y] = $robot;
+    } elsif ($akce eq 'J') {
+	while ($a[$x][$y+1] eq '.') { $a[$x][$y] = '.'; $b[$x][$y] = '|'; $y = $y+1; }
+	$a[$x][$y] = $robot; $b[$x][$y] = $robot;
+    } elsif ($akce eq 'Z') {
+	while ($a[$x-1][$y] eq '.') { $a[$x][$y] = '.'; $b[$x][$y] = '-'; $x = $x-1; }
+	$a[$x][$y] = $robot; $b[$x][$y] = $robot;
+    } elsif ($akce eq 'V') {
+	while ($a[$x+1][$y] eq '.') { $a[$x][$y] = '.'; $b[$x][$y] = '-'; $x = $x+1; }
+	$a[$x][$y] = $robot; $b[$x][$y] = $robot;
+    } else {
+	print "Neplatny tah hrace $h: neplatna akce $akce\n"; return; 
+    }
+    if ($x == $vx[3-$h] and $y == $vy[3-$h]) {
+	$finished = 1;
+    }
+    return;
+}
+
+sub compute_distance { 
+    my ($p, $x, $y) = @_; #spocita vzdalenost policka k vlajce hrace p
+    return sqrt(($x-$vx[$p])**2 + ($y-$vy[$p])**2);
+}
+
+sub compute_results {
+    my @mind;
+    $mind[1] = 1000; $mind[2]=1000;
+    for my $j (1..$m) {
+	for my $i (1..$n) {
+	    my $p = player($a[$i][$j]);
+	    if ($p>0) {
+		my $c = compute_distance(3-$p, $i, $j);
+#		print "Distance: $i, $j, $p: $c\n";
+		if ($c < $mind[$p]) { $mind[$p] = $c; }
+	    }
+	}
+    }
+    my @res;
+    for (1..2) {
+	$res[$_] = 0;
+	if ($mind[$_] == 0) { $res[$_] = 20; }
+	elsif ($mind[$_] < 15) { $res[$_] = 15 - int($mind[$_]+0.5); }
+    }
+    return @res;
+}
+
+########################## MAIN ##################################
+
+start_game();
+
+
+write_log_init();
+
+while ($k > 0 and $finished == 0) {
+    print "Provadim kolo: $k, hrac $h\n";
+    my $cmd;
+    if ($h == 1) { $cmd = "strategie/$s1 $name"; }
+    else { $cmd = "strategie/$s2 $name"; }
+#    print "Volam '$cmd'\n";
+    $tah = `$cmd`;
+    chomp($tah);
+    make_move($tah);
+    write_log();
+    if ($h == 1) {$h = 2; } else {$h = 1; $k--; }
+    write_state();
+}
+
+
+my @results = compute_results();
+
+print "Vysledky:\n";
+print "Hrac1 ($s1): $results[1]\n";
+print "Hrac2 ($s2): $results[2]\n";
+
+print Log "Vysledky:\n";
+print Log "Hrac1 ($s1): $results[1]\n";
+print Log "Hrac2 ($s2): $results[2]\n";
+close Log;
+
+open Results, ">$name/results";
+print Results "Hrac1 ($s1) $results[1]\n";
+print Results "Hrac2 ($s2) $results[2]\n";
+close Results;
+
+
+`./visualize_log $name`;

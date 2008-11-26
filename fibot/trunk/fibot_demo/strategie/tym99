@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+ 
+ 
+use strict;  my $name =  $ARGV[0];  
+my (@vx,  @vy);  my ($n, $m, $k, $h);  my (@a, @b); 
+  
+ sub player { 
+    my $a = shift;     for ('A'..'M') { return 1 if $a eq $_; } 
+    for ('N'..'Z') { return 2 if $a eq $_; } 
+    return 0; }  sub compute_distance {      my ($p, $x, $y) = @_;  
+    return sqrt(($x-$vx[$p])**2 + ($y-$vy[$p])**2); }  
+sub save_plan {     for my $j (0..$m+1) {  for my $i (0..$n+1) {      $b[$i][$j] = $a[$i][$j]; 	} 
+    } }  sub restore_plan { 
+    for my $j (0..$m+1) {  for my $i (0..$n+1) { 
+     $a[$i][$j] = $b[$i][$j];  } 
+    } 
+}  
+sub detonation_effect {     my $robot = shift;     my ($x, $y) = (-1,-1);     my ($i, $j); 
+    for $j (1..$m) { 
+	for $i (1..$n) { 	    if ($a[$i][$j] eq $robot) { $x = $i; $y = $j;} 
+	}     }     my ($countscore, $distscore) = (0,0);     for my $move ('S','J','Z','V', 'T') { 
+ $i = $x; $j = $y; 
+ my $foo = 1;  while ($a[$i][$j] ne '#' and $foo) {
+ 	    if ($move eq 'S') {$j--;} 
+	    if ($move eq 'J') {$j++;}      if ($move eq 'Z') {$i--;}      if ($move eq 'V') {$i++;}      if ($move eq 'T') {$foo = 0;}  	    my $p = player($a[$i][$j]); 
+	    if ($p != 0) {   my $c = compute_distance(3-$p, $i, $j); 		$countscore = $countscore + (($p == $h) ? -1 : 1);   $distscore = $distscore + (($p == $h) ? -(20-$c) : (20-$c)); 	    } 	}     } 
+    return ($countscore, $distscore); 
+}  sub distance_after_move {     my ($robot, $akce)= @_;     my ($i, $j);     my ($x, $y) = (-1,-1);     for $j (1..$m) { 	for $i (1..$n) { 
+     if ($a[$i][$j] eq $robot) { $x = $i; $y = $j;}  } 
+    }     if ($akce eq 'S') {  while ($a[$x][$y-1] eq '.') { $y = $y-1; } 
+    } elsif ($akce eq 'J') { 
+ while ($a[$x][$y+1] eq '.') { $y = $y+1; } 
+    } elsif ($akce eq 'Z') { 
+ while ($a[$x-1][$y] eq '.') { $x = $x-1; }     } elsif ($akce eq 'V') { 	while ($a[$x+1][$y] eq '.') { $x = $x+1; } 
+    }          return compute_distance(3-$h,$x,$y); } 
+   my (@moji);  my @akcepohyb = ('S','J','Z','V'); 
+ 
+open State, "$name/state" or die "problem $name/state"; my $tmp = <State>; ($n,$m,$k,$h) = split /\s+/, $tmp; $tmp = <State>; 
+($vx[1], $vy[1], $vx[2], $vy[2]) = split /\s+/, $tmp; for my $j (0..$m+1) { 
+    for my $i (0..$n+1) {  $a[$i][$j] = '#';
+     } }  my %distance; 
+ for my $j (1..$m) {     $tmp = <State>;     chomp $tmp;     my @p = split //, $tmp;     for my $i (1..$n) {  $a[$i][$j] = $p[$i-1]; 	if (player($a[$i][$j]) == $h) {      $distance{$a[$i][$j]} = compute_distance(3-$h,$i,$j); 
+     push @moji, $a[$i][$j];  }     } }     
+ close State;    
+  
+my ($bestscore, $bestmove) = (-3,"-"); 
+ 
+for my $r (@moji) {     my ($countscore, $distscore) = detonation_effect($r);      if (($countscore > 0) or ($countscore == 0 and $distscore > 0) and 
+ (100 + $countscore*10 + $distscore > $bestscore)) {  $bestscore = 100 + $countscore*10 + $distscore; 
+	$bestmove = "$r D";     }          for my $akce (@akcepohyb) { 	my $newdistance = distance_after_move($r,$akce);    
+ 
+  if ($distance{$r} - $newdistance > $bestscore) { 	    $bestscore = $distance{$r} - $newdistance;      $bestmove = "$r $akce";  }   
+    } }  
+ print "$bestmove\n"; 

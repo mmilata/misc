@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+ 
+ use strict;  my $name =  $ARGV[0];  
+my (@vx,  @vy);  
+my ($n, $m, $k, $h);  my @a; my %dx = ('S' => 0, 'J' => 0, 'Z' => -1, 'V' => 1); my %dy = ('S' => -1, 'J' => 1, 'Z' => 0, 'V' => 0); 
+  
+ sub player {     my $a = shift;     for ('A'..'M') { return 1 if $a eq $_; }     for ('N'..'Z') { return 2 if $a eq $_; }     return 0; 
+}  
+sub compute_distance {  
+    my ($p, $x, $y) = @_;  
+    return sqrt(($x-$vx[$p])**2 + ($y-$vy[$p])**2); } 
+  
+sub detonation_effect {     my $robot = shift;     my ($x, $y) = (-1,-1);     my ($i, $j); 
+    for $j (1..$m) {  for $i (1..$n) { 	    if ($a[$i][$j] eq $robot) { $x = $i; $y = $j;} 	}     }     my ($countscore, $distscore) = (0,0);     for my $move ('S','J','Z','V', 'T') {  $i = $x; $j = $y;  my $foo = 1; 	while ($a[$i][$j] ne '#' and $foo) {
+      if ($move eq 'S') {$j--;}      if ($move eq 'J') {$j++;} 	    if ($move eq 'Z') {$i--;}      if ($move eq 'V') {$i++;}      if ($move eq 'T') {$foo = 0;}       my $p = player($a[$i][$j]);      if ($p != 0) { 		my $c = compute_distance(3-$p, $i, $j); 		$countscore = $countscore + (($p == $h) ? -1 : 1);   $distscore = $distscore + (($p == $h) ? -(20-$c) : (20-$c));      }  } 
+    }     return ($countscore, $distscore); } 
+ 
+my (@d, @pk);   sub compute_distances_for_k_paths {     my $robot = shift;     my @b;      my ($i, $j);     my (@d2, @pk2); 
+    for $j (0..$m+1) {  for $i (0..$n+1) {      $b[$i][$j] = ($a[$i][$j] eq '.')? 0 : 1;       if ($a[$i][$j] eq $robot) {$b[$i][$j] = 0; }  	    $d[$i][$j] = compute_distance(3-$h, $i, $j);      $d2[$i][$j] = $d[$i][$j];      $pk2[$i][$j] = $pk[$i][$j] = 0;       	}     }     for (1..$k) {  
+   for $j (1..$m) {      for $i (1..$n) { 
+  for my $s ('S','J','Z','V') { 		    my $i2 = $i; 
+      my $j2 = $j; 		    if ($b[$i2-$dx{$s}][$j2-$dy{$s}]) {    while ($b[$i2][$j2] == 0) { 
+       if ($d[$i][$j] < $d2[$i2][$j2]) {     $d2[$i2][$j2] = $d[$i][$j];     $pk2[$i2][$j2] = $pk[$i][$j] + 1; 
+       } 
+       $i2 += $dx{$s}; 			    $j2 += $dy{$s};    }       }   } 	    } 	} 	for $j (1..$m) { for $i (1..$n) { $d[$i][$j] = $d2[$i][$j]; $pk[$i][$j] = $pk2[$i][$j]; } }     }    
+  
+   
+ 
+  
+ }  sub find_best_path { 
+    my $robot = shift;     my ($i, $j);     my ($x, $y) = (-1,-1); 
+     compute_distances_for_k_paths($robot);      
+    for $j (0..$m+1) { 	for $i (0..$n+1) {      if ($a[$i][$j] eq $robot) { $x = $i; $y = $j;} 
+ }        } 
+    my ($bestd, $bestpk, $bests) = (10000, 0, "S");     for my $s ('S','J','Z','V') {  $i = $x; $j = $y;  while ($a[$i+$dx{$s}][$j+$dy{$s}] eq '.') { $i += $dx{$s};  $j += $dy{$s}; } 	if (($d[$i][$j] < $bestd) or ($d[$i][$j] == $bestd and $pk[$i][$j]<$bestpk)) { 	    $bestd = $d[$i][$j]; $bestpk = $pk[$i][$j];  $bests = $s; 	}     }      return ($bests, $bestd, $bestpk); }  
+my (@moji);   open State, "$name/state" or die "problem $name/state"; my $tmp = <State>; ($n,$m,$k,$h) = split /\s+/, $tmp; 
+$tmp = <State>; ($vx[1], $vy[1], $vx[2], $vy[2]) = split /\s+/, $tmp; 
+for my $j (0..$m+1) {     for my $i (0..$n+1) { 
+ $a[$i][$j] = '#';
+     } }  my %distance;  
+for my $j (0..$m+1) {     for my $i (0..$n+1) {  $a[$i][$j] = '#';
+ 
+    } }   
+for my $j (1..$m) {     $tmp = <State>;     chomp $tmp;     my @p = split //, $tmp;     for my $i (1..$n) {  $a[$i][$j] = $p[$i-1]; 
+	if (player($a[$i][$j]) == $h) { 
+     $distance{$a[$i][$j]} = compute_distance(3-$h,$i,$j); 
+     push @moji, $a[$i][$j]; 	} 
+    } }      
+close State;  
+my ($bestscore, $bestmove) = (-3,"-");   for my $r (@moji) {     my ($countscore, $distscore) = detonation_effect($r);  
+     if (($countscore >= 0) and  	(1000 + $countscore*10 + $distscore > $bestscore)) { 	$bestscore = 1000 + $countscore*10 + $distscore; 	$bestmove = "$r D";     }         my ($smer, $dist, $pk) = find_best_path($r); 
+     if (1000 - 30*$dist - $pk > $bestscore and $distance{$r} - $dist > 0)  { 	    $bestscore = 1000 - 30*$dist - $pk;      $bestmove = "$r $smer";      } } 
+  
+print "$bestmove\n"; 

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="61.14706"
+   height="61.14706"
+   id="svg2"
+   inkscape:label="Pozadí"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="robotZ.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/net/atlas/export/home/xpelanek/fibot/rocnik5/programy/javascript-test/robotZ.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300"
+   version="1.0">
+  <defs
+     id="defs3">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective9" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="31.993329"
+     inkscape:cy="30.42214"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     gridtolerance="9"
+     inkscape:window-width="1106"
+     inkscape:window-height="687"
+     inkscape:window-x="16"
+     inkscape:window-y="174"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2382"
+       visible="true"
+       enabled="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata6">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-344.49999,-16.862183)">
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.91176462;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2386"
+       width="58.235294"
+       height="58.235294"
+       x="345.95587"
+       y="18.318066"
+       inkscape:export-filename="/net/atlas/export/home/xpelanek/fibot/rocnik5/programy/javascript-test/path4479.png"
+       inkscape:export-xdpi="100.08658"
+       inkscape:export-ydpi="100.08658" />
+    <path
+       style="fill:#0000ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.91176462000000003px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 354.69118,37.426539 L 354.69118,24.141595 L 395.45588,24.141595 L 395.45588,38.700419"
+       id="path4475"
+       inkscape:export-filename="/net/atlas/export/home/xpelanek/fibot/rocnik5/programy/javascript-test/path4479.png"
+       inkscape:export-xdpi="100.08658"
+       inkscape:export-ydpi="100.08658" />
+    <path
+       style="fill:#0000ff;fill-opacity:0.5;fill-rule:evenodd;stroke:#000000;stroke-width:2.91176462000000003px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 351.77941,70.729831 L 351.77941,38.700419 L 398.36765,38.700419 L 398.36765,70.729831 L 351.77941,70.729831 z"
+       id="path4469"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/net/atlas/export/home/xpelanek/fibot/rocnik5/programy/javascript-test/path4479.png"
+       inkscape:export-xdpi="100.08658"
+       inkscape:export-ydpi="100.08658" />
+    <text
+       xml:space="preserve"
+       style="font-size:34.94117737px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Nimbus Sans L;-inkscape-font-specification:Nimbus Sans L"
+       x="364.5"
+       y="68.009247"
+       id="text4471"
+       inkscape:export-filename="/net/atlas/export/home/xpelanek/fibot/rocnik5/programy/javascript-test/path4479.png"
+       inkscape:export-xdpi="100.08658"
+       inkscape:export-ydpi="100.08658"><tspan
+         sodipodi:role="line"
+         id="tspan4473"
+         x="364.5"
+         y="68.009247"
+         style="font-weight:bold;-inkscape-font-specification:Nimbus Sans L Bold">S</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;fill:#fff200;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4477"
+       sodipodi:cx="351.5"
+       sodipodi:cy="21.862183"
+       sodipodi:rx="0.5"
+       sodipodi:ry="0.5"
+       d="M 352,21.862183 A 0.5,0.5 0 1 1 351,21.862183 A 0.5,0.5 0 1 1 352,21.862183 z"
+       transform="matrix(2.9117647,0,0,2.9117647,-658.60294,-32.236526)"
+       inkscape:export-filename="/net/atlas/export/home/xpelanek/fibot/rocnik5/programy/javascript-test/path4479.png"
+       inkscape:export-xdpi="100.08658"
+       inkscape:export-ydpi="100.08658" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;fill:#fff200;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4479"
+       sodipodi:cx="351.5"
+       sodipodi:cy="21.862183"
+       sodipodi:rx="0.5"
+       sodipodi:ry="0.5"
+       d="M 352,21.862183 A 0.5,0.5 0 1 1 351,21.862183 A 0.5,0.5 0 1 1 352,21.862183 z"
+       transform="matrix(2.9117647,0,0,2.9117647,-638.22059,-31.976545)"
+       inkscape:transform-center-x="4.0296783"
+       inkscape:transform-center-y="-1.1698867"
+       inkscape:export-xdpi="100.08658"
+       inkscape:export-ydpi="100.08658" />
+  </g>
+</svg>

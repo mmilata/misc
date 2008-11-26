@@ -1,0 +1,177 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+sub player {
+    my $a = shift;
+    for ('A'..'M') { return 1 if $a eq $_; }
+    for ('N'..'Z') { return 2 if $a eq $_; }
+    return 0;
+}
+
+my $adr = shift @ARGV;
+my (@vx,  @vy); # polohy vlajek, cislovano od 1,
+my ($n, $m, $prvnikolo, $prvnihrac); #n sloupcu, m radku, pocet zbyvajicich tahu, hrac na tahu
+
+
+sub code {
+    return ($_[1]-1)*$n + $_[0];
+}
+
+###############################################
+
+open Log, "$adr/log" or die "File $adr/log not found";
+
+my $tmp = <Log>;
+($n,$m, $prvnikolo, $prvnihrac) = split /\s+/, $tmp;
+$tmp = <Log>;
+($vx[1], $vy[1],$vx[2], $vy[2]) = split /\s+/, $tmp;
+
+
+my @status;
+
+
+my ($kolo, $hrac, @tah);
+while (1) {
+    $tmp = <Log>;
+    last if $tmp =~ /Vysledky/;
+    if ($tmp =~ /Kolo (.*), tah hrace (.):(.*)/) {$kolo = $1; $hrac=$2; $tah[$kolo][$hrac] =  $3;}
+    for my $j (1..$m) {
+	$tmp = <Log>;
+	my @p = split //, $tmp;	
+	for my $i (1..$n) {
+	    my $bgcolor = 'white';
+	    if ($p[$i-1] eq '#') {
+		$status[$i][$j][$kolo][$hrac] = "zed";
+	    } elsif ($p[$i-1] eq '+') {		
+		$status[$i][$j][$kolo][$hrac] = "vybuch";
+	    } elsif ($p[$i-1] eq '-') {		
+		$status[$i][$j][$kolo][$hrac] = "pohybZV";
+	    } elsif ($p[$i-1] eq '|') {		
+		$status[$i][$j][$kolo][$hrac] = "pohybSJ";
+	    } elsif ($i == $vx[1] and $j==$vy[1]) {
+		if (player($p[$i-1]) == 2) {
+		    $status[$i][$j][$kolo][$hrac] = "cervenavlajka-dobita";
+		} elsif (player($p[$i-1]) == 1) {
+		    $status[$i][$j][$kolo][$hrac] = "robot".$p[$i-1];		    		    
+		} else {
+		    $status[$i][$j][$kolo][$hrac] = "cervenavlajka";
+		}
+	    } elsif ($i == $vx[2] and $j==$vy[2]) {
+		if (player($p[$i-1]) == 1) {
+		    $status[$i][$j][$kolo][$hrac] = "modravlajka-dobita";
+		} elsif (player($p[$i-1]) == 2) {
+		    $status[$i][$j][$kolo][$hrac] = "robot".$p[$i-1];		    		    
+		} else {
+		    $status[$i][$j][$kolo][$hrac] = "modravlajka";
+		}
+	    } elsif (player($p[$i-1])>0) {
+		$status[$i][$j][$kolo][$hrac] = "robot".$p[$i-1];		    
+	    } else {
+		$status[$i][$j][$kolo][$hrac] = "prazdny";		    
+	    }
+	}
+    }
+}
+my ($poslednihrac, $poslednikolo)= ($hrac, $kolo);
+
+
+open Html, ">$adr/log.html";
+
+print Html "<html><head></head><body>\n";
+
+print Html "<script>
+var k=$prvnikolo;
+var h=0;
+function redraw() {
+document.f1.kolo.value = k;
+document.f1.hrac.value = h;
+";
+for $kolo ($poslednikolo..$prvnikolo) {
+    for $hrac (0..2) {
+	if (defined $status[1][1][$kolo][$hrac]) {
+	    print Html "if (k==$kolo && h==$hrac) {document.f1.tah.value = \"$tah[$kolo][$hrac]\";\n";
+	    for my $j (1..$m) {
+		for my $i (1..$n) {		    
+		    print Html "document.img",code($i,$j),".src=\"../img/",$status[$i][$j][$kolo][$hrac],".png\"; " 
+		}
+	    }
+	    print Html "}\n";
+	}
+    }
+}
+print Html "
+}
+
+function initmove() {
+k=$prvnikolo;
+h=0;
+redraw();
+}
+
+function forward() {
+  if (h==0) { h=1; }
+  else if (h==1) { h=2; }
+  else { h=1; k=k-1;}
+  if (k<$poslednikolo || (k==$poslednikolo && h > $poslednihrac)) {
+    finalmove();
+  } else {
+    redraw();
+  }
+}
+
+function backward() {
+  if (h==0) { initmove(); } else
+  {
+  if (h==1) { h=2; k=k+1; }
+  else { h=1; }
+  if (k>$prvnikolo) {
+   initmove();
+  } else {
+    redraw();
+  }
+  }
+}
+
+
+function finalmove() {
+k=$poslednikolo;
+h=$poslednihrac;
+redraw();
+}
+
+</script>
+";
+
+print Html "<br><form name=f1>
+Kolo: <input type=text name=kolo size=3>,
+Hrac na tahu: <input type=text name=hrac size=1>,
+Tah: <input type=text name=tah size=6></form><br>\n";
+
+print Html "<table border=0 cellspacing=0 cellpadding=0>";
+for my $j (1..$m) {    
+    print Html "<tr>";
+    for my $i (1..$n) {
+	print Html "<td><img src=\"../img/",$status[$i][$j][$prvnikolo][0],".png\" width=40 height=40 name=img",code($i,$j),"></td>";
+    }
+    print Html "</tr>\n";	
+}
+print Html "</table>";
+
+print Html '
+<a href="#" onClick="initmove();">Zacatek</a>,
+<a href="#" onClick="backward();">Zpatky</a>,
+<a href="#" onClick="forward();">Dopredu</a>,
+<a href="#" onClick="finalmove();">Konec</a>
+';
+
+print Html "<hr> <h2>Vysledky:</h2>\n";
+$tmp = <Log>;
+print Html $tmp, "<br>";
+$tmp = <Log>;
+print Html $tmp, "<br>";
+
+
+print Html "</body></html>\n";
+
+close Html;
