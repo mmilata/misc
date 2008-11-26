@@ -66,7 +66,7 @@ main(int argc, char **argv)
 		strcat(filename, "/state");
 		
 		gstate = State(filename);
-		//initstate.dump();
+		gstate.dump();
 
 		if(argc == 3){
 			vypisNasledniky(gstate, scf);

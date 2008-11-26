@@ -34,7 +34,8 @@ class Pos {
 		bool operator != (const Pos &pos) const { return !(this->operator ==(pos));};
 		Pos operator - (const Pos &pos) const {return Pos(x - pos.x, y - pos.y);};
 		Pos operator + (const Pos &pos) const {Pos p(*this); p += pos; return p;}
-		bool operator <(const Pos &pos) const {return x < pos.x && y < pos.y;};
+		//bool operator <(const Pos &pos) const {return x < pos.x && y < pos.y;};
+		bool operator <(const Pos& pos) const { if(x == pos.x) return y < pos.y; else return x < pos.x; };
 
 		double distance(const Pos &pos) const;
 		double distanceNormalized(const Pos &pos, double max) const { return distance(pos)/max; };
@@ -69,10 +70,17 @@ class State {
 		char botName(const Pos&) const;
 		bool isEnemy(const Pos&) const;
 
-		int _get(std::vector<int> matrix, const Pos &pos);
-		void _set(std::vector<int> matrix, const Pos &pos, int val);
-		int countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit);
+		/*
+		int _get(std::vector<int> matrix, const Pos &pos) const;
+		void _set(std::vector<int> matrix, const Pos &pos, int val) const;
+		int countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) const;
 		Pos _getDestination(const Pos &position, Action action) const;
+		*/
+
+		int dstGet(std::vector<int> *m, const Pos &p) const;
+		void dstSet(std::vector<int> *m, const Pos &p, const int &i) const;
+		std::vector<int>* computeFlagDst(const Pos &p) const;
+		int flagDist(int player, const Pos &p) const;
 
 		int rows, columns;
 		std::vector<FieldType> fMap;
@@ -83,6 +91,7 @@ class State {
 		int tah_hrace; // hrac, ktery je aktualne na tahu
 		int zbyva_kol;
 		double maxDistance; // nejvetsi vzdalenost od vlajky
+		std::vector<int>* distMap[2];
 };
 
 #endif

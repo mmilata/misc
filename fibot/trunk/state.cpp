@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <assert.h>
+#include <cstdio>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -106,6 +107,9 @@ State::State(const char *filename)
 	}
 
 	statefile.close();
+
+	distMap[PRVNI] = computeFlagDst(fFlag[PRVNI]);
+	distMap[DRUHY] = computeFlagDst(fFlag[DRUHY]);
 }
 
 void State::dump(void) const
@@ -153,6 +157,23 @@ void State::dump(void) const
 	cerr << endl;
 	cerr << (endGame() ? "Hra skoncila" : "Jeste neni konec hry") << endl;
 	cerr << endl;
+
+
+	for(int pl=0; pl<=1; pl++){
+		cerr << "flagDist hrace " << pl+1 << endl;
+		for(int i=0; i<rows; i++){
+			for(int j=0; j<columns; j++){
+				p = Pos(j,i);
+				int fd = flagDist(pl, p);
+				if(fd == -1)
+					fprintf(stderr, "  .");
+				else
+					fprintf(stderr, "%3d", fd);
+			}
+			cerr << endl;
+		}
+		cerr << endl;
+	}
 }
 
 bool State::endGame(void) const
@@ -231,22 +252,73 @@ const char *strAction(Action a, const char bot)
 	return ret;
 }
 
-int State::_get(vector<int> matrix, const Pos &pos) {
+/*
+int State::_get(vector<int> matrix, const Pos &pos) const {
 	return matrix[(pos.y * columns) + pos.x];
 }
 
-void State::_set(vector<int> matrix, const Pos &pos, int val) {
+void State::_set(vector<int> matrix, const Pos &pos, int val) const {
 	matrix[(pos.y * columns) + pos.x] = val;
 }
-	
-int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) {
-	vector<int> matrix;
+*/
 
-	matrix.resize(rows * columns);
-	for (vector<int>::iterator it = matrix.begin(); it != matrix.end(); it++) {
-		*it = 10000;
-	};
-	_set(matrix, posFrom, 0);
+int State::dstGet(vector<int>* m, const Pos &pos) const
+{
+	return (*m)[(pos.y * columns) + pos.x];
+}
+
+void State::dstSet(vector<int>* m, const Pos &pos, const int &val) const
+{
+	(*m)[(pos.y * columns) + pos.x] = val;
+}
+
+vector<int>* State::computeFlagDst(const Pos &p) const
+{
+	vector<int> *matrix = new vector<int>(rows * columns, -1);
+	dstSet(matrix, p, 0);
+
+	vector<Pos> nPositions, fPositions;
+	fPositions.push_back(p);
+
+	for (int n = 1; n <= zbyva_kol; n++)
+	{
+		nPositions.clear();
+		vector<Pos>::iterator p_i;
+		for (p_i = fPositions.begin(); p_i != fPositions.end(); p_i++) {
+			//cerr << "position " << p_i->x << " " << p_i->y << " " << n <<  endl;
+			Pos nPos;
+			nPos = getDestination((*p_i), aSever);
+				if (dstGet(matrix, nPos) == -1)  {
+					dstSet(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			nPos = getDestination((*p_i), aVychod);
+				if (dstGet(matrix, nPos) == -1) {
+					dstSet(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			nPos = getDestination((*p_i), aJih);
+				if (dstGet(matrix, nPos) == -1) {
+					dstSet(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			nPos = getDestination((*p_i), aZapad);
+				if (dstGet(matrix, nPos) == -1) {
+					dstSet(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+		}
+		fPositions = nPositions;
+	}
+	return matrix;
+}
+/*
+int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) const {
+	vector<int> matrix(rows * columns, 10000);
 
 	Pos fPos;
 	vector<Pos> nPositions, fPositions;
@@ -306,6 +378,12 @@ int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) 
 		fPositions = nPositions;
 	}
 	return -1;
+}
+*/
+
+int State::flagDist(int player, const Pos &p) const
+{
+	return dstGet(distMap[player], p);
 }
 
 bool State::inMap(const Pos& pos) const
