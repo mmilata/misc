@@ -6,10 +6,10 @@
 class Generator {
 public:
 	Generator(const State &init);
-	bool next(State &state, botPos &moved, Action &action);
+	bool next(State &state, Pos &moved, Action &action);
 
-	std::vector<botPos>::iterator curBot;
-	std::vector<botPos>::iterator endBot;
+	std::map<Pos, char>::const_iterator curBot;
+	std::map<Pos, char>::const_iterator endBot;
 	Action curAction;
 	State initstate;
 private:

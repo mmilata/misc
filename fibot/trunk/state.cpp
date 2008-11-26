@@ -88,14 +88,9 @@ State::State(const char *filename)
 			if(square == '#'){
 				t = ftWall;
 			}else if(square >= 'A' && square <= 'Z'){
-				if(square <= 'M'){
-					t = (nase_cislo == PRVNI ? ftOurBot : ftTheirBot);
-					fBots[PRVNI].push_back(botPos(Pos(j,i),square));
-				}else{
-					t = (nase_cislo == DRUHY ? ftOurBot : ftTheirBot);
-					fBots[DRUHY].push_back(botPos(Pos(j,i),square));
-				
-				}
+				t = ftBot;
+				int botnum = square <= 'M' ? PRVNI : DRUHY;
+				fBots[botnum][Pos(j,i)] = square;
 			}else{ /* melo by byt square == '.' */
 				t = ftEmpty;
 			}
@@ -137,21 +132,11 @@ void State::dump(void) const
 				case ftWall:
 					cerr << '#';
 					break;
-				case ftOurBot:
-					for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
-						if(p == it->first){
-							cerr << it->second;
-							break;
-						}
-					}
-					break;
-				case ftTheirBot:
-					for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
-						if(p == it->first){
-							cerr << it->second;
-							break;
-						}
-					}
+				case ftBot:
+					for (int i = 0; i < 2; i++) 
+						for (map<Pos, char>::const_iterator it = fBots[i].begin(); it != fBots[i].end(); it++) 
+							if (p == it->first)
+								cerr << it->second;
 					break;
 			}
 		}
@@ -161,12 +146,12 @@ void State::dump(void) const
 	cerr << "Jejich vlajka: (" << fFlag[jejich_cislo].x << "," << fFlag[jejich_cislo].y << ")\n";
 	cerr << "Zbyva kol: " << zbyva_kol << " " << "cislo hrace na tahu: " << (tah_hrace+1) << " (my jsme hrac " << nase_cislo+1 << ")\n";
 	cerr << "Nasi boti:";
-	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
+	for(map<Pos, char>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cerr << endl;
 	cerr << "Jejich boti:";
-	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
+	for(map<Pos, char>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cerr << endl;
@@ -179,12 +164,12 @@ bool State::endGame(void) const
 	if(zbyva_kol==0)
 		return true;
 
-	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
+	for(map<Pos, char>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
 		if(it->first == fFlag[jejich_cislo]) {
 			return true; /* wheee, mame vlajku */
 		}
 	}
-	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
+	for(map<Pos, char>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
 		if(it->first == fFlag[nase_cislo]) {
 			return true;
 		}
@@ -195,36 +180,28 @@ bool State::endGame(void) const
 
 int State::vyhral() const
 {
-	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++)
+	for(map<Pos, char>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++)
 		if(it->first == fFlag[jejich_cislo])
 			return nase_cislo;
-	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++)
+	for(map<Pos, char>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++)
 		if(it->first == fFlag[nase_cislo])
 			return jejich_cislo;
 	return -1;
 }
 
-
-/*
- * !Nevymaze bota z mapy, jen ze seznamu
- */
-void State::killBot(Pos p)
+void State::killBot(const Pos &p)
 {
-	for(vector<botPos>::iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
-		if(it->first == p){
-			fBots[nase_cislo].erase(it);
-			return;;
-		}
+	map<Pos, char>::iterator it;
+
+	for (int i = 0; i < 2; i++) {
+		it = fBots[i].find(p);
+		if (it != fBots[i].end())
+			fBots[i].erase(it);
 	}
-	for(vector<botPos>::iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
-		if(it->first == p){
-			fBots[jejich_cislo].erase(it);
-			return;;
-		}
-	}
+	set(p, ftEmpty);
 }
 
-const char *strAction(Action a, botPos p)
+const char *strAction(Action a, const char bot)
 {
 	if(a == aNOOP){
 		return "-";
@@ -232,7 +209,7 @@ const char *strAction(Action a, botPos p)
 
 	static char ret[4] = "A S";
 
-	ret[0] = p.second;
+	ret[0] = bot;
 
 	switch(a){
 		case aSever:
@@ -371,64 +348,54 @@ Pos State::_getDestination(const Pos &position, Action action) const {
 	return destination;
 }
 
-
-bool State::isThreat(Pos p, int player) const
+bool State::inMap(const Pos& pos) const
 {
-	int x = p.x;
-	int y = p.y;
-	FieldType f;
+	if (pos.x < 0 || pos.y < 0 || pos.x >= columns || pos.y >= rows)
+		return false;
+	return true;
+}
 
-	for(int nx = x+1;
-	    nx < columns && get(nx,y) != ftWall;
-	    nx++){
-		f = get(nx,y);
-		if(f == ftOurBot){
-			if(tah_hrace != player)
-				return true;
-		}else if(f == ftTheirBot){
-			if(tah_hrace == player)
-				return true;
-		}
-	}
 
-	for(int nx = x-1;
-	    nx >= 0 && get(nx,y) != ftWall;
-	    nx--){
-		f = get(nx,y);
-		if(f == ftOurBot){
-			if(tah_hrace != player)
-				return true;
-		}else if(f == ftTheirBot){
-			if(tah_hrace == player)
-				return true;
-		}
-	}
+bool State::inThreat(Pos p, int player) const
+{
+	Pos cur;
+	const map<Pos, char> &bots(fBots[player]);
 
-	for(int ny = y+1;
-	    ny < rows && get(x,ny) != ftWall;
-	    ny++){
-		f = get(x,ny);
-		if(f == ftOurBot){
-			if(tah_hrace != player)
-				return true;
-		}else if(f == ftTheirBot){
-			if(tah_hrace == player)
-				return true;
-		}
-	}
+	for(cur = Pos(p.x+1, p.y); inMap(cur) && get(cur) != ftWall; cur.x += 1)
+		if (get(cur) == ftBot && bots.find(cur) != bots.end())
+			return true;
+	
+	for(cur = Pos(p.x, p.y+1); inMap(cur) && get(cur) != ftWall; cur.y += 1)
+		if (get(cur) == ftBot && bots.find(cur) != bots.end())
+			return true;
+	
+	for(cur = Pos(p.x-1, p.y); inMap(cur) && get(cur) != ftWall; cur.x -= 1)
+		if (get(cur) == ftBot && bots.find(cur) != bots.end())
+			return true;
+	
+	for(cur = Pos(p.x, p.y-1); inMap(cur) && get(cur) != ftWall; cur.y -= 1)
+		if (get(cur) == ftBot && bots.find(cur) != bots.end())
+			return true;
 
-	for(int ny = y-1;
-	    ny >= 0 && get(x,ny) != ftWall;
-	    ny--){
-		f = get(x,ny);
-		if(f == ftOurBot){
-			if(tah_hrace != player)
-				return true;
-		}else if(f == ftTheirBot){
-			if(tah_hrace == player)
-				return true;
-		}
-	}
 	return false;
 }
+
+char State::botName(const Pos &pos) const
+{
+	map<Pos, char>::const_iterator it;
+
+	it = fBots[tah_hrace].find(pos);
+
+	if (it == fBots[tah_hrace].end())
+		throw new Error("Zadany bot k vyhledani neexistuje v ramci botu aktualniho hrace");
+	
+	return it->second;
+}
+
+bool State::isEnemy(const Pos &pos) const
+{
+	return fBots[!tah_hrace].find(pos) == fBots[!tah_hrace].end();
+}
+
 /* vim: set noexpandtab: */
+

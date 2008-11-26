@@ -13,11 +13,10 @@ double averageFlagDistance(const State &st)
 {
 	int na_tahu = st.tah_hrace;
 	int tahnul = 1-st.tah_hrace;
-	bool flag = 1;
 	double result = 0;
 
-	vector<botPos>::const_iterator i;
-	vector<botPos> bots = st.fBots[na_tahu];
+	map<Pos, char>::const_iterator i;
+	map<Pos, char> bots = st.fBots[na_tahu];
 
 	for (i = bots.begin(); i != bots.end(); i++)
 		result += st.fFlag[tahnul].distance(i->first);
@@ -28,31 +27,6 @@ double averageFlagDistance(const State &st)
 
 	return 1.0 - (result / (st.fBots[PRVNI].size() + st.fBots[DRUHY].size()));
 }
-
-/*
-double testWhatever(const State &st)
-{
-	int na_tahu = st.tah_hrace;
-	int tahnul = 1 - na_tahu;
-	vector<botPos> bots = st.fBots[na_tahu];
-
-	if (st.endGame()) {
-		if (st.vyhral() == na_tahu)
-			return INFINITY;
-		else
-			return -INFINITY;
-	}
-
-	double ret_val = - (7*bots.size());
-
-	return ret_val+averageFlagDistance(st);
-	//preferovat ty stavy kdy jde nejaky bot po ceste ktera vede k vlajce, ne se jen tupe priblizuje nez narazi na zed
-	//rozdil v poctu botu
-	//kolik tahu jsme prumerne u vlajky
-	//a nepritel
-	//skore na zacatku by melo vychazet 0, pokud je mapa symetricka ... ?
-}
-*/
 
 double yetAnotherScoreFunction(const State &st)
 {
@@ -74,11 +48,13 @@ double yetAnotherScoreFunction(const State &st)
 	// posledni 2 kola pracuj pouze s prumernou vzdalenosti
 
 	result = averageFlagDistance(st);
-	if (st.zbyva_kol < 2) {
-		result += st.fBots[na_tahu].size() * 1.3;
-		result -= st.fBots[tahnul].size();
-	}
+	if (st.zbyva_kol < 2)
+		return result;
 
+	result += st.fBots[na_tahu].size() * 1.3;
+	result -= st.fBots[tahnul].size();
+	
+	
 	return result;
 }
 
@@ -89,8 +65,8 @@ double sensibleScore(const State &st)
 	int na_tahu = st.tah_hrace;
 	int tahnul  = 1 - st.tah_hrace;
 	double x = 1000.0;
-	vector<botPos>::const_iterator i;
-	vector<botPos> bots = st.fBots[na_tahu];
+	map<Pos, char>::const_iterator i;
+	map<Pos, char> bots = st.fBots[na_tahu];
 	for (i = bots.begin(); i != bots.end(); i++) {
 		x += st.fFlag[tahnul].distance(i->first);
 		if(flag)
@@ -108,7 +84,6 @@ double sensibleScore(const State &st)
 
 	double ret_val = 0;
 	int pocet_ohrozenych = 0;
-	int kroku_k_vlajce = 0;
 	//State temp = st;
 
 	bots = st.fBots[na_tahu];
@@ -116,7 +91,7 @@ double sensibleScore(const State &st)
 	for (i = bots.begin(); i != bots.end(); i++){
 		if(i->first == st.fFlag[tahnul])
 			return INFINITY;
-		if(st.isThreat(i->first, tahnul))
+		if(st.inThreat(i->first, tahnul))
 			pocet_ohrozenych++;
 		//int distance = temp.countStepsTo(i->first, st.fFlag[tahnul], 10);
 		/*
@@ -159,7 +134,7 @@ double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int d
 	Generator generator(st);
 	double newScore = -INFINITY;
 	State newState(st);
-	botPos newBot;
+	Pos newBot;
 	Action newAction;
 
 	while(generator.next(newState, newBot, newAction)){

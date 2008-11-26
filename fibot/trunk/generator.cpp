@@ -17,15 +17,13 @@ Generator::Generator(const State &st) : initstate(st)
  * pokud se vraci action == aNOOP je hodnota moved nedefinovana
  * pokud se bot hybal, v moved je jeho puvodni pozice
  */
-bool Generator::next(State &state, botPos &moved, Action &action)
+bool Generator::next(State &state, Pos &moved, Action &action)
 {
 	state = initstate;
-	if(state.tah_hrace == PRVNI){
-		state.tah_hrace = DRUHY;
-	}else{
-		state.tah_hrace = PRVNI;
+	// postup vysledneho stavu do dalsiho kola
+	state.tah_hrace = !state.tah_hrace;
+	if (!state.tah_hrace)
 		state.zbyva_kol--;
-	}
 
 	//nastane jen pri prvnim volani
 	if(curAction == aNOOP){
@@ -39,97 +37,45 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 		return false;
 
 	action = curAction;
-	moved = *curBot;
+	moved = curBot->first;
 	//snizit pocet zbyvajicich tahu?
 
 
 	if(curAction == aBoom){
-		int x = curBot->first.x;
-		int y = curBot->first.y;
+		Pos p = curBot->first;
+		Pos cur;
 		/* zacatek */
 		//spocitame kolik nepratel minus kolik pratel by zabil vybuch
-		int friends = 0; //JE TO PREHOZENE (jestli bude cas opravim to)
-		int enemies = 1;
-		FieldType f;
+		int deadCounter = -1; // ten co vybuchl
 
-		for(int nx = x+1;
-		    nx < state.columns && state.get(nx,y) != ftWall;
-		    nx++){
-			f = state.get(nx,y);
-			if(f == ftOurBot){
-				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
-			}else if(f == ftTheirBot){
-				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+		state.killBot(p);
+		
+		for(cur = Pos(p.x+1, p.y); state.inMap(cur) && state.get(cur) != ftWall; cur.x += 1)
+			if (state.get(cur) == ftBot) {
+				deadCounter += state.isEnemy(cur) ? +1 : -1;
+				state.killBot(cur);
 			}
-		}
+		for(cur = Pos(p.x, p.y+1); state.inMap(cur) && state.get(cur) != ftWall; cur.y += 1)
+			if (state.get(cur) == ftBot) {
+				deadCounter += state.isEnemy(cur) ? +1 : -1;
+				state.killBot(cur);
+			}
 
-		for(int nx = x-1;
-		    nx >= 0 && state.get(nx,y) != ftWall;
-		    nx--){
-			f = state.get(nx,y);
-			if(f == ftOurBot){
-				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
-			}else if(f == ftTheirBot){
-				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+		for(cur = Pos(p.x-1, p.y); state.inMap(cur) && state.get(cur) != ftWall; cur.x -= 1)
+			if (state.get(cur) == ftBot) {
+				deadCounter += state.isEnemy(cur) ? +1 : -1;
+				state.killBot(cur);
 			}
-		}
 
-		for(int ny = y+1;
-		    ny < state.rows && state.get(x,ny) != ftWall;
-		    ny++){
-			f = state.get(x,ny);
-			if(f == ftOurBot){
-				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
-			}else if(f == ftTheirBot){
-				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
+		for(cur = Pos(p.x, p.y-1); state.inMap(cur) && state.get(cur) != ftWall; cur.y -= 1)
+			if (state.get(cur) == ftBot) {
+				deadCounter += state.isEnemy(cur) ? +1 : -1;
+				state.killBot(cur);
 			}
-		}
 
-		for(int ny = y-1;
-		    ny >= 0 && state.get(x,ny) != ftWall;
-		    ny--){
-			f = state.get(x,ny);
-			if(f == ftOurBot){
-				(state.tah_hrace == state.nase_cislo ? friends++ : enemies++);
-			}else if(f == ftTheirBot){
-				(state.tah_hrace != state.nase_cislo ? friends++ : enemies++);
-			}
-		}
-		if(friends < enemies){
+		if (deadCounter >= 0) {
 			increment();
 			return next(state, moved, action);
-		}
-		//konec vypoctu
-		/* konec */
-		state.set(x,y,ftEmpty);
-		state.killBot(Pos(x,y));
-
-		for(int nx = x+1;
-		    nx < state.columns && state.get(nx,y) != ftWall;
-		    nx++){
-			state.set(nx,y,ftEmpty);
-			state.killBot(Pos(nx,y));
-		}
-
-		for(int nx = x-1;
-		    nx >= 0 && state.get(nx,y) != ftWall;
-		    nx--){
-			state.set(nx,y,ftEmpty);
-			state.killBot(Pos(nx,y));
-		}
-
-		for(int ny = y+1;
-		    ny < state.rows && state.get(x,ny) != ftWall;
-		    ny++){
-			state.set(x,ny,ftEmpty);
-			state.killBot(Pos(x,ny));
-		}
-
-		for(int ny = y-1;
-		    ny >= 0 && state.get(x,ny) != ftWall;
-		    ny--){
-			state.set(x,ny,ftEmpty);
-			state.killBot(Pos(x,ny));
 		}
 
 		increment();
@@ -141,15 +87,11 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 		increment();
 		return next(state, moved, action);
 	}
-	state.set(moved.first.x, moved.first.y, ftEmpty);
-	state.set(dest.x, dest.y, (initstate.tah_hrace == initstate.nase_cislo ? ftOurBot : ftTheirBot));
+	state.set(moved, ftEmpty);
+	state.set(dest, ftBot);
 
-	vector<botPos>::iterator it;
-	for(it = state.fBots[initstate.tah_hrace].begin(); it != state.fBots[initstate.tah_hrace].end(); it++){
-		if(*it == moved){
-			it->first = dest;
-		}
-	}
+	state.fBots[initstate.tah_hrace][dest] = state.fBots[initstate.tah_hrace][moved];
+	state.fBots[initstate.tah_hrace].erase(state.fBots[initstate.tah_hrace].find(moved));
 
 	increment();
 	return true;

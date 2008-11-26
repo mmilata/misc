@@ -5,12 +5,12 @@
 #define DRUHY 1
 
 #include <vector>
+#include <map>
 #include "assert.h"
 
 enum FieldType {
 	ftEmpty,
-	ftOurBot,
-	ftTheirBot,
+	ftBot,
 	ftWall
 };
 
@@ -33,13 +33,13 @@ class Pos {
 		bool operator == (const Pos &pos) const { return x == pos.x && y == pos.y; };
 		bool operator != (const Pos &pos) const { return !(this->operator ==(pos));};
 		Pos operator - (const Pos &pos) const {return Pos(x - pos.x, y - pos.y);};
+		Pos operator + (const Pos &pos) const {Pos p(*this); p += pos; return p;}
+		bool operator <(const Pos &pos) const {return x < pos.x && y < pos.y;};
 
 		double distance(const Pos &pos) const;
 };
 
-typedef std::pair<Pos,char> botPos;
-
-const char *strAction(Action a, botPos p);
+const char *strAction(Action a, const char);
 
 class State {
 	public:
@@ -55,13 +55,17 @@ class State {
 		};
 		void set(const Pos &pos, FieldType ft) {set(pos.x, pos.y, ft);};
 		void setDimensions(int inRows, int inColumns);
-		void killBot(Pos p);
+		void killBot(const Pos &p);
 		bool endGame(void) const;
 		void dump(void) const;
 		int vyhral() const;
-		bool isThreat(Pos p, int player) const;
+		bool inThreat(Pos p, int player) const; // vraci true, kdyz je bot na dane pozici ohrozen
+												// player udava od ktereho hrace se ocekava ohrozeni
 
 		Pos getDestination(const Pos&, Action) const;
+		bool inMap(const Pos&) const;
+		char botName(const Pos&) const;
+		bool isEnemy(const Pos&) const;
 
 		int _get(std::vector<int> matrix, const Pos &pos);
 		void _set(std::vector<int> matrix, const Pos &pos, int val);
@@ -70,7 +74,7 @@ class State {
 
 		int rows, columns;
 		std::vector<FieldType> fMap;
-		std::vector<botPos> fBots[2];
+		std::map<Pos, char> fBots[2];
 		Pos fFlag[2];
 		int nase_cislo; // nase cislo hrace
 		int jejich_cislo; // druhe cislo

@@ -29,11 +29,11 @@ void vypisNasledniky(State initstate, ScoreFun scf)
 {
 	Generator g(initstate);
 	State next(initstate);
-	botPos b;
+	Pos b;
 	Action a;
 	while(g.next(next,b,a)){
 		cerr << "---" << endl;
-		cerr << "Akce: " << strAction(a,b) << endl;
+		cerr << "Akce: " << strAction(a, initstate.botName(b)) << endl;
 		cerr << "Skore: " << scf(next) << endl;
 		next.dump();
 	}
@@ -68,7 +68,7 @@ main(int argc, char **argv)
 
 		// samotny kod na vypocet pozice
 		State newState(initstate);
-		botPos newBot, bestBot;
+		Pos newBot, bestBot;
 		Action newAction, bestAction(aNOOP);
 		Generator generator(initstate);
 		double newScore, bestScore = -INFINITY;
@@ -86,7 +86,7 @@ main(int argc, char **argv)
 		}
 
 		//cerr << "bestscore: " << bestScore << endl;
-		cout << strAction(bestAction, bestBot) << endl;
+		cout << strAction(bestAction, initstate.botName(bestBot)) << endl;
 	}
 	catch (exception &e) {
 		cerr << "Nastala chyba: " << e.what() << endl << flush;
