@@ -11,5 +11,6 @@ double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int d
 double averageFlagDistance(const State &st);
 double sensibleScore(const State &st);
 double testWhatever(const State &st);
+double yetAnotherScoreFunction(const State &st);
 
 #endif

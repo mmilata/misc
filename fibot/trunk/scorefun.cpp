@@ -54,6 +54,35 @@ double testWhatever(const State &st)
 }
 */
 
+double yetAnotherScoreFunction(const State &st)
+{
+	int na_tahu = st.tah_hrace;
+	int tahnul = 1 - na_tahu;
+	double result;
+
+	if (st.endGame()) {
+		if (st.vyhral() == na_tahu)
+			return INFINITY;
+		else
+			return -INFINITY;
+	}
+
+	// ono to sice bude delat schod, ale to nevadi, budou se preferovat tahy, kdy je stejne botu,
+	// nebo ma hrac vice, coz pro zjednoduseni (nepredpoklada se obetovani figury) je dobra strategie
+	// taky o malicko vice preferuj vlastni pocet botu, nez cizich, to nam da vyhodu, v nekterych pripadech
+	// kdy je lepsi stratit bota ale zustat blize
+	// posledni 2 kola pracuj pouze s prumernou vzdalenosti
+
+	result = averageFlagDistance(st);
+	if (st.zbyva_kol < 2) {
+		result += st.fBots[na_tahu].size() * 1.3;
+		result -= st.fBots[tahnul].size();
+	}
+
+	return result;
+}
+
+
 double sensibleScore(const State &st)
 {
 	bool flag = 1;
