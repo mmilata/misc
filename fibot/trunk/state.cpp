@@ -132,23 +132,39 @@ State::State(const char *filename)
 
 void State::dump(void) const
 {
+	Pos p;
+
 	for(int i=0; i<rows; i++){
 		for(int j=0; j<columns; j++){
+			p = Pos(j,i);
 			switch(get(j,i)){
 				case ftEmpty:
-					cerr << '.';
+					if(p == fOurFlag){
+						cerr << 'o';
+					}else if(p == fTheirFlag){
+						cerr << 't';
+					}else{
+						cerr << '.';
+					}
 					break;
 				case ftWall:
 					cerr << '#';
 					break;
 				case ftOurBot:
-					cerr << 'O';
+					for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+						if(p == it->first){
+							cerr << it->second;
+							break;
+						}
+					}
 					break;
 				case ftTheirBot:
-					cerr << 'T';
-					break;
-				default:
-					throw new Error("dump: neznamy typ policka");
+					for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+						if(p == it->first){
+							cerr << it->second;
+							break;
+						}
+					}
 					break;
 			}
 		}
@@ -156,7 +172,7 @@ void State::dump(void) const
 	}
 	cerr << "Nase vlajka: (" << fOurFlag.x << "," << fOurFlag.y << ")\n";
 	cerr << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
-	cerr << "Zbyva kol: " << zbyva_kol << endl;
+	cerr << "Zbyva kol: " << zbyva_kol << " " << "cislo hrace na tahu: " << tah_hrace << endl;
 	cerr << "Nasi boti:";
 	for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
@@ -166,6 +182,8 @@ void State::dump(void) const
 	for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
+	cerr << endl;
+	cerr << (endGame() ? "Hra skoncila" : "Jeste neni konec hry") << endl;
 	cerr << endl;
 }
 
@@ -184,5 +202,58 @@ bool State::endGame(void) const
 	}
 
 	return false;
+}
+
+/*
+ * !Nevymaze bota z mapy, jen ze seznamu
+ */
+void State::killBot(Pos p)
+{
+	for(vector<botPos>::iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+		if(it->first == p){
+			fOurBots.erase(it);
+			return;;
+		}
+	}
+	for(vector<botPos>::iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+		if(it->first == p){
+			fTheirBots.erase(it);
+			return;;
+		}
+	}
+}
+
+const char *strAction(Action a, botPos p)
+{
+	if(a == aNOOP){
+		return "-";
+	}
+
+	static char ret[4] = "A S";
+
+	ret[0] = p.second;
+
+	switch(a){
+		case aSever:
+			ret[2] = 'S';
+			break;
+		case aVychod:
+			ret[2] = 'V';
+			break;
+		case aJih:
+			ret[2] = 'J';
+			break;
+		case aZapad:
+			ret[2] = 'Z';
+			break;
+		case aBoom:
+			ret[2] = 'D';
+			break;
+		case aNOOP:
+			throw Error("this should never happen");
+			break;
+	}
+
+	return ret;
 }
 /* vim: set noexpandtab: */

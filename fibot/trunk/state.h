@@ -37,6 +37,8 @@ class Pos {
 
 typedef std::pair<Pos,char> botPos;
 
+const char *strAction(Action a, botPos p);
+
 class State {
 	public:
 		State(const char *filename);
@@ -51,6 +53,7 @@ class State {
 		};
 		void set(const Pos &pos, FieldType ft) {set(pos.x, pos.y, ft);};
 		void setDimensions(int inRows, int inColumns);
+		void killBot(Pos p);
 		bool endGame(void) const;
 		void dump(void) const;
 

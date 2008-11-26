@@ -6,8 +6,6 @@
 
 using namespace std;
 
-static void deletebot(State &st, int x, int y);
-
 Generator::Generator(State &st, bool ourTurn) : ourTurn(ourTurn), initstate(st)
 {
 	if(ourTurn){
@@ -52,40 +50,38 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 	if(curAction == aBoom){
 		int x = curBot->first.x;
 		int y = curBot->first.y;
-		int i=1;
+
 		state.set(x,y,ftEmpty);
-		deletebot(state,x,y);
-		while(x+i < state.columns && state.get(x+i,y)!=ftWall){
-			if(state.get(x+i,y) == ftOurBot || state.get(x+i,y) == ftTheirBot){
-				state.set(x+i,y,ftEmpty);
-				deletebot(state, x+i, y);
-			}
-			i++;
+		state.killBot(Pos(x,y));
+
+		for(int nx = x+1;
+		    nx < state.columns && state.get(nx,y) != ftWall;
+		    nx++){
+			state.set(nx,y,ftEmpty);
+			state.killBot(Pos(nx,y));
 		}
-		i=1;
-		while(x-i >= 0 && state.get(x-i,y)!=ftWall){
-			if(state.get(x-i,y) == ftOurBot || state.get(x-i,y) == ftTheirBot){
-				state.set(x-i,y,ftEmpty);
-				deletebot(state, x-i, y);
-			}
-			i++;
+
+		for(int nx = x-1;
+		    nx >= 0 && state.get(nx,y) != ftWall;
+		    nx--){
+			state.set(nx,y,ftEmpty);
+			state.killBot(Pos(nx,y));
 		}
-		i=1;
-		while(y+i < state.rows && state.get(x,y+i)!=ftWall){
-			if(state.get(x,y+i) == ftOurBot || state.get(x,y+i) == ftTheirBot){
-				state.set(x,y+i,ftEmpty);
-				deletebot(state, x, y+i);
-			}
-			i++;
+
+		for(int ny = y+1;
+		    ny < state.rows && state.get(x,ny) != ftWall;
+		    ny++){
+			state.set(x,ny,ftEmpty);
+			state.killBot(Pos(x,ny));
 		}
-		i=1;
-		while(y-i >= 0 && state.get(x,y-i)!=ftWall){
-			if(state.get(x,y-i) == ftOurBot || state.get(x,y-i) == ftTheirBot){
-				state.set(x,y-i,ftEmpty);
-				deletebot(state, x, y-i);
-			}
-			i++;
+
+		for(int ny = y-1;
+		    ny >= 0 && state.get(x,ny) != ftWall;
+		    ny--){
+			state.set(x,ny,ftEmpty);
+			state.killBot(Pos(x,ny));
 		}
+
 		increment();
 		return true;
 	}
@@ -114,23 +110,6 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 
 	increment();
 	return true;
-}
-
-void deletebot(State &st, int x, int y)
-{
-	for(vector<botPos>::iterator it = st.fOurBots.begin(); it != st.fOurBots.end(); it++){
-		if(it->first.x == x && it->first.y == y){
-			st.fOurBots.erase(it);
-			break;
-		}
-	}
-
-	for(vector<botPos>::iterator it = st.fTheirBots.begin(); it != st.fTheirBots.end(); it++){
-		if(it->first.x == x&& it->first.y == y){
-			st.fTheirBots.erase(it);
-			break;
-		}
-	}
 }
 
 void Generator::increment()

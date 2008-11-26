@@ -41,6 +41,7 @@ main(int argc, char **argv)
 		Action a;
 		while(g.next(next,b,a)){
 			cerr << "---" << endl;
+			cerr << "Akce: " << strAction(a,b) << endl;
 			next.dump();
 		}
 
