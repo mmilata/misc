@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <assert.h>
 
 using namespace std;
 
@@ -16,6 +17,8 @@ double Pos::distance(const Pos &pos) const
 
 void State::setDimensions(int inRows, int inColumns)
 {
+	assert(inRows > 0 && inColumns > 0);
+
 	rows = inRows;
 	columns = inColumns;
 
