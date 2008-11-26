@@ -6,7 +6,7 @@
 
 using namespace std;
 
-Generator::Generator(State &st, bool ourTurn) : ourTurn(ourTurn), initstate(st)
+Generator::Generator(const State &st, bool ourTurn) : ourTurn(ourTurn), initstate(st)
 {
 	if(ourTurn){
 		curBot = initstate.fOurBots.begin();

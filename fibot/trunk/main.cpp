@@ -5,8 +5,11 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <cmath>
 #include <stdlib.h>
 #include <signal.h>
+
+#define DEPTH 3
 
 using namespace std;
 
@@ -63,8 +66,18 @@ main(int argc, char **argv)
 		botPos newBot, bestBot;
 		Action newAction, bestAction(aNOOP);
 		Generator generator(initstate,true);
-		double newScore, bestScore = -1.0;
+		double newScore, bestScore = -INFINITY;
 
+		while(generator.next(newState, newBot, newAction)){
+			newScore = minimax(newState, scf, DEPTH);
+
+			if(newScore > bestScore){
+				bestScore = newScore;
+				bestBot = newBot;
+				bestAction = newAction;
+			}
+		}
+		/*
 		while (generator.next(newState, newBot, newAction)) {
 			newScore = scf(newState);
 			
@@ -76,6 +89,7 @@ main(int argc, char **argv)
 				bestAction = newAction;
 			}
 		}
+		*/
 
 		cout << strAction(bestAction, bestBot) << endl;
 	}

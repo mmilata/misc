@@ -5,7 +5,7 @@
 
 class Generator {
 public:
-	Generator(State &init, bool ourTurn);
+	Generator(const State &init, bool ourTurn);
 	bool next(State &state, botPos &moved, Action &action);
 
 	std::vector<botPos>::iterator curBot;
