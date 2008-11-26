@@ -170,12 +170,16 @@ bool State::endGame(void) const
 		return true;
 
 	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
-		if(it->first == fFlag[jejich_cislo])
+		if(it->first == fFlag[jejich_cislo]) {
+			vyhral = nase_cislo;
 			return true; /* wheee, mame vlajku */
+		}
 	}
 	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
-		if(it->first == fFlag[nase_cislo])
+		if(it->first == fFlag[nase_cislo]) {
+			vyhral = jejich_cislo;
 			return true;
+		}
 	}
 
 	return false;

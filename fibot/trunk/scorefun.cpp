@@ -40,19 +40,11 @@ double testWhatever(const State &st)
 	int na_tahu = st.tah_hrace;
 	int tahnul = 1 - na_tahu;
 
-	vector<botPos>::const_iterator i;
-	//vyhra
-	vector<botPos> bots = st.fBots[na_tahu];
-	for (i = bots.begin(); i != bots.end(); i++){
-		if(i->first == st.fFlag[tahnul])
+	if (st.endGame) {
+		if (st.vyhral == na_tahu)
 			return INFINITY;
-	}
-	//prohra
-	bots = st.fBots[tahnul];
-	for (i = bots.begin(); i != bots.end(); i++){
-		if(i->first == st.fFlag[na_tahu])
+		else
 			return -INFINITY;
-	}
 
 	double ret_val = 10.0*(st.fBots[na_tahu].size()) - (20*bots.size());
 

@@ -75,6 +75,7 @@ class State {
 		int jejich_cislo; // druhe cislo
 		int tah_hrace; // hrac, ktery je aktualne na tahu
 		int zbyva_kol;
+		int vyhral; // endGame == true, tak tohle je kdo vyhral
 };
 
 #endif
