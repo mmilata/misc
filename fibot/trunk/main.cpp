@@ -19,9 +19,8 @@ void sighandler(int unused)
 	exit(EXIT_SUCCESS);
 }
 
-//vypise nasledniky a umre
-//mozno smazat
-void testGeneratoru(State initstate)
+//vypise nasledniky
+void vypisNasledniky(State initstate)
 {
 	Generator g(initstate, true);
 	State next(initstate);
@@ -30,10 +29,9 @@ void testGeneratoru(State initstate)
 	while(g.next(next,b,a)){
 		cerr << "---" << endl;
 		cerr << "Akce: " << strAction(a,b) << endl;
-		next.dump();
 		cerr << "Skore: " << next.getScore(next.fOurBots, next.fTheirFlag) << endl;
+		next.dump();
 	}
-
 }
 
 int
@@ -45,17 +43,16 @@ main(int argc, char **argv)
 	alarm(2);
 
 	try {
-		if(argc != 2)
+		if(argc < 2)
 			throw Error("chybny pocet argumentu programu");
 		strcpy(filename, argv[1]);
 		strcat(filename, "/state");
 		State initstate(filename);
-		//initstate.dump();
 
-		/*
-		testGeneratoru(initstate);
-		exit(1);
-		*/
+		if(argc == 3){
+			vypisNasledniky(initstate);
+			return EXIT_SUCCESS;
+		}
 
 		// samotny kod na vypocet pozice
 		State newState(initstate);
