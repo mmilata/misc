@@ -102,6 +102,9 @@ main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	delete gstate.distMap[0];
+	delete gstate.distMap[1];
+
 	return EXIT_SUCCESS;
 }
 /* vim: set noexpandtab: */

@@ -272,6 +272,17 @@ void State::dstSet(vector<int>* m, const Pos &pos, const int &val) const
 	(*m)[(pos.y * columns) + pos.x] = val;
 }
 
+void State::slide(vector<int>* m, Pos from, Pos delta, Pos end, int n) const
+{
+	if(from == end)
+		return;
+
+	from += delta;
+	if(dstGet(m, from) == -1)
+		dstSet(m, from, n);
+	slide(m,from,delta,end,n);
+}
+
 vector<int>* State::computeFlagDst(const Pos &p) const
 {
 	vector<int> *matrix = new vector<int>(rows * columns, -1);
@@ -293,24 +304,28 @@ vector<int>* State::computeFlagDst(const Pos &p) const
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
+			slide(matrix, *p_i, Pos(0,-1), nPos, n);
 			nPos = getDestination((*p_i), aVychod);
 				if (dstGet(matrix, nPos) == -1) {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
+			slide(matrix, *p_i, Pos(1,0), nPos, n);
 			nPos = getDestination((*p_i), aJih);
 				if (dstGet(matrix, nPos) == -1) {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
+			slide(matrix, *p_i, Pos(0,1), nPos, n);
 			nPos = getDestination((*p_i), aZapad);
 				if (dstGet(matrix, nPos) == -1) {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
+			slide(matrix, *p_i, Pos(-1,0), nPos, n);
 		}
 		fPositions = nPositions;
 	}
@@ -426,7 +441,7 @@ char State::botName(const Pos &pos) const
 
 	if (it == fBots[tah_hrace].end())
 		throw Error("Zadany bot k vyhledani neexistuje v ramci botu aktualniho hrace");
-	
+
 	return it->second;
 }
 

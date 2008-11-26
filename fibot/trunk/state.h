@@ -93,6 +93,8 @@ class State {
 		int zbyva_kol;
 		double maxDistance; // nejvetsi vzdalenost od vlajky
 		std::vector<int>* distMap[2];
+
+		void slide(std::vector<int>* m, Pos from, Pos delta, Pos end, int n) const;
 };
 
 #endif
