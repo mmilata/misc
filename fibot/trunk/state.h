@@ -62,6 +62,11 @@ class State {
 
 		Pos getDestination(const Pos&, Action) const;
 
+		int _get(std::vector<int> matrix, const Pos &pos);
+		void _set(std::vector<int> matrix, const Pos &pos, int val);
+		int countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit);
+		Pos _getDestination(const Pos &position, Action action) const;
+
 		int rows, columns;
 		std::vector<FieldType> fMap;
 		std::vector<botPos> fBots[2];

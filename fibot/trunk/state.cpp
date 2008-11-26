@@ -234,6 +234,120 @@ const char *strAction(Action a, botPos p)
 	return ret;
 }
 
+int State::_get(vector<int> matrix, const Pos &pos) {
+	return matrix[(pos.y * columns) + pos.x];
+}
+
+void State::_set(vector<int> matrix, const Pos &pos, int val) {
+	matrix[(pos.y * columns) + pos.x] = val;
+}
+	
+int State::countStepsTo(const Pos &posFrom, const Pos &posTo, const int &limit) {
+	vector<int> matrix;
+
+	matrix.resize(rows * columns);
+	for (vector<int>::iterator it = matrix.begin(); it != matrix.end(); it++) {
+		*it = 10000;
+	};
+	_set(matrix, posFrom, 0);
+
+	Pos fPos;
+	vector<Pos> nPositions, fPositions;
+	fPositions.push_back(posFrom);
+
+	for (int n = 1; n <= limit; n++) {
+		nPositions.clear();
+		vector<Pos>::iterator p_i;
+		for (p_i = fPositions.begin(); p_i != fPositions.end(); p_i++) {
+			//cerr << "position " << p_i->x << " " << p_i->y << " " << n <<  endl;
+			Pos nPos;
+			nPos = _getDestination((*p_i), aSever);
+			if (nPos != fPos) {
+				if (nPos == posTo) {
+					return n;
+				}
+				if (_get(matrix, nPos) > n)  {
+					_set(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			}
+			nPos = _getDestination((*p_i), aVychod);
+			if (nPos != fPos) {
+				if (nPos == posTo) {
+					return n;
+				}
+				if (_get(matrix, nPos) > n) {
+					_set(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			}
+			nPos = _getDestination((*p_i), aJih);
+			if (nPos != fPos) {
+				if (nPos == posTo) {
+					return n;
+				}
+				if (_get(matrix, nPos) > n) {
+					_set(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			}
+			nPos = _getDestination((*p_i), aZapad);
+			if (nPos != fPos) {
+				if (nPos == posTo) {
+					return n;
+				}
+				if (_get(matrix, nPos) > n) {
+					_set(matrix, nPos, n);
+					nPositions.push_back(nPos);
+				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
+				}
+			}
+		}
+		fPositions = nPositions;
+	}
+	return -1;
+}
+
+Pos State::_getDestination(const Pos &position, Action action) const {
+	Pos delta;
+	Pos destination;
+	Pos tmp(position);
+
+	switch (action) {
+		case aSever:
+			delta = Pos(0, -1);
+			break;
+		case aVychod:
+			delta = Pos(1, 0);
+			break;
+		case aJih:
+			delta = Pos(0, 1);
+			break;
+		case aZapad: 
+			delta = Pos(-1, 0);
+			break;
+		case aBoom:
+		case aNOOP:
+			return position;
+	}
+
+	do {
+		destination = tmp;
+		tmp += delta;
+
+	} while ( 
+		tmp.x >= 0 && tmp.x < columns && tmp.y >= 0 && tmp.y < rows && (
+			get(tmp) != ftWall
+		)
+	);
+
+	return destination;
+}
+
+
 bool State::isThreat(Pos p, int player) const
 {
 	int x = p.x;
