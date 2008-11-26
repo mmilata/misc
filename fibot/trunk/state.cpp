@@ -32,6 +32,38 @@ void State::setDimensions(int inRows, int inColumns)
 
 }
 
+Pos State::getDestinationNoBot(const Pos &position, Action action) const {
+	Pos delta;
+	Pos destination;
+	Pos tmp(position);
+
+	switch (action) {
+		case aSever:
+			delta = Pos(0, -1);
+			break;
+		case aVychod:
+			delta = Pos(1, 0);
+			break;
+		case aJih:
+			delta = Pos(0, 1);
+			break;
+		case aZapad: 
+			delta = Pos(-1, 0);
+			break;
+		case aBoom:
+		case aNOOP:
+			return position;
+	}
+
+	do {
+		destination = tmp;
+		tmp += delta;
+
+	} while (inMap(tmp) && get(tmp) != ftWall);
+
+	return destination;
+}
+
 Pos State::getDestination(const Pos &position, Action action) const {
 	Pos delta;
 	Pos destination;
@@ -298,28 +330,28 @@ vector<int>* State::computeFlagDst(const Pos &p) const
 		for (p_i = fPositions.begin(); p_i != fPositions.end(); p_i++) {
 			//cerr << "position " << p_i->x << " " << p_i->y << " " << n <<  endl;
 			Pos nPos;
-			nPos = getDestination((*p_i), aSever);
+			nPos = getDestinationNoBot((*p_i), aSever);
 				if (dstGet(matrix, nPos) == -1)  {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
 			slide(matrix, *p_i, Pos(0,-1), nPos, n);
-			nPos = getDestination((*p_i), aVychod);
+			nPos = getDestinationNoBot((*p_i), aVychod);
 				if (dstGet(matrix, nPos) == -1) {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
 			slide(matrix, *p_i, Pos(1,0), nPos, n);
-			nPos = getDestination((*p_i), aJih);
+			nPos = getDestinationNoBot((*p_i), aJih);
 				if (dstGet(matrix, nPos) == -1) {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);
 				//cerr << "nPosition " << nPos.x << " " << nPos.y << " " << n <<  endl;
 				}
 			slide(matrix, *p_i, Pos(0,1), nPos, n);
-			nPos = getDestination((*p_i), aZapad);
+			nPos = getDestinationNoBot((*p_i), aZapad);
 				if (dstGet(matrix, nPos) == -1) {
 					dstSet(matrix, nPos, n);
 					nPositions.push_back(nPos);

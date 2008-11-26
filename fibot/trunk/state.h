@@ -67,6 +67,7 @@ class State {
 												// player udava od ktereho hrace se ocekava ohrozeni
 
 		Pos getDestination(const Pos&, Action) const;
+		Pos getDestinationNoBot(const Pos&, Action) const;
 		bool inMap(const Pos&) const;
 		char botName(const Pos&) const;
 		bool isEnemy(const Pos&) const;
