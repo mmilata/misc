@@ -26,7 +26,7 @@ double averageFlagDistance(const State &st)
 	for (i = bots.begin(); i != bots.end(); i++)
 		result -= st.fFlag[na_tahu].distance(i->first) * avgDistanceInfluence;
 
-	return 1.0 - (result / (st.fFlag[PRVNI].size() + st.fFlag[DRUHY].size()));
+	return 1.0 - (result / (st.fBots[PRVNI].size() + st.fBots[DRUHY].size()));
 }
 
 /*
