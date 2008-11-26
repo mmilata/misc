@@ -454,8 +454,4 @@ bool State::isEnemy(const Pos &pos) const
 
 State::~State()
 {
-	if (distMap[0])
-		delete distMap[0];
-	if (distMap[1])
-		delete distMap[1];
 }
