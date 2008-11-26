@@ -35,6 +35,7 @@ double averageFlagDistance(const State &st)
 	return 100.0 - (ret_val/bots.size()) - (200.0/mindist);
 }
 
+/*
 double testWhatever(const State &st)
 {
 	int na_tahu = st.tah_hrace;
@@ -48,7 +49,7 @@ double testWhatever(const State &st)
 			return -INFINITY;
 	}
 
-	double ret_val = 10.0*(st.fBots[na_tahu].size()) - (20*bots.size());
+	double ret_val = - (7*bots.size());
 
 	return ret_val+averageFlagDistance(st);
 	//preferovat ty stavy kdy jde nejaky bot po ceste ktera vede k vlajce, ne se jen tupe priblizuje nez narazi na zed
@@ -57,21 +58,72 @@ double testWhatever(const State &st)
 	//a nepritel
 	//skore na zacatku by melo vychazet 0, pokud je mapa symetricka ... ?
 }
+*/
 
-double nonsenseScore(const State &st)
+double sensibleScore(const State &st)
 {
-	int tahnul = 1 - st.tah_hrace;
+	bool flag = 1;
 	int na_tahu = st.tah_hrace;
-
+	int tahnul  = 1 - st.tah_hrace;
+	double x = 1000.0;
 	vector<botPos>::const_iterator i;
-	vector<botPos> bots = st.fBots[tahnul];
+	vector<botPos> bots = st.fBots[na_tahu];
+	for (i = bots.begin(); i != bots.end(); i++) {
+		x += st.fFlag[tahnul].distance(i->first);
+		if(flag)
+			x -= 1000.0;
+	}
+
+	bots = st.fBots[tahnul];
+	double mindist = INFINITY;
+	for (i = bots.begin(); i != bots.end(); i++) {
+		double t = st.fFlag[na_tahu].distance(i->first);
+
+		if(t < mindist)
+			mindist = t;
+	}
 
 	double ret_val = 0;
+	int pocet_ohrozenych = 0;
+	int kroku_k_vlajce = 0;
+	//State temp = st;
+
+	bots = st.fBots[na_tahu];
+	//vyhra
 	for (i = bots.begin(); i != bots.end(); i++){
-		//ret_val += (st.rows - i->first.y);
-		if(i->first == st.fFlag[PRVNI])
-			ret_val += 100.0;
+		if(i->first == st.fFlag[tahnul])
+			return INFINITY;
+		if(st.isThreat(i->first, tahnul))
+			pocet_ohrozenych++;
+		//int distance = temp.countStepsTo(i->first, st.fFlag[tahnul], 10);
+		/*
+		if(distance > 0){
+			ret_val += 500.0/distance;
+		}
+		*/
 	}
+	int pocet_nasich = bots.size();
+	ret_val += 100.0 - (x/pocet_nasich);
+
+
+	//prohra
+	bots = st.fBots[tahnul];
+	for (i = bots.begin(); i != bots.end(); i++){
+		if(i->first == st.fFlag[na_tahu])
+			return -INFINITY;
+		//int distance = temp.countStepsTo(i->first, st.fFlag[na_tahu], 10);
+		/*
+		if(distance > 0){
+			ret_val -= 600.0/distance;
+		}
+		*/
+	}
+	int pocet_nepratel = bots.size();
+
+	//bonus za niceni, penalizace za ztraty
+	ret_val += 20.0*(pocet_nasich - pocet_nepratel);
+	//penalizace za ohrozene
+	ret_val -= 15.0*pocet_ohrozenych;
 
 	return ret_val;
 }

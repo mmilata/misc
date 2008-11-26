@@ -9,7 +9,7 @@ double minimax(const State &st, ScoreFun scf, int depth);
 double alphabeta(const State &st, ScoreFun scf, double alpha, double beta, int depth);
 
 double averageFlagDistance(const State &st);
-double nonsenseScore(const State &st);
+double sensibleScore(const State &st);
 double testWhatever(const State &st);
 
 #endif

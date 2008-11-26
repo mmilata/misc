@@ -50,7 +50,7 @@ main(int argc, char **argv)
 
 	ScoreFun scf;
 	//scf = nonsenseScore;
-	scf = testWhatever;
+	scf = sensibleScore;
 
 	try {
 		if(argc < 2)
