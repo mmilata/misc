@@ -26,7 +26,7 @@ void sighandler(int unused)
 //vypise nasledniky
 void vypisNasledniky(State initstate, ScoreFun scf)
 {
-	Generator g(initstate, true);
+	Generator g(initstate);
 	State next(initstate);
 	botPos b;
 	Action a;
@@ -43,10 +43,12 @@ main(int argc, char **argv)
 {
 	char filename[256];
 
+	//bez prorerazvani je limitni hloubka asi tak 3
 	signal(SIGALRM, sighandler);
 	alarm(2);
 
 	ScoreFun scf;
+	//scf = nonsenseScore;
 	scf = averageFlagDistance;
 
 	try {
@@ -55,6 +57,7 @@ main(int argc, char **argv)
 		strcpy(filename, argv[1]);
 		strcat(filename, "/state");
 		State initstate(filename);
+		//initstate.dump();
 
 		if(argc == 3){
 			vypisNasledniky(initstate, scf);
@@ -65,11 +68,12 @@ main(int argc, char **argv)
 		State newState(initstate);
 		botPos newBot, bestBot;
 		Action newAction, bestAction(aNOOP);
-		Generator generator(initstate,true);
+		Generator generator(initstate);
 		double newScore, bestScore = -INFINITY;
 
 		while(generator.next(newState, newBot, newAction)){
-			newScore = minimax(newState, scf, DEPTH);
+			newScore = -minimax(newState, scf, DEPTH);
+			//newScore = -scf(newState);
 
 			if(newScore > bestScore){
 				bestScore = newScore;
@@ -77,19 +81,6 @@ main(int argc, char **argv)
 				bestAction = newAction;
 			}
 		}
-		/*
-		while (generator.next(newState, newBot, newAction)) {
-			newScore = scf(newState);
-			
-			if (newScore < 0)
-				continue; // neplatna pozice;
-			if (newScore > bestScore) {
-				bestScore = newScore;
-				bestBot = newBot;
-				bestAction = newAction;
-			}
-		}
-		*/
 
 		cout << strAction(bestAction, bestBot) << endl;
 	}

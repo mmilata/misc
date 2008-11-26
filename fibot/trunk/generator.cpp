@@ -6,15 +6,10 @@
 
 using namespace std;
 
-Generator::Generator(const State &st, bool ourTurn) : ourTurn(ourTurn), initstate(st)
+Generator::Generator(const State &st) : initstate(st)
 {
-	if(ourTurn){
-		curBot = initstate.fOurBots.begin();
-		endBot = initstate.fOurBots.end();
-	}else{
-		curBot = initstate.fTheirBots.begin();
-		endBot = initstate.fTheirBots.end();
-	}
+	curBot = initstate.fBots[initstate.tah_hrace].begin();
+	endBot = initstate.fBots[initstate.tah_hrace].end();
 	curAction = aNOOP;
 }
 
@@ -25,10 +20,10 @@ Generator::Generator(const State &st, bool ourTurn) : ourTurn(ourTurn), initstat
 bool Generator::next(State &state, botPos &moved, Action &action)
 {
 	state = initstate;
-	if(state.tah_hrace == 1){
-		state.tah_hrace = 2;
+	if(state.tah_hrace == PRVNI){
+		state.tah_hrace = DRUHY;
 	}else{
-		state.tah_hrace = 1;
+		state.tah_hrace = PRVNI;
 		state.zbyva_kol--;
 	}
 
@@ -92,19 +87,12 @@ bool Generator::next(State &state, botPos &moved, Action &action)
 		return next(state, moved, action);
 	}
 	state.set(moved.first.x, moved.first.y, ftEmpty);
-	state.set(dest.x, dest.y, (ourTurn ? ftOurBot : ftTheirBot));
+	state.set(dest.x, dest.y, (initstate.tah_hrace == initstate.nase_cislo ? ftOurBot : ftTheirBot));
 
-	if(ourTurn){
-		for(vector<botPos>::iterator it = state.fOurBots.begin(); it != state.fOurBots.end(); it++){
-			if(*it == moved){
-				it->first = dest;
-			}
-		}
-	}else{
-		for(vector<botPos>::iterator it = state.fTheirBots.begin(); it != state.fTheirBots.end(); it++){
-			if(*it == moved){
-				it->first = dest;
-			}
+	vector<botPos>::iterator it;
+	for(it = state.fBots[initstate.tah_hrace].begin(); it != state.fBots[initstate.tah_hrace].end(); it++){
+		if(*it == moved){
+			it->first = dest;
 		}
 	}
 

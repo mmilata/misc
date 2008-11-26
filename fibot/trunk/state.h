@@ -1,6 +1,8 @@
 #ifndef FB_STATE_H
 #define FB_STATE_H
 
+#define PRVNI 0
+#define DRUHY 1
 
 #include <vector>
 #include "assert.h"
@@ -58,15 +60,15 @@ class State {
 		void dump(void) const;
 
 		Pos getDestination(const Pos&, Action) const;
-		//double getScore(std::vector<botPos> &bots, const Pos &flag) const;
 
-		std::vector<FieldType> fMap;
-		std::vector<botPos> fOurBots;
-		std::vector<botPos> fTheirBots;
 		int rows, columns;
+		std::vector<FieldType> fMap;
+		std::vector<botPos> fBots[2];
+		Pos fFlag[2];
+		int nase_cislo; // nase cislo hrace
+		int jejich_cislo; // druhe cislo
+		int tah_hrace; // hrac, ktery je aktualne na tahu
 		int zbyva_kol;
-		int tah_hrace;
-		Pos fOurFlag, fTheirFlag;
 };
 
 #endif

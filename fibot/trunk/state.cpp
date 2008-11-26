@@ -76,7 +76,8 @@ State::State(const char *filename)
 	statefile >> flag1s >> flag1r >> flag2s >> flag2r;
 
 	setDimensions(vyska, sirka);
-	tah_hrace = hracnatahu;
+	tah_hrace = nase_cislo = (hracnatahu-1);
+	jejich_cislo = 1 - nase_cislo;
 
 	for(int i=0; i<vyska; i++){
 		for(int j=0; j<sirka; j++){
@@ -85,12 +86,13 @@ State::State(const char *filename)
 			if(square == '#'){
 				t = ftWall;
 			}else if(square >= 'A' && square <= 'Z'){
-				if((hracnatahu==1 && square <= 'M') || (hracnatahu==2 && square >= 'N')){
-					t = ftOurBot;
-					fOurBots.push_back(botPos(Pos(j,i),square));
+				if(square <= 'M'){
+					t = (nase_cislo == PRVNI ? ftOurBot : ftTheirBot);
+					fBots[PRVNI].push_back(botPos(Pos(j,i),square));
 				}else{
-					t = ftTheirBot;
-					fTheirBots.push_back(botPos(Pos(j,i),square));
+					t = (nase_cislo == DRUHY ? ftOurBot : ftTheirBot);
+					fBots[DRUHY].push_back(botPos(Pos(j,i),square));
+				
 				}
 			}else{ /* melo by byt square == '.' */
 				t = ftEmpty;
@@ -99,17 +101,8 @@ State::State(const char *filename)
 		}
 	}
 
-	if(hracnatahu==1){
-		fOurFlag.x = flag1s-1;
-		fOurFlag.y = flag1r-1;
-		fTheirFlag.x = flag2s-1;
-		fTheirFlag.y = flag2r-1;
-	}else{
-		fOurFlag.x = flag2s-1;
-		fOurFlag.y = flag2r-1;
-		fTheirFlag.x = flag1s-1;
-		fTheirFlag.y = flag1r-1;
-	}
+	fFlag[PRVNI] = Pos(flag1s-1,flag1r-1);
+	fFlag[DRUHY] = Pos(flag2s-1,flag2r-1);
 
 	statefile.close();
 }
@@ -123,9 +116,9 @@ void State::dump(void) const
 			p = Pos(j,i);
 			switch(get(j,i)){
 				case ftEmpty:
-					if(p == fOurFlag){
+					if(p == fFlag[nase_cislo]){
 						cerr << 'o';
-					}else if(p == fTheirFlag){
+					}else if(p == fFlag[jejich_cislo]){
 						cerr << 't';
 					}else{
 						cerr << '.';
@@ -135,7 +128,7 @@ void State::dump(void) const
 					cerr << '#';
 					break;
 				case ftOurBot:
-					for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+					for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
 						if(p == it->first){
 							cerr << it->second;
 							break;
@@ -143,7 +136,7 @@ void State::dump(void) const
 					}
 					break;
 				case ftTheirBot:
-					for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+					for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
 						if(p == it->first){
 							cerr << it->second;
 							break;
@@ -154,16 +147,16 @@ void State::dump(void) const
 		}
 		cerr << endl;
 	}
-	cerr << "Nase vlajka: (" << fOurFlag.x << "," << fOurFlag.y << ")\n";
-	cerr << "Jejich vlajka: (" << fTheirFlag.x << "," << fTheirFlag.y << ")\n";
-	cerr << "Zbyva kol: " << zbyva_kol << " " << "cislo hrace na tahu: " << tah_hrace << endl;
+	cerr << "Nase vlajka: (" << fFlag[nase_cislo].x << "," << fFlag[nase_cislo].y << ")\n";
+	cerr << "Jejich vlajka: (" << fFlag[jejich_cislo].x << "," << fFlag[jejich_cislo].y << ")\n";
+	cerr << "Zbyva kol: " << zbyva_kol << " " << "cislo hrace na tahu: " << (tah_hrace+1) << " (my jsme hrac " << nase_cislo+1 << ")\n";
 	cerr << "Nasi boti:";
-	for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cerr << endl;
 	cerr << "Jejich boti:";
-	for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
 		cerr << " " << it->second << "(" << it->first.x << "," << it->first.y << ")";
 	}
 	cerr << endl;
@@ -176,12 +169,12 @@ bool State::endGame(void) const
 	if(zbyva_kol==0)
 		return true;
 
-	for(vector<botPos>::const_iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
-		if(it->first == fTheirFlag)
+	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
+		if(it->first == fFlag[jejich_cislo])
 			return true; /* wheee, mame vlajku */
 	}
-	for(vector<botPos>::const_iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
-		if(it->first == fOurFlag)
+	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
+		if(it->first == fFlag[nase_cislo])
 			return true;
 	}
 
@@ -193,15 +186,15 @@ bool State::endGame(void) const
  */
 void State::killBot(Pos p)
 {
-	for(vector<botPos>::iterator it = fOurBots.begin(); it != fOurBots.end(); it++){
+	for(vector<botPos>::iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
 		if(it->first == p){
-			fOurBots.erase(it);
+			fBots[nase_cislo].erase(it);
 			return;;
 		}
 	}
-	for(vector<botPos>::iterator it = fTheirBots.begin(); it != fTheirBots.end(); it++){
+	for(vector<botPos>::iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
 		if(it->first == p){
-			fTheirBots.erase(it);
+			fBots[jejich_cislo].erase(it);
 			return;;
 		}
 	}

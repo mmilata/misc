@@ -8,5 +8,6 @@ typedef double (*ScoreFun)(const State &st);
 double minimax(const State &st, ScoreFun scf, int depth);
 
 double averageFlagDistance(const State &st);
+double nonsenseScore(const State &st);
 
 #endif
