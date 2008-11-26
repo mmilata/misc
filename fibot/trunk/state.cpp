@@ -281,6 +281,9 @@ const char *strAction(Action a, const char bot)
 			break;
 	}
 
+	cerr << "action: " << (int)a << " bot " << (int)bot << endl;
+	cerr << "ret: " << ret << endl;
+
 	return ret;
 }
 
@@ -472,6 +475,9 @@ char State::botName(const Pos &pos) const
 	it = fBots[tah_hrace].find(pos);
 
 	if (it == fBots[tah_hrace].end())
+		it = fBots[!tah_hrace].find(pos);
+	
+	if (it == fBots[!tah_hrace].end())
 		throw Error("Zadany bot k vyhledani neexistuje v ramci botu aktualniho hrace");
 
 	return it->second;
@@ -483,7 +489,3 @@ bool State::isEnemy(const Pos &pos) const
 }
 
 /* vim: set noexpandtab: */
-
-State::~State()
-{
-}

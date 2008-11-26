@@ -22,9 +22,15 @@ static State gstate;
 void sighandler(int unused)
 {
 	(void)unused;
-	
-	cerr << "timeout!!!" << endl;
-	cout << strAction(bestAction, gstate.botName(bestBot)) << endl;
+	try {	
+		cerr << "timeout!!!" << endl;
+		cout << strAction(bestAction, gstate.botName(bestBot)) << endl << flush;
+	}
+	catch (Error &e) {
+		cerr << "Pri zpracovavani timeoutu nastala tato chyba: " << e.what() << endl << flush;
+		cout << "-" << endl;
+		abort();
+	}
 	exit(EXIT_SUCCESS);
 }
 

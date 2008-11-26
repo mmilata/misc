@@ -47,7 +47,6 @@ class State {
 	public:
 		State() {};
 		State(const char *filename);
-		virtual ~State();
 		FieldType get(int x, int y) const {
 			assert(x >= 0 && y >= 0 && x < columns && y < rows); 
 			return fMap[(y*columns) + x];
