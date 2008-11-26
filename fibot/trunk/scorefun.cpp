@@ -23,7 +23,16 @@ double averageFlagDistance(const State &st)
 			ret_val -= 1000.0;
 	}
 
-	return 100.0 - (ret_val/bots.size());
+	bots = st.fBots[tahnul];
+	double mindist = INFINITY;
+	for (i = bots.begin(); i != bots.end(); i++) {
+		double t = st.fFlag[na_tahu].distance(i->first);
+
+		if(t < mindist)
+			mindist = t;
+	}
+
+	return 100.0 - (ret_val/bots.size()) - (200.0/mindist);
 }
 
 double testWhatever(const State &st)
@@ -32,24 +41,27 @@ double testWhatever(const State &st)
 	int tahnul = 1 - na_tahu;
 
 	vector<botPos>::const_iterator i;
+	//vyhra
 	vector<botPos> bots = st.fBots[na_tahu];
-	for (i = bots.begin(); i != bots.end(); i++){ //vyhra
+	for (i = bots.begin(); i != bots.end(); i++){
 		if(i->first == st.fFlag[tahnul])
 			return INFINITY;
 	}
+	//prohra
 	bots = st.fBots[tahnul];
 	for (i = bots.begin(); i != bots.end(); i++){
-		if(i->first == st.fFlag[na_tahu]) //prohra
+		if(i->first == st.fFlag[na_tahu])
 			return -INFINITY;
 	}
 
-	return averageFlagDistance(st);
+	double ret_val = 10.0*(st.fBots[na_tahu].size()) - (20*bots.size());
+
+	return ret_val+averageFlagDistance(st);
+	//preferovat ty stavy kdy jde nejaky bot po ceste ktera vede k vlajce, ne se jen tupe priblizuje nez narazi na zed
 	//rozdil v poctu botu
 	//kolik tahu jsme prumerne u vlajky
 	//a nepritel
 	//skore na zacatku by melo vychazet 0, pokud je mapa symetricka ... ?
-	//pokud stojime na vlajce INFINITY
-	//pokud stoji nepritel, -INF
 }
 
 double nonsenseScore(const State &st)
