@@ -9,16 +9,16 @@ using namespace std;
 
 double averageFlagDistance(const State &st)
 {
-	int tahnul = st.tah_hrace;
-	int na_tahu = 1-st.tah_hrace;
+	int na_tahu = st.tah_hrace;
+	int tahnul = 1-st.tah_hrace;
 	bool flag = 1;
 
 	vector<botPos>::const_iterator i;
-	vector<botPos> bots = st.fBots[tahnul];
+	vector<botPos> bots = st.fBots[na_tahu];
 
 	double ret_val = 1000.0;
 	for (i = bots.begin(); i != bots.end(); i++) {
-		ret_val += st.fFlag[na_tahu].distance(i->first);
+		ret_val += st.fFlag[tahnul].distance(i->first);
 		if(flag)
 			ret_val -= 1000.0;
 	}
@@ -28,6 +28,22 @@ double averageFlagDistance(const State &st)
 
 double testWhatever(const State &st)
 {
+	int na_tahu = st.tah_hrace;
+	int tahnul = 1 - na_tahu;
+
+	vector<botPos>::const_iterator i;
+	vector<botPos> bots = st.fBots[na_tahu];
+	for (i = bots.begin(); i != bots.end(); i++){ //vyhra
+		if(i->first == st.fFlag[tahnul])
+			return INFINITY;
+	}
+	bots = st.fBots[tahnul];
+	for (i = bots.begin(); i != bots.end(); i++){
+		if(i->first == st.fFlag[na_tahu]) //prohra
+			return -INFINITY;
+	}
+
+	return averageFlagDistance(st);
 	//rozdil v poctu botu
 	//kolik tahu jsme prumerne u vlajky
 	//a nepritel

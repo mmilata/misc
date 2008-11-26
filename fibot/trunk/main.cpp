@@ -50,7 +50,7 @@ main(int argc, char **argv)
 
 	ScoreFun scf;
 	//scf = nonsenseScore;
-	scf = averageFlagDistance;
+	scf = testWhatever;
 
 	try {
 		if(argc < 2)
