@@ -44,7 +44,10 @@ class State {
 			return fMap[(y*columns) + x];
 		};
 		FieldType get(const Pos &pos) const {return get(pos.x, pos.y);};
-		void set(int x, int y, FieldType ft) {fMap[(y*columns) + x] = ft;};
+		void set(int x, int y, FieldType ft) {
+			assert(x >= 0 && y >= 0 && x < columns && y < rows); 
+			fMap[(y*columns) + x] = ft;
+		};
 		void set(const Pos &pos, FieldType ft) {return pos(pos.x, pos.y, ft);};
 		void setDimensions(int inRows, int inColumns);
 		void dump(void) const;
