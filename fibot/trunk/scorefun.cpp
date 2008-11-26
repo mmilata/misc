@@ -11,13 +11,16 @@ double averageFlagDistance(const State &st)
 {
 	int tahnul = st.tah_hrace;
 	int na_tahu = 1-st.tah_hrace;
+	bool flag = 1;
 
 	vector<botPos>::const_iterator i;
-	vector<botPos> bots = st.fBots[na_tahu];
+	vector<botPos> bots = st.fBots[tahnul];
 
-	double ret_val = 0;
+	double ret_val = 1000.0;
 	for (i = bots.begin(); i != bots.end(); i++) {
-		ret_val += st.fFlag[tahnul].distance(i->first);
+		ret_val += st.fFlag[na_tahu].distance(i->first);
+		if(flag)
+			ret_val -= 1000.0;
 	}
 
 	return 100.0 - (ret_val/bots.size());
@@ -58,7 +61,7 @@ double minimax(const State &st, ScoreFun scf, int depth)
 	//jeste by to chtelo osetrit vyhru/prohru
 
 	if(depth==0 || st.endGame())
-		return -scf(st);
+		return scf(st);
 
 	Generator generator(st);
 	double newScore;

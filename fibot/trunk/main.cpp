@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#define DEPTH 3
+#define DEPTH 4
 
 using namespace std;
 
@@ -19,6 +19,7 @@ void sighandler(int unused)
 {
 	(void)unused;
 
+	cerr << "timeout!\n";
 	cout << "-" << endl;
 	exit(EXIT_SUCCESS);
 }
@@ -82,6 +83,7 @@ main(int argc, char **argv)
 			}
 		}
 
+		//cerr << "bestscore: " << bestScore << endl;
 		cout << strAction(bestAction, bestBot) << endl;
 	}
 	catch (exception &e) {
