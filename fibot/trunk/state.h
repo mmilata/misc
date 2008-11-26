@@ -58,6 +58,7 @@ class State {
 		void killBot(Pos p);
 		bool endGame(void) const;
 		void dump(void) const;
+		int vyhral() const;
 		bool isThreat(Pos p, int player) const;
 
 		Pos getDestination(const Pos&, Action) const;
@@ -75,7 +76,6 @@ class State {
 		int jejich_cislo; // druhe cislo
 		int tah_hrace; // hrac, ktery je aktualne na tahu
 		int zbyva_kol;
-		int vyhral; // endGame == true, tak tohle je kdo vyhral
 };
 
 #endif

@@ -40,11 +40,12 @@ double testWhatever(const State &st)
 	int na_tahu = st.tah_hrace;
 	int tahnul = 1 - na_tahu;
 
-	if (st.endGame) {
-		if (st.vyhral == na_tahu)
+	if (st.endGame()) {
+		if (st.vyhral() == na_tahu)
 			return INFINITY;
 		else
 			return -INFINITY;
+	}
 
 	double ret_val = 10.0*(st.fBots[na_tahu].size()) - (20*bots.size());
 

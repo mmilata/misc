@@ -171,19 +171,29 @@ bool State::endGame(void) const
 
 	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++){
 		if(it->first == fFlag[jejich_cislo]) {
-			vyhral = nase_cislo;
 			return true; /* wheee, mame vlajku */
 		}
 	}
 	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++){
 		if(it->first == fFlag[nase_cislo]) {
-			vyhral = jejich_cislo;
 			return true;
 		}
 	}
 
 	return false;
 }
+
+int State::vyhral() const
+{
+	for(vector<botPos>::const_iterator it = fBots[nase_cislo].begin(); it != fBots[nase_cislo].end(); it++)
+		if(it->first == fFlag[jejich_cislo])
+			return nase_cislo;
+	for(vector<botPos>::const_iterator it = fBots[jejich_cislo].begin(); it != fBots[jejich_cislo].end(); it++)
+		if(it->first == fFlag[nase_cislo])
+			return jejich_cislo;
+	return -1;
+}
+
 
 /*
  * !Nevymaze bota z mapy, jen ze seznamu
