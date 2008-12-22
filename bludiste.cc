@@ -1,18 +1,28 @@
-#include <vector>
+/*
+ * g++ -lncurses -o bludiste bludiste.cc
+ */
+
 #include <iostream>
+
+#include <vector>
+#include <queue>
+
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
-#include <queue>
-#include <map>
+#include <cstring>
+
+#include <unistd.h>
+#include <curses.h>
 
 #define MAX_SIZE 256
-#define INV "\033[7m"
-#define RED "\033[0;31m"
-#define NORMAL "\033[0m"
-#define GREEN "\033[32m"
-#define BLUE "\033[0;34m"
 #define SLEEPTIME 20000
+
+#define C_NORMAL 1
+#define C_INV    2
+#define C_BLUE   3
+#define C_GREEN  4
+#define C_RED    5
 
 using namespace std;
 
@@ -24,8 +34,43 @@ int cil_x[3];
 int cil_y[3];
 int truecil_x;
 int truecil_y;
+int max_x;
+int max_y;
 bool path[MAX_SIZE][MAX_SIZE];
 bool beenhere[MAX_SIZE][MAX_SIZE];
+
+void curs_init(void)
+{
+	//taken from tcjc
+	initscr();
+	start_color();
+	cbreak(); // no line buffering
+	noecho(); // we don't want to see what we type
+	nonl();
+	keypad(stdscr, TRUE); // function keys
+	nodelay(stdscr, TRUE); // non-blocking mode for *getch
+	//intrflush(stdscr, FALSE); // man says it's good
+	curs_set(0);
+	leaveok(stdscr, TRUE);
+
+	init_pair(C_NORMAL, COLOR_WHITE, COLOR_BLACK);
+	init_pair(C_INV,    COLOR_BLACK, COLOR_WHITE);
+	init_pair(C_BLUE,   COLOR_BLACK, COLOR_BLUE);
+	init_pair(C_GREEN,  COLOR_BLACK, COLOR_GREEN);
+	init_pair(C_RED,    COLOR_BLACK, COLOR_RED);
+}
+
+#define MIN(x,y) (x < y ? x : y)
+#define MAX(x,y) (x > y ? x : y)
+void curs_end(void)
+{
+	move(truecil_y+2,MAX(0,MIN(truecil_x-5, max_x-11)));
+	attron(COLOR_PAIR(C_INV));
+	printw("Press any key");
+	refresh();
+	getchar();
+	endwin();
+}
 
 void nuluj(void)
 {
@@ -57,48 +102,51 @@ void nuluj_bfs(void)
 
 void vykresli(int x, int y, int s_x, int s_y)
 {
-	printf(INV " ");
+	move(0, 0);
+	attron(COLOR_PAIR(C_INV));
+	printw(" ");
 	for(int i = 0; i < x; i++)
-		printf(" ");
-	printf(" \n" NORMAL);
+		printw(" ");
+	printw(" \n");
+	attron(COLOR_PAIR(C_NORMAL));
 	for(int i = 0; i < y; i++){
-		printf(INV " " NORMAL);
+		attron(COLOR_PAIR(C_INV));
+		printw(" ");
 		for(int j = 0; j < x; j++){
 			if(path[j][i]){
-				printf(GREEN INV " " NORMAL);
+				attron(COLOR_PAIR(C_GREEN));
+				printw(" ");
 			}else if(beenhere[j][i]){
-				printf(BLUE INV " " NORMAL);
+				attron(COLOR_PAIR(C_BLUE));
+				printw(" ");
 			}else if(bludiste[j][i]){
-				printf(INV " " NORMAL);
+				attron(COLOR_PAIR(C_INV));
+				printw(" ");
 			}else{
+				attron(COLOR_PAIR(C_RED));
 				if(s_x == j && s_y == i){
-					printf(RED "S" NORMAL);
+					printw("S");
 				}else if(cil_x[0] == j && cil_y[0] == i){
-					printf(RED "A" NORMAL);
+					printw("A");
 				}else if(cil_x[1] == j && cil_y[1] == i){
-					printf(RED "C" NORMAL);
+					printw("C");
 				}else if(cil_x[2] == j && cil_y[2] == i){
-					printf(RED "B" NORMAL);
+					printw("B");
 				}else{
-					printf(NORMAL " "); //normal
+					attron(COLOR_PAIR(C_NORMAL));
+					printw(" "); //normal
 				}
 			}
 		}
-		printf(INV " \n" NORMAL);
+		attron(COLOR_PAIR(C_INV));
+		printw(" \n");
 	}
-	printf(INV " ");
+	printw(" ");
 	for(int i = 0; i < x; i++)
-		printf(" ");
-	printf(" \n\n" NORMAL);
-}
-
-void nahodne(void)
-{
-	for(int i = 0; i<MAX_SIZE; i++){
-		for(int j = 0; j<MAX_SIZE; j++){
-			bludiste[i][j] = rand() % 2;
-		}
-	}
+		printw(" ");
+	printw(" \n\n");
+	attron(COLOR_PAIR(C_NORMAL));
+	refresh();
 }
 
 void bfs(int s_x, int s_y, int max_x, int max_y)
@@ -223,89 +271,7 @@ bool find_path4(int s_x, int s_y, int c_x, int c_y, int max_x, int max_y)
 	return true;
 }
 
-bool find_path2(int s_x, int s_y, int c_x, int c_y, int max_x, int max_y)
-{
-	if(s_x == c_x && s_y == c_y){
-		path[s_x][s_y] = true;
-		return true;
-	}
-	if(beenhere[s_x][s_y] || bludiste[s_x][s_y] || s_x < 0 || s_y < 0 || s_x >= max_x || s_y >= max_y)
-		return false;
-
-	beenhere[s_x][s_y] = true;
-	path[s_x][s_y] = true;
-
-	vykresli(max_x, max_y, -1, -1);
-	usleep(20000);
-	
-	bool result;
-
-	if(s_x > c_x){ //doleva dolu doprava nahoru
-		result = find_path2(s_x-1,s_y,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x,s_y+1,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x+1,s_y,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x,s_y-1,c_x,c_y,max_x,max_y);
-	}else if(s_x < c_x){ //doprava dolu doleva nahoru
-		result = find_path2(s_x+1,s_y,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x,s_y+1,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x-1,s_y,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x,s_y-1,c_x,c_y,max_x,max_y);
-	}else{ //dolu nahoru doleva doprav
-		result = find_path2(s_x,s_y-1,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x,s_y+1,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x-1,s_y,c_x,c_y,max_x,max_y)
-			   || find_path2(s_x+1,s_y,c_x,c_y,max_x,max_y);
-	}
-
-	if(!result)
-		path[s_x][s_y] = false;
-
-	return result;
-}
-
-bool find_path3(int s_x, int s_y, int c_x, int c_y, int max_x, int max_y)
-{
-	//if(c_x == truecil_x && c_y == truecil_y){
-		nuluj_bfs();
-		bfs(c_x, c_y, max_x, max_y);
-	//}
-	if(s_x == c_x && s_y == c_y){
-		path[s_x][s_y] = true;
-		return true;
-	}
-	if(beenhere[s_x][s_y] || bludiste[s_x][s_y] || s_x < 0 || s_y < 0 || s_x >= max_x || s_y >= max_y)
-		return false;
-
-	beenhere[s_x][s_y] = true;
-	path[s_x][s_y] = true;
-
-	vykresli(max_x, max_y, -1, -1);
-	usleep(20000);
-	
-	bool result;
-
-	printf("%d\n", dist[s_x][s_y]);
-	if(s_x > 0 && dist[s_x-1][s_y] < dist[s_x][s_y]){
-		result = find_path3(s_x-1,s_y,c_x,c_y,max_x,max_y);
-	}else if(s_y > 0 && dist[s_x][s_y-1] < dist[s_x][s_y]){
-		result = find_path3(s_x,s_y-1,c_x,c_y,max_x,max_y);
-	}else if(s_x < MAX_SIZE-1 && dist[s_x+1][s_y] < dist[s_x][s_y]){
-		result = find_path3(s_x+1,s_y,c_x,c_y,max_x,max_y);
-	}else{
-		result = find_path3(s_x,s_y+1,c_x,c_y,max_x,max_y);
-	}
-	if(!result)
-		result = find_path3(s_x-1,s_y,c_x,c_y,max_x,max_y)
-			|| find_path3(s_x+1,s_y,c_x,c_y,max_x,max_y)
-			|| find_path3(s_x,s_y-1,c_x,c_y,max_x,max_y);
-
-	if(!result)
-		path[s_x][s_y] = false;
-
-	return result;
-}
-
-void tri_nejvzdalenejsi(int x, int y, int s_x, int s_y, int& x1, int& y1, int& x2, int& y2, int& x3, int& y3)
+void tri_nejvzdalenejsi(int x, int y)
 {
 	//bfs(s_x, s_y, x, y);
 	cil_y[0] = cil_y[1] = cil_y[2] = y-1;
@@ -442,8 +408,8 @@ int main(int argc, char *argv[])
 
 	int x = atoi(argv[1]);
 	int y = atoi(argv[2]);
-	int x1, x2, x3, y1, y2, y3;
 	int start_x, start_y;
+	max_x = x; max_y = y;
 
 	nuluj();
 	seed = (seed ? seed : time(NULL));
@@ -456,7 +422,7 @@ int main(int argc, char *argv[])
 		start_y = 0;
 	}while(bludiste[start_x][start_y]);
 
-	tri_nejvzdalenejsi(x, y, start_x, start_y, x1, y1, x2, y2, x3, y3);
+	tri_nejvzdalenejsi(x, y);
 
 	int notdead = (x*y)/4;
 	while(notdead--){
@@ -481,7 +447,7 @@ int main(int argc, char *argv[])
 		}
 		
 		nuluj_bfs();
-		printf(".\n");
+		//printf(".\n");
 	}
 
 	if(!notdead){
@@ -496,8 +462,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	curs_init();
+
 	fun(start_x, start_y, truecil_x, truecil_y, x, y);
 
 	vykresli(x,y,start_x,start_y);
+	curs_end();
 	printf("\033[0m\nseed: %d\n", seed);
 }

@@ -1,3 +1,3 @@
-CXXFLAGS=-Wall -g
+CXXFLAGS=-Wall -g -Wextra -pedantic -lncurses
 
 all: bludiste
