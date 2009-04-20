@@ -1,0 +1,634 @@
+\documentclass[12pt]{article}
+\usepackage[czech]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{enumerate}
+\usepackage{hyperref}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{tikz}
+
+%cisla stranek se muzou hodit
+\pagestyle{plain}
+
+\topmargin -5mm
+\headsep 0mm
+\headheight 3mm
+\textheight 235mm
+\textwidth 165mm
+\oddsidemargin 0mm
+\evensidemargin 0mm
+\footskip 10mm
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\coL}{co\mbox{$-$}L}
+\newcommand{\move}{\rightarrow}
+\newcommand{\la}{\leftarrow}
+\newcommand{\var}[1]{\textit{#1}}
+
+\renewcommand{\O}{\mathcal{O}}
+
+\newcommand{\zadani}[2]{
+{\large
+\noindent {\bf IB108 \hfill{} Sada #1, Příklad #2 \\[-4mm]}
+\noindent\hrule
+\vspace{2mm}
+\noindent Vypracovali:\hfill{}Tomáš Krajča (255676), Martin Milata (256615)
+\vspace{3mm}
+\hrule
+\bigskip\bigskip}
+}
+
+
+\begin{document}
+
+\zadani{1}{1}
+
+\noindent
+Složitost třídícího algoritmu 1/3-Sort je v
+$\mathcal{O}\left(n^{\log_{\frac{3}{2}}3}\right) \in
+\mathcal{O}\left(n^{2.71}\right)$.
+
+Nechť $n = j-i$ (velikost pole, které je vstupním parametrem funkce 1/3-Sort).
+Lehce spočítáme, že velikost pole předávaná rekurzivně volaným 1/3-Sort je 
+ $\le \frac{2}{3}n$. Z toho můžeme odvodit rekurentní rovnici:
+\begin{eqnarray*}
+T(n) & = & 3T\left(\left\lceil \frac{2}{3}n\right\rceil\right) + c\mbox{, kde }c \in
+\mathbb{N}\\
+T(1) & = & c'\mbox{, kde }c' \in \mathbb{N}
+\end{eqnarray*}
+Dle \textit{Master Theorem} je tedy $T(n) \in
+\mathcal{O}\left(n^{\log_{\frac{3}{2}}3}\right)$, $(a = 3, b = \frac{3}{2}, d =
+0)$.
+
+Algoritmus korektně utřídí danou posloupnost.\\
+Algoritmus konverguje - zřejmé, pro $i + 1 < j$ bude $k \ge 1$, tedy rekurzivně
+volané funkce budou mít jako parametr alepoň o $1$ menší pole, než měla
+původní funkce. Pro $i + 1 \ge j$ končí rekurzivní zanořování.\\
+Algoritmus je parciálně korektní. \\
+Invariant: V každém exempláři funkce $1/3-Sort$ je možné vstupní pole rozdělit
+na následující $3$ části: $A[i]\dots A[i+k] \dots A[j-k] \dots A[j]$, kde $a)$
+prostřední část je alespoň tak velká jako poslední část a zároveň $b)$ prostřední
+část je neprázdná a zároveň $c)$ prostřední část je alespoň tak velká jako
+první část.\\
+$a)$
+\begin{eqnarray*}
+(j-k)-(i+k) =
+j-k-k-i &\ge& k - 1  =
+ j-(j-k+1)\\
+ &\Longleftrightarrow&\\
+ j-k-k-k-i+1 &\ge& 0\\
+\left\lfloor\frac{3j-j+i-1-3i+3}{3}\right\rfloor -k -k &\ge& 0\\
+ \left\lfloor\frac{2j-2i+2}{3}\right\rfloor
+ -\left\lfloor\frac{j-i+1}{3}\right\rfloor -
+ \left\lfloor\frac{j-i+1}{3}\right\rfloor &\ge& 0
+\end{eqnarray*}
+$b)$ předpokládáme, že $j\ge i+2$ (řádek $3$ algoritmu).
+$$(j-k)-(i+k) = j-k-k-i \ge
+(i+2)-\left\lfloor \frac{(i+2)-i+1}{3} \right\rfloor -\left\lfloor \frac{(i+2)-i+1}{3} \right\rfloor- i =
+ 0$$
+ $c)$\\
+ $$(j-k)-(i+k) \ge k-1 = (i+k-1)-i$$
+ Pokračování na dalším listu.
+ 
+ \newpage
+\zadani{1}{1}
+Nyní indukcí k délce vstupního pole ukážeme parciální korektnost algoritmu.\\
+Pro pole délky $2$ (triviálně pro délku $1$): z řádků $1-4$ algoritmu je zřejmé,
+že báze indukce platí (žádné rekurzivní zanořování).\\
+Předpokládejme tedy, že daný algoritmus korektně utřídí pole délky $n-1$. Pak
+volejme funkci $1/3-Sort(A,i,j):j-i=n$.
+Dle indukčního předpokladu nám volání funkce $1/3-Sort$ na řádku $6$ utřídí část
+pole $A[l]\dots A[j-k]$. Poté volání na řádku $7$ nám utřídí část pole
+$A[i+k]\dots A[j]$. Přičemž bude
+platit: $$A[i], A[i+1],\dots,A[j-k] \le A[j-k+1] \le A[j-k+2]
+\dots \le A[j]$$ Plyne z invariantu z velikosti jednotlivých částí pole. Další
+rekurzivní volání funkce $1/3-Sort$ na řádku $8$ nám setřídí zbývající část pole $A[i] \dots
+A[j-k]$.
+\hfill$\square$
+
+\newpage
+\zadani{1}{2}
+
+\noindent
+Nechť přiřazení trvá $1$ časovou jednotku, pak přesná časová složitost
+algoritmu\\
+je $\frac{1}{12}n+\frac{3}{8}n^2+\frac{5}{12}n^3+\frac{1}{8}n^4+1\in
+\mathcal{O}(n^4)$.\\
+Funkce \textit{UNKNOWN(n)} vypočítá hodnotu
+$\frac{1}{12}n+\frac{3}{8}n^2+\frac{5}{12}n^3+\frac{1}{8}n^4$.
+\\
+Cyklus na řádku $4$ proběhne vždy $i$ krát ($(i+j)-j=i$). Protože $k \ge j$,
+cyklus na řádku $5$ proběhne $i$ krát, $i-1$ krát $\dots 1$ krát (analyzujeme
+pouze cykly na řádcích $4$, $5$). Tedy tato dvojice cyklů proběhne
+$\frac{i}{2}\cdot (i+1)$. Cyklus na řádku $3$ proběhne $i$ krát, tedy dohromady
+s~cykly na řádcích $4$, $5$ to bude $T'(i) = i\cdot \frac{i}{2}\cdot (i+1)$. Nyní už
+snadno nahlédneme, že platí rekurentní vztahy (analyzujeme všechny
+cykly):
+\begin{eqnarray*}
+T(1) &=& 1\\
+T(n) &=& T(n-1)+T'(n)=T(n-1)+\frac{n}{2}\cdot\left(n+1\right)\cdot n\\
+&\Longleftrightarrow&\\
+T(n) &=&
+(n+1)\left(\frac{1}{2}n+1\right)\left(2-5\left(\frac{1}{3}n+1\right)+3\left(\frac{1}{3}n+1\right)\left(\frac{1}{4}n+1\right)\right)\\
+T(n) &=& \frac{1}{12}n+\frac{3}{8}n^2+\frac{5}{12}n^3+\frac{1}{8}n^4
+\end{eqnarray*}
+
+\newpage
+\zadani{1}{3}
+
+\noindent
+Algoritmus:
+\begin{algorithm}
+\begin{algorithmic}[1]
+\REQUIRE $A[l..r], A[~] \in \mathbb{Z}$
+\ENSURE $\sum_{k=i}^{j}A[k]$ is maximum
+\STATE	$max \leftarrow max\_suf \leftarrow 0$
+\STATE  $i \leftarrow j \leftarrow i\_suf \leftarrow j\_suf \leftarrow 0$
+\FOR{$k\leftarrow l$ to $r$}
+\IF {$0 > max\_suf + A[k]$}
+\STATE $max\_suf \leftarrow 0$
+\STATE $i\_suf \leftarrow k+1$
+\ELSE
+\STATE $max\_suf \leftarrow max\_suf + A[k]$\
+\STATE $j\_suf \leftarrow k$
+\ENDIF
+%\STATE $max\_suf \leftarrow MAX(0, max\_suf + A[k])$
+\IF {$max < max\_suf$}
+\STATE $max \leftarrow max\_suf$
+\STATE $i \leftarrow i\_suf$
+\STATE $j \leftarrow j\_suf$
+\ENDIF
+\ENDFOR
+\IF {$max \le 0$}
+\STATE $max = A[l]$
+\STATE $i \leftarrow j \leftarrow l$
+\FOR{$k\leftarrow l+1$ to $r$}
+\IF {$A[k] > max$}
+\STATE $max \leftarrow A[k]$
+\STATE $i \leftarrow j \leftarrow k$
+\ENDIF
+\ENDFOR
+\ENDIF
+\RETURN $(i,j)$
+\end{algorithmic}
+\end{algorithm}
+
+Analýza složitosti:\\
+Nechť $n = r - l$ je velikost pole $A[~]$. Pak složitost algoritmu je zřejmě
+$\Theta(n) \in \mathcal{O}\left(n\cdot \log n\right)$. Máme $2$ oddělené \textit{for}
+cykly s $n$ iteracemi.
+
+Pokračování na dalším listu.
+\newpage
+\zadani{1}{3}
+
+
+\noindent
+Konvergence triviální - pouze 2 konečné \textit{for} cykly.\\
+Korektnost:\\ 
+Dokážeme, že $max$ je suma podintervalu pole $A[~]$, která je maximální.
+Argumentace, že nejlevější prvek takového podintervalu je $i$ a nejpravější $j$
+by byla obdobná. Tento invariant platí po celou dobu výpočtu.\\
+
+{
+\renewcommand{\labelenumi}{$($\alph{enumi}$)$}
+\begin{enumerate}
+
+\item $\exists b.A[b] > 0$\\
+Pro \textit{for} cyklus na řádku $3$ bude platit invariant: $max$ je 
+suma podintervalu pole $A[l..k]$, která je maximální. Další invariant pro tento
+\textit{for} cyklus je: $max\_suf$ je suma podintervalu pole $A[l..k]$, která je
+maximální a zároveň nejpravější prvek podintervalu je $A[k]$. Pokud by měla být
+proměnná $max$ nebo $max\_suf$ záporná, pokládáme je rovny $0$. To~můžeme,
+protože víme, že v poli existuje prvek větší než $0$. Po opuštění tohoto
+\textit{for} cyklu bude tedy v $max$ suma podintervalu pole $A[l..r]$, která je
+maximální. Předpokládáme, že pole obsahuje nějaký prvek větší než $0$,
+\textit{if} podmínka na řádku $17$ se tedy vyhodnotí na $false$.\\
+
+\item $\forall b.A[b] \le 0$\\
+Z úvodního předpokladu hned vidíme, že podinterval s maximální sumou bude
+obsahovat $1$ prvek ($A[b] + A[c] \le A[b]$). Nechť tedy proběhne úvodních $16$
+řádků, je zřejmé, že $max \le 0$, provedou se tedy řádky $18$..$26$. To je ovšem
+aplikace standardního algoritmu pro nalezení největšího prvku pole $A[l..r]$.
+Invariant pro \textit{for} cyklus na řádku $20$: $max$ je maximální položka
+pole $A[l..k]$. Tento největší prvek pole bude jediný prvek maximálního
+podintervalu pole $A[l..r]$.
+\hfill$\square$
+
+\end{enumerate}
+}
+
+\newpage
+\zadani{1}{4}
+
+Pro navržení datové struktury využijeme následující fakt. Mějme posloupnost
+čísel (na~ob\-ráz\-ku 1--32) a nad ní postavený binární strom. Dále pak mějme nějaký
+interval ležící v~této posloupnosti (na ob\-rá\-zku 19--27). Na obrázku jsou pro
+názornost vyznačeny obě cesty z~kořene do~krajních bodů tohoto intervalu.
+Vlastnost, která je pro nás podstatná je, že každá cesta z~kořene do nějákého
+bodu intervalu vypadá následovně: projde uzlem, kde se cesty do~krajních
+intervalů rozdvojují (v hraničních případech může být tento uzel kořen nebo
+list) a pak pokračuje buď po cestě vedoucí do levého krajního bodu a z ní odbočí
+doprava, nebo pokračují po cestě do pravého krajního bodu a z ní odbočí doleva,
+případně dojdou po jedné z těchto cest až do krajního bodu.
+
+\begin{center}
+\begin{tikzpicture}
+  [scale=0.9,
+   level distance=10mm,
+   emphedge/.style={draw=black,ultra thick},
+   normedge/.style={draw=black,thin},
+   every node/.style={inner sep=1pt,font=\scriptsize},
+   selnode/.style={inner sep=1pt,minimum size=1.2mm,circle,draw=black,fill=black},
+   level 1/.style={sibling distance=80mm,level distance=16mm},
+   level 2/.style={sibling distance=40mm,level distance=14mm},
+   level 3/.style={sibling distance=20mm,level distance=12mm},
+   level 4/.style={sibling distance=10mm,level distance=10mm},
+   level 5/.style={sibling distance=5mm,level distance=8mm,nodes={fill=none}}]
+  \node[minimum size=0pt,inner sep=0pt] {}
+  child {
+    child {
+      child {
+        child {
+          child { node {1} } child { node {2} }
+        }
+        child {
+          child { node {3} } child { node {4} }
+        }
+      }
+      child {
+        child {
+          child { node {5} } child { node {6} }
+        }
+        child {
+          child { node {7} } child { node {8} }
+        }
+      }
+    }
+    child {
+      child {
+        child {
+          child { node {9} } child { node {10} }
+        }
+        child {
+          child { node {11} } child { node {12} }
+        }
+      }
+      child {
+        child {
+          child { node {13} } child { node {14} }
+        }
+        child {
+          child { node {15} } child { node {16} }
+        }
+      }
+    }
+  }
+  %% middle
+  child {
+    edge from parent [emphedge]
+    child {
+      child {
+        child {
+          edge from parent [normedge]
+          child { node {17} } child { node {18} }
+        }
+        child {
+          child { node (node19) {19} } child { node (node20) {20} edge from parent [normedge] }
+        }
+      }
+      child {
+        node [selnode] {}
+        edge from parent [normedge]
+        child {
+          child { node {21} } child { node {22} }
+        }
+        child {
+          child { node {23} } child { node {24} }
+        }
+      }
+    }
+    child {
+      child {
+        child {
+          node [selnode] {}
+          edge from parent [normedge]
+          child { node {25} } child { node {26} }
+        }
+        child {
+          child { node (node27) {27} } child { node {28} edge from parent [normedge] }
+        }
+      }
+      child {
+        edge from parent [normedge]
+        child {
+          child { node {29} } child { node {30} }
+        }
+        child {
+          child { node {31} } child { node {32} }
+        }
+      }
+    }
+  };
+\node [selnode, above of=node19, node distance=2mm, shift={(0.55mm,0mm)}] {};
+\node [selnode, above of=node20, node distance=2mm, shift={(-0.55mm,0mm)}] {};
+\node [selnode, above of=node27, node distance=2mm, shift={(0.55mm,0mm)}] {};
+\end{tikzpicture}
+\end{center}
+
+Jinak řečeno, projdou právě jednou uzlem, který je pravým (resp. levým) synem
+nějákého uzlu ležícího na cestě do levého (resp. pravého) krajního
+bodu, který sám na této cestě neleží (pokud není cílový bod zároveň bodem
+krajním). Tyto uzly jsou na obrázku vyznačeny tečkou.
+
+Jako datovou strukturu tedy použijeme binární strom, do jehož uzlů si budeme
+ukládat přirozená čísla. Pro každý zadaný interval najdeme výše popsané uzly a
+přičteme do nich číslo přiřazené danému intervalu. Tím dosáhneme toho, že na
+každé cestě z kořene do listu bude ležet takový součet čísel, který odpovídá
+součtu čísel přiřazených k intervalům, v nichž leží číslo v listu.
+
+Pro nalezení uzlů, do kterých budeme ukládat hodnoty nám stačí projít obě cesty
+z kořene do krajních bodů intervalu. Při tom projdeme nejvýše tolik uzlů, kolik
+je dvojnásobek výšky stromu. Použijeme-li vyvážený binární strom, bude nám to
+trvat logaritmický čas vzhledem k počtu listů a tedy vzhledem k velikosti
+nosného intervalu.
+% Použijeme-li vyvážený binární strom, stačí nám pro nalezení uzlů do kterých
+% budeme ukládat hodnoty projít obě cesty do krajních bodů intervalu, což znamená
+% projít počet uzlů rovnající se dvojnásobku výšky stromu, tedy vzhledem k počtu
+% listů logaritmický.
+Pro nalezení součtu náležícího nějákému číslu stačí
+projít uzly od kořene k danému listu, což bude také trvat logaritmický čas.
+
+Protože ve stromu uchováváme součty hodnot a protože parametry druhé operace
+jsou pouze krajní body intervalu, musíme si ještě někde uchovávat jednotlivá
+čísla přiřazená ke~každému intervalu. Pro tento účel použijeme dvourozměrné pole
+velikosti $n \times n$ (kde $n$ má význam jako v zadání).
+
+% \clearpage
+% 
+% Jako datovou strukturu použijeme vyvážený binární vyhledávací strom nad nosným
+% intervalem. V každém uzlu bude uložené přirozené číslo $val$, které využijeme při
+% implementaci zadaných operací.
+% Ačkoli by to nebylo nutné, pro zjednodušení si do každého
+% uzlu uložíme také přirozené číslo $i$, které nám v případě vnitřního uzlu bude
+% říkat, jaká je hodnota nejpravějšího potomka levého podstromu, v případě listu
+% pak přímo jeho hodnotu.
+% 
+% Pro uchování informace o tom jaké číslo je asociované s jakým intervalem dále
+% použijeme dvourozměrné pole velikosti $n \times n$. První index bude značit
+% počáteční bod intervalu, druhý koncový. Na začátku, kdy nebudou ve struktuře
+% uložené žádné intervaly inicializujeme každý prvek pole nulou. Stav, kdy je k
+% intervalu přiřazena nula a stav, kdy interval není ve struktuře obsažen jsou z
+% hlediska obou operací nerozlišitelné.
+
+\clearpage
+\zadani{1}{4}
+
+Algoritmus pro inicializaci datové struktury vytvoří vyvážený binární strom.
+Hodnotu uzlu, nazvanou $val$, inicializuje na nulu. Pro zjednodušení si do uzlů přidáme
+ještě položku $i$, která bude udávat hodnotu nejpravějšího potomka levého
+podstromu (v případě vnitřního uzlu), v případě listu jeho hodnotu. Algoritmus
+dále vytvoří pole velikosti $n \times n$, jehož prvky inicializuje na nulu.
+Stav, kdy je k intervalu přiřazena nula a stav, kdy interval není ve~struktuře
+obsažen jsou z hlediska obou operací nerozlišitelné.
+
+
+\begin{algorithm}
+\textsc{Init}$(n)$
+\begin{algorithmic}[1]
+\STATE $\var{Tree} \leftarrow \textsc{InitTree}(n,0)$
+\STATE $\var{Arr} \leftarrow \mbox{alokuj pole velikosti }n\times n\mbox{ a vynuluj jeho prvky}$
+\end{algorithmic}
+
+\bigskip
+
+\textsc{InitTree}$(\var{size},\var{offset})$
+\begin{algorithmic}[1]
+\STATE $\var{leftsize} \leftarrow \left\lfloor \var{size}/2 \right\rfloor$
+\STATE $\var{newnode} \leftarrow \mbox{alokuj nový uzel}$
+\STATE $\var{newnode.val} \leftarrow 0$
+\STATE $\var{newnode.i} \leftarrow \var{leftsize} + \var{offset}$
+\IF{$size = 1$}
+\STATE $\var{newnode.left} \leftarrow \mbox{NIL}$
+\STATE $\var{newnode.right} \leftarrow \mbox{NIL}$
+\STATE $\var{newnode.i} \leftarrow newnode.i + 1$
+\ELSE
+\STATE $\var{newnode.left} \leftarrow \textsc{InitTree}(\var{leftsize,offset})$
+\STATE $\var{newnode.right} \leftarrow
+  \textsc{InitTree}(\var{size}-\var{leftsize,offset}+\var{leftsize})$
+\ENDIF
+\RETURN $\var{newnode}$
+\end{algorithmic}
+\end{algorithm}
+
+Algoritmus pro nalezení součtu čísel přiřazených intervalům do kterých patří
+dané číslo $k$ pouze sčítá hodnoty na cestě k listu s hodnotou $k$.
+\begin{algorithm}
+\textsc{Get}$(tree, k)$
+\begin{algorithmic}[1]
+\IF{$\var{tree} = \mbox{NIL}$}
+\RETURN 0
+\ELSIF{$k \leq \var{tree.i}$}
+\RETURN $\textsc{Get}(\var{tree.left,k}) + \var{tree.val}$
+\ELSE
+\RETURN $\textsc{Get}(\var{tree.right,k}) + \var{tree.val}$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\clearpage
+\zadani{1}{4}
+
+Algoritmus pro změnu čísla nejprve přičte rozdíl nové a staré hodnoty do uzlů s
+vlastností uvedenou na začátku a poté novou hodnotu zapíše do pole. Cesty k
+hraničním uzlům se neprochází explicitně dvakrát, místo toho se zjišťuje vztah intervalu
+který měníme a intervalů, které jsou reprezentovány oběma podstromy a podle toho
+se buď algoritmus rekurzivně zavolá na daný podstrom, nebo je do kořene
+podstromu přičten rozdíl hodnot, nebo se neprovede nic. Pro levý i pravý
+podstrom se tedy zjišťuje, zda:
+
+\begin{itemize}
+\item Interval reprezentovaný daným podstromem je celý obsažen v měněném
+intervalu. Pokud ano, je v jeho kořeni obsažena hodnota tohoto intervalu a
+přičteme do něj tedy rozdíl nové a staré hodnoty (podmínky na řádcích 5 a 10).
+\item Interval reprezentovaný daným podstromem je částečně obsažen v měněném
+intervalu. Pokud ano, leží v něm hraniční bod intervalu, ke kterému se
+rekurzivním voláním přiblížíme (podmínky na řádcích 7 a 12).
+\end{itemize}
+
+Konjunkce podmínek na řádcích 7 a 12, tedy situace, kdy levý krajní bod leží v
+levém podstromě a pravý v pravém, a kdy dojde ke dvěma rekurzivním voláním, může
+zřejmě nastat pouze jednou.
+
+\begin{algorithm}
+\textsc{Update}$(\var{int\_begin, int\_end, newvalue})$
+\begin{algorithmic}[1]
+\STATE
+ \textsc{Update'}$(\var{Tree,0,n,int\_begin,int\_end,newvalue}-\var{Arr}[\var{int\_begin}][\var{int\_end}])$
+\STATE $Arr[\var{int\_begin}][\var{int\_end}] \la \var{newvalue}$
+\end{algorithmic}
+
+\bigskip
+
+\textsc{Update'}$(\var{node, begin, end, int\_begin, int\_end, updval})$
+\begin{algorithmic}[1]
+\STATE $\var{left\_begin} \leftarrow \var{begin}$
+\STATE $\var{left\_end} \leftarrow \var{node.i}$
+\STATE $\var{right\_begin} \leftarrow \var{left\_end+1}$
+\STATE $\var{right\_end} \leftarrow \var{end}$
+\IF{$\var{left\_begin} \geq \var{int\_begin} \wedge \var{left\_end} \leq \var{int\_end}$}
+\STATE $\var{node.left.val} \la \var{node.left.val} + \var{updval}$
+\ELSIF{$\var{int\_begin} \leq \var{left\_end}$}
+\STATE $\textsc{Update'}(\var{node.left, left\_begin, left\_end, int\_begin, int\_end, updval})$
+\ENDIF
+
+\IF{$\var{right\_begin} \geq \var{int\_begin} \wedge \var{right\_end} \leq \var{int\_end}$}
+\STATE $\var{node.right.val} \la \var{node.right.val} + \var{updval}$
+\ELSIF{$\var{right\_begin} \leq \var{int\_end}$}
+\STATE $\textsc{Update'}(\var{node.right, right\_begin, right\_end, int\_begin, int\_end, updval})$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+\hfill$\square$
+
+\clearpage
+\zadani{1}{5}
+
+\noindent
+Rozdělme kredity následovně (cena je vyjádřena jako počet přístupů do pole):\\
+
+\noindent
+\begin{tabular}{|c|c|c|}
+\hline
+Operace & Kredity & Cena \\
+\hline
+\textsc{Přidej}  & 1  & 1      \\
+\textsc{Sečti}   & 4  & 3      \\
+\textsc{Odstraň-Maximum} & 0  & cena shora ohraničena hodnotou odstraňovaného
+prvku \\
+\hline
+\end{tabular}
+
+\vspace{4mm}
+\noindent
+Při každém použití operace \textsc{Sečti} přidáme na účet jeden kredit.
+Získáváme tak invariant, že každé číslo $n$ v multimnožině má na účtu $n-1$
+kreditů. Jinými slovy, každému indexu pole $i$ (s hodnotou $Arr[i]$) je
+přiřazeno $Arr[i] \cdot (i-1)$ kreditů. Důkaz indukcí podle indexu $i$:
+\begin{description}
+\item[Báze] ($i=1$) Nula kreditů -- triviálně platí.
+\item[Indukční krok] Předpokládejme, že pro $i=1 \ldots n$ tvrzení platí.
+Pak každé číslo $n+1$ v multimnožině muselo vzniknout součtem dvou čísel $1 \le
+a,b \le n$, takže bude mít přiřazen součet jejich kreditů a navíc jeden kredit za
+operaci \textsc{Sečti}. Tedy $(a - 1) + (b - 1) + 1 = a + b - 1 = (n + 1) - 1 =
+n$ kreditů.
+\end{description}
+
+Cena operace \textsc{Odstraň-Maximum} je v nejhorším případě rovna hodnotě
+odstraňovaného maxima. Takový případ nastane, pokud je aktuální maximum $n$
+jediným prvkem multimnožiny a po jeho odstranění se musí prohledat všechny
+indexy menší než $n$, aby se určilo nové maximum. Protože má $n$ na účtu $n-1$
+kreditů, můžeme zaplatit prohledání těchto $n-1$ indexů, aniž bychom uvedli účet
+do záporného stavu.
+
+V případě, že jsou v multimnožině ještě nějaké prvky, může být skutečná cena
+operace menší. To, že nám nějaké kredity zbudou ovšem není podstatné.
+
+Posloupnost $n$ operací bude stát nejvýše $4n$ kreditů a je tím pádem v $\O(n)$.
+\hfill$\square$
+
+\newpage
+\zadani{1}{6}
+
+\begin{enumerate}
+\item Tvrzení neplatí.\\
+Protipříklad: Nechť $n \in \mathbb{N}$ je vhodný, velký počet operací. Uděláme
+$\frac{n}{2}$ operací \textsc{INSERT(S,i)}, poté budeme už 
+jen střídat operace \textsc{MIN-ALL(S)} a \textsc{INSERT(S,i+1)} (v~tomto
+pořadí). Takže uděláme
+$\frac{n}{2} + \frac{n}{4}$ operací \textsc{INSERT(S,\_)} a $\frac{n}{4}$
+operací \textsc{MIN-ALL(S)}, které odeberou jen prvek \textsc{i+1} (cena bude
+$\frac{n}{2}+1$). Tedy časová složitost těchto $n$ operací bude $\frac{3n}{4}\cdot 1 + \frac{n}{4}\cdot
+\left(\frac{n}{2}+1\right) \in \Theta\left(n^2\right)$.
+
+\item Tvrzení platí.\\
+Analyzujeme technikou účtů: Každá operace \textsc{INSERT(S,\_)} si přinese $3$
+kredity. $1$~kredit se použije na zaplacení operace vložení, $1$~kreditem se
+zaplatí (pokud to bude třeba) přístup na prvek při operaci \textsc{MIN-ONE(S)}. \textsc{MIN-ONE(S)} si
+nepřinese žádný kredit. Invariantem tedy bude:
+na účtu máme alespoň $2$ krát tolik kreditů, kolik máme prvků v seznamu $S$. Protože
+operace \textsc{MIN-ONE(S)} odstraní ze seznamu alespoň $1$~prvek (jinak by
+ byla nezajímavá - stála konstantní cenu), můžeme jeho $1$ zbylý
+kredit vložit na~účet jednoho neodstraněného prvku (ten na svém účtu už alespoň
+$1$ kredit mít musel). Složitost $n$ operací tedy bude
+$\mathcal{O}(n)$.\hfill$\square$
+\end{enumerate}
+
+
+\newpage
+\zadani{1}{9}
+
+\begin{description}
+\item[Horní odhad] Horní odhad provedeme konstrukcí a analýzou složitosti (ne
+nezbytně optimálního) algoritmu. Nechť $n$ značí počet disků se kterými algoritmus
+pracuje (na~po\-čá\-tku roven celkovému počtu disků), $m$ pozici aktuálně největšího
+disku.\\
+
+%\begin{algorithm}
+\begin{algorithmic}
+\IF {$n = 1$}
+\RETURN
+\ELSE
+\STATE obrať $m$ disků (takže největší disk bude nahoře)
+\STATE obrať $n$ disků (největší disk bude dole)
+\STATE rekurzivně zavolej tento algoritmus na $n-1$ horních disků
+\ENDIF
+\end{algorithmic}
+%\end{algorithm}
+
+Algoritmus využívá toho, že (podobně jako u zásobníku) můžeme pracovat jen s
+několika horními disky bez ohledu na to, co je pod nimi. Algoritmus je zřejmě
+konvergentní (rekurze se snižujícím se $n$) a korektně uspořádá disky
+(indukcí -- triviálně pro jeden disk, pro $n+1$ disků nejprve přesune největší
+disk dospoda a potom uspořádá zbylých $n$ disků). Přitom provede $2n - 2$
+operací ,,obrať``.
+% což můžeme ukázat indukcí.
+% \begin{description}
+% \item[Báze] Pro jeden prvek je uspořádání triviálně splněno.
+% \item[Indukční krok] Předpokládejme, že algoritmus korektně uspořádá $n$ disků.
+% Pak přemístěním největšího disku dolů a následným uspořádáním $n$ zbývajících
+% disků dostaneme $n+1$ korektně uspořádaných disků.
+% \end{description}
+
+\item[Dolní odhad] Pro provedení dolního odhadu si stačí uvědomit tyto
+skutečnosti:
+\begin{itemize}
+\item Cílové uspořádání disků má tu vlastnost, že každá dvojice vzájemně
+sousedících disků se velikostí liší o jedničku. Tedy pro $n$ disků existuje
+$n-1$ sousedících dvojic takových, že se liší právě o jedna.
+\item Provedením jedné operace se počet dvojic takových, které se liší o
+jedničku změní nejvýše o jednu takovou dvojici (Obrátíme-li $m$ disků, zrušíme
+% vysvetlit lepe? tady m znaci pozici, dole zase velikost disku ...
+dvojici $m, m+1$ a vznikne nám dvojice $1, m+1$, ostatním diskům zůstanou
+původní sousedé).
+\end{itemize}
+
+Z těchto pozorování vyplývá, že máme-li $n$ disků v pořadí
+$$1,n,2,n-1,3,n-2,\ldots,\frac{n}{2},\frac{n}{2}+1 \mbox{ (pro sudá $n$)}$$
+nebo
+$$1,n,2,n-1,3,n-2,\ldots,\left\lceil\frac{n}{2}\right\rceil+1,\left\lceil\frac{n}{2}\right\rceil
+\mbox{ (pro lichá $n$),}$$
+tedy takovém, kdy pouze jedna sousedící dvojice je ve správném pořadí,
+potřebujeme provést alespoň $n-2$ operací otočení, abychom mohli dosáhnout toho,
+že budou disky seřazené podle velikosti.
+
+\end{description}
+
+\noindent
+Dostáváme tedy $\mathcal{A} \in \O(n)$ a zároveň $\mathcal{A} \in \Omega(n)$, což
+mimo jiné znamená, že algoritmus z~horního odhadu je asymptoticky optimální.
+\hfill$\square$
+
+\end{document}
+
