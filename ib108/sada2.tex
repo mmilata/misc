@@ -48,6 +48,10 @@
 \clearpage
 \zadani{2}{2}
 
+% TODO:
+% - odstranit ten algoritmus? je docela zbytecny ...
+% - vyresit kolize v namespacu promennych
+
 \noindent
 Zřejmě nezáleží na čase, kdy závodník běží a kdy jede na kole, záleží pouze na jejich součtu.
 Označme si proto $s_i = k_i + b_i$.  Problém má optimální substrukturu, kterou můžeme
@@ -73,8 +77,8 @@ může vypadat následovně.
 \STATE $pmax \la 0$
 \STATE $smax \la 0$
 \FOR{$i \la 1 $ to $N$}
-\STATE $pmax \la pmax + p_i$
-\STATE $smax \la \max(pmax+s_i,smax)$
+\STATE $pmax \la pmax + p_{A[i]}$
+\STATE $smax \la \max(pmax+s_{A[i]},smax)$
 \ENDFOR
 \RETURN $smax$
 \end{algorithmic}
@@ -86,24 +90,65 @@ Celkově je tedy algoritmus v $\O(N\log N)$.
 
 \bigskip
 
-%\noindent
-%Definujme si funkci, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
-%$$ v(a_1,a_2,\cdots,a_m) = \sum_{i=1}^N p_{a_i} + \max_{i=1}^N \left(s_{a_i} - \Sigma_{j=i}^N p_{a_j}\right)$$
-%tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějáký závodník poběží od
-%chvíle, kdy všichni doplavali.
-
 \noindent
 Nyní chceme dokázat, že posloupnost $S = \langle i_1,i_2,...,i_N \rangle$ indexů závodníků získaná tímto
-algoritmem, tedy seřazená sestupně podle $s_i$ je optimální. Zavedeme si funkci $v$, která nám pro
-danou posloupnost závodníků určí celkové trvání závodu a říkejme tomuto trvání cena.
+algoritmem, tedy seřazená sestupně podle $s_i$ je optimální.
 
-$$ v(\langle \rangle) = 0 $$
-$$ v(\langle a_1,a_2,...,a_m \rangle) = p_{a_1} + \max \{s_{a_1}, v(\langle a_2,...,a_m \rangle)\} $$
+Definujme si funkci, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
+%$$ v(a_1,a_2,\cdots,a_m) = \sum_{i=1}^N p_{a_i} + \max_{i=1}^N \left(s_{a_i} - \Sigma_{j=i}^N p_{a_j}\right)$$
+$$ v(\langle a_1,a_2,\cdots,a_m \rangle) = \sum_{i=1}^m p_{a_i} + \max_{i=1}^m u(i)$$
+$$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_i$$
+tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějáký závodník poběží od
+chvíle, kdy všichni doplavali. Funkce $u(i)$ říká kolik času uběhlo mezi tím co doplaval poslední
+závodník a mezi tím, co závodník $a_i$ doběhl do cíle. Její hodnota může být záporná, nicméně
+alespoň pro index $m$ bude vždy kladná.
+
+\clearpage
+\zadani{2}{2}
 
 \noindent
 Předpokládejme existenci posloupnosti $T = \langle j_1,j_2,...,j_N \rangle$, pro kterou platí $S
-\neq T$ a která je optimální. %Podle definice $v$ existuje $k$ takové, že
-%$$ v(T) = p_{j_1} + p_{j_2} + ... + p_{j_k} + s_{j_k}. $$
+\neq T$ a jejíž cena je optimální. Protože $S \neq T$, existují indexy $j_k, j_{k+1}$ takové, že
+$s_{j_k} < s_{j_{k+1}}$. Ukážeme, že prohodíme-li tyto dva prvky posloupnosti (kterou si označíme
+$T'$), její cena se nezvýší.
+
+Označme si $u'(i)$ hodnotu $u(i)$ na takto vzniklé posloupnosti. Zřejmě platí, že $u'(i) = u(i)$ pro
+$i \notin \{k, k+1\}$ -- pro $i < k$ se změní pouze pořadí indexů větší než $i$, ne součet jejich
+$p$; pro $i > k+1$ pak $p_{j_k}, p_{j_{k+1}}$ nejsou ani v sumě obsaženy. Dále platí:
+
+$$
+\begin{array}{rclclcl}
+u(k)    & = & s_{j_k}     & - & p_{j_{k+1}} & - & \Sigma_{j=k+2}^N p_j \\
+u(k+1)  & = & s_{j_{k+1}} &     &               & - & \Sigma_{j=k+2}^N p_j \\
+u'(k)   & = & s_{j_k}     &     &               & - & \Sigma_{j=k+2}^N p_j \\
+u'(k+1) & = & s_{j_{k+1}} & - & p_k         & - & \Sigma_{j=k+2}^N p_j \\
+\end{array}
+$$
+
+\noindent
+Protože $s_{j_k} < s_{j_{k+1}}$, vyplývá z těchto rovnic, že $u'(k) < u(k+1)$ a také, že $u'(k+1) <
+u(k+1)$. Takže $\max u'(i)$ nebude větší než $\max u(i)$, cena se nezvýší.
+
+\medskip
+\noindent
+Získáváme tedy jeden ze tří případů:
+\begin{itemize}
+\item Cena takto změněné posloupnosti je menší. To je spor s optimalitou $T$.
+\item Cena zůstala stejná a $S = T'$. To znamená, že i $S$ je optimální.
+\item Cena zůstala stejná a $S \neq T'$. Pak opět můžeme prohodit dva prvky, což děláme tak dlouho,
+      dokud nedostaneme jeden z předchozích dvou případů.
+\end{itemize}
+
+%Zavedeme si funkci $v$, která nám pro
+%danou posloupnost závodníků určí celkové trvání závodu a říkejme tomuto trvání cena.
+%
+%$$ v(\langle \rangle) = 0 $$
+%$$ v(\langle a_1,a_2,...,a_m \rangle) = p_{a_1} + \max \{s_{a_1}, v(\langle a_2,...,a_m \rangle)\} $$
+%
+%\noindent
+%Předpokládejme existenci posloupnosti $T = \langle j_1,j_2,...,j_N \rangle$, pro kterou platí $S
+%\neq T$ a která je optimální. %Podle definice $v$ existuje $k$ takové, že
+%%$$ v(T) = p_{j_1} + p_{j_2} + ... + p_{j_k} + s_{j_k}. $$
 
 
 \clearpage
