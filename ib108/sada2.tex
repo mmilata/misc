@@ -3,10 +3,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb}
 \usepackage{enumerate}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \usepackage{algorithmic}
 \usepackage{algorithm}
-\usepackage{tikz}
+%\usepackage{tikz}
 
 \pagestyle{plain}
 
@@ -48,6 +48,62 @@
 \clearpage
 \zadani{2}{2}
 
+\noindent
+Zřejmě nezáleží na čase, kdy závodník běží a kdy jede na kole, záleží pouze na jejich součtu.
+Označme si proto $s_i = k_i + b_i$.  Problém má optimální substrukturu, kterou můžeme
+charakterizovat funkcí pro výpočet minimální délky závodu:
+$$t(\emptyset) = 0$$
+$$t(I) = 
+\min_{i \in I} \left(
+		p_i + \max \left\{
+				s_i, t(I\smallsetminus\left\{i\right\})
+		\right\}
+\right)$$
+
+Ukážeme, že při využití hladového kritéria podle kterého vybíráme jako prvního závodníka s největším
+$s_i$ získáme optimální výsledek. Tedy že $t(I) = p_m + max(s_m, t(I \smallsetminus \{m\}))$, kde $m
+\in I$ je takové, že $s_m$ je maximální.
+
+Algoritmus, který do pole $A$ zapíše optimální pořadí závodníků a spočítá čas, kdy doběhne poslední,
+může vypadat následovně.
+
+\begin{algorithm}
+\begin{algorithmic}
+\STATE $A \la$ indexy závodníků seřazené \textsc{MergeSort}em sestupně podle $s_i$
+\STATE $pmax \la 0$
+\STATE $smax \la 0$
+\FOR{$i \la 1 $ to $N$}
+\STATE $pmax \la pmax + p_i$
+\STATE $smax \la \max(pmax+s_i,smax)$
+\ENDFOR
+\RETURN $smax$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent
+\textsc{MergeSort} má časovou složitost $\O(N\log N)$, for cyklus se provede pouze $N$-krát.
+Celkově je tedy algoritmus v $\O(N\log N)$.
+
+\bigskip
+
+%\noindent
+%Definujme si funkci, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
+%$$ v(a_1,a_2,\cdots,a_m) = \sum_{i=1}^N p_{a_i} + \max_{i=1}^N \left(s_{a_i} - \Sigma_{j=i}^N p_{a_j}\right)$$
+%tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějáký závodník poběží od
+%chvíle, kdy všichni doplavali.
+
+\noindent
+Nyní chceme dokázat, že posloupnost $S = \langle i_1,i_2,...,i_N \rangle$ indexů závodníků získaná tímto
+algoritmem, tedy seřazená sestupně podle $s_i$ je optimální. Zavedeme si funkci $v$, která nám pro
+danou posloupnost závodníků určí celkové trvání závodu a říkejme tomuto trvání cena.
+
+$$ v(\langle \rangle) = 0 $$
+$$ v(\langle a_1,a_2,...,a_m \rangle) = p_{a_1} + \max \{s_{a_1}, v(\langle a_2,...,a_m \rangle)\} $$
+
+\noindent
+Předpokládejme existenci posloupnosti $T = \langle j_1,j_2,...,j_N \rangle$, pro kterou platí $S
+\neq T$ a která je optimální. %Podle definice $v$ existuje $k$ takové, že
+%$$ v(T) = p_{j_1} + p_{j_2} + ... + p_{j_k} + s_{j_k}. $$
 
 
 \clearpage
@@ -63,7 +119,61 @@
 \clearpage
 \zadani{2}{5}
 
+\noindent
+Algoritmus ověří, zda je aktuálě zpracovávaný vrchol extremální a pokud není, znamená to, že kořen
+alespoň jednoho podstromu má menší hodnotu. Na tento podstrom se algoritmus rekurzivně zavolá (pokud
+mají menší hodnotu vrcholy obou podstromů, zavolá se na levý). Takto vždy dojde k extremálnímu
+vrcholu -- viz níže.
 
+%\begin{algorithm}
+%\begin{algorithmic}
+%\STATE $node \la root$
+%\WHILE{not $\textsc{Leaf}(node)$}
+%\IF{$\textsc{Value}(node.left) < \textsc{Value}(node)$}
+%\STATE $node \la node.left$
+%\ELSIF{$\textsc{Value}(node.right) < \textsc{Value}(node)$}
+%\STATE $node \la node.right$
+%\ELSE
+%\RETURN $node$
+%\ENDIF
+%\ENDWHILE
+%\RETURN $node$
+%\end{algorithmic}
+%\end{algorithm}
+
+\begin{algorithm}
+\textsc{FindExtremal}($node$)
+\begin{algorithmic}
+\IF{$\textsc{IsLeaf}(node)$}
+\RETURN $node$
+\ELSIF{$\textsc{Value}(node.left) < \textsc{Value}(node)$}
+\RETURN \textsc{FindExtremal}($node.left$)
+\ELSIF{$\textsc{Value}(node.right) < \textsc{Value}(node)$}
+\RETURN \textsc{FindExtremal}($node.right$)
+\ELSE
+\RETURN $node$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+Invariantem funkce \textsc{FindExtremal} je, že rodič aktuálně zpracovávaného vrcholu je větší než
+on sám (nebo je zpracovávaný rodič kořen). V kořeni triviálně platí a rekurzivní volání na podstrom
+s menší hodnotou kořene jej zachovávají. Pokud platí invariant a oba podstromy mají kořen s větší
+hodnotou, je vrchol extremální. Podobně, pokud platí invariant a zpracovávaný vrchol je listem, je
+tento list menší než všechny vrcholy a je tedy rovněž extremální.
+
+Z toho, že se algoritmus rekurzivně volá na jeden z podstromů, kterýžto má o jedna menší výšku,
+vyplývají následující fakta:
+
+\begin{itemize}
+\item Algoritmus je korektní, protože vždy dojde buď do listu nebo předtím narazí na vnitřní
+extremální vrchol.
+\item Algoritmus je konvergentní.
+\item Protože se v každé instanci volá \textsc{Value} nejvýše čtyřikrát\footnote{počet těchto volání
+by bylo možné snížit na dvě} a těchto instancí je nejvýše tolik, kolik je výška stromu, tedy $\log
+n$, je počet volání $\O(\log n)$.
+\end{itemize}
+
+\hfill$\square$
 
 \end{document}
-
