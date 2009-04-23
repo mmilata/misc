@@ -42,7 +42,72 @@
 \begin{document}
 
 \zadani{2}{1}
+% TODO:
+% obě poloviny mají lichý počet studentů
+% pole studentů obsahuje přesně dvě poloviny spolužáků
 
+\noindent
+%Nechť $d:student \times student \move \{yes, no\}$ je dotaz do databáze.
+\begin{equation*}
+\textsc{Schoolmates} = \left\{
+	\begin{array}{rl}
+	0 & \text{pole studentů neobsahuje alespoň $\left\lceil \frac{n}{2}
+	\right\rceil$ spolužáků}\\
+	1 & \text{\var{students}[1..t] jsou spolužáci $\mid t \geq \left\lceil \frac{n}{2}
+	\right\rceil$}\\
+	2 & \text{\var{students}[1..$\left\lceil \frac{n}{2}
+	\right\rceil$], \var{students}[$\left\lceil \frac{n}{2}
+	\right\rceil+1$..N] jsou
+	spolužáci (avšak různí)}\\
+	\end{array} \right.
+\end{equation*}
+
+\begin{algorithm}
+\textsc{Schoolmates}($students[1..N]$)
+\begin{algorithmic}
+\IF {$N > 2$}
+\STATE $Schoolmates1 \gets$ \textsc{Schoolmates}($students[1..\left\lfloor \frac{N}{2}
+\right\rfloor]$)
+\STATE $Schoolmates2 \gets$ \textsc{Schoolmates}($students[(\left\lfloor \frac{N}{2} \right\rfloor+1)..N]$)
+\IF{Schoolmates1 i Schoolmates2 obsahují alespoň N/2 spolužáků \hfill(1)}
+\STATE máme maximálně 4 různé skupiny spolužáků ($\geq N/2$), srovnáme
+jednotlivé vzorky, pokud se rovnají přeskládáme je tak, aby první část pole byli
+spolužáci, pokud se rovnají i další 2 skupiny, vrátíme $2$, jinak vrátíme $1$.
+Pokud se nerovnají alespoň $2$ skupiny, vrátíme $0$.
+\ELSIF{Schoolmates1 nebo Schoolmates2 obsahují alespoň N/2 spolužáků\hfill(2)}
+\STATE Postupně porovnáme všechny studenty z části pole, kde není alespoň $N/2$
+spolužáků (pokud najdeme spolužáka, umístíme ho na konec N/2 spolužáků). Pokud
+najdeme alespoň $<N/2$ dalších spolužáků, vrátíme $1$, jinak vrátíme $0$.
+\ELSIF{Schoolmates1 ani Schoolmates2 neobsahují alespoň N/2 spolužáků \hfill(3)}
+\RETURN $0$
+\ENDIF
+\ELSE
+\RETURN $2$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\noindent
+\textbf{Složitost} - (1) maximálně $4$ dotazy\\
+                     (2) maximálně $N/2$ dotazů\\
+		     (3) $0$ dotazů\\
+		     Tedy $T(0) = c, T(n) \leq T(n/2)+T(n/2) + n/2$\\
+		     Dle Master Theorem $\mathcal{O}(n\log n)$\\
+\textbf{Korektnost} - Indukcí k délce paramteru pole
+\begin{itemize}
+\item Báze - pole délky $1$, $2$ - triviální - žák je sám sobě spolužákem
+\item Předpoklad - funguje pro pole délky $n$
+\item Krok - existují následující $3$ možnosti:\begin{itemize}
+\item (1) - dikuze jednotlivých možností
+\item (2) - opět diskuze
+\item (3) - v obou slučovaných polích je ($<N/2$) spolužáků, maximálně by tedy
+mohlo ve sloučeném poli mohlo být $N/2-1$ spolužáků.
+\end{itemize}
+\end{itemize}
+\textbf{Konvergence} - při rekurzivním volání funkce \textsc{Schoolmates} vždy
+snížíme velikost pole, na které je volána. Zřejmě v konečném počtu kroků musí
+velikost pole klesnout pod hodnotu $2$. 
+\hfill$\square$
 
 
 \clearpage
