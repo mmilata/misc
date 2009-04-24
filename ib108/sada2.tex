@@ -43,6 +43,8 @@
 \begin{document}
 
 \zadani{2}{1}
+% Asi zbytečně ukecaný.
+% A hlavně nefungující!
 
 \noindent
 %Nechť $d:student \times student \move \{yes, no\}$ je dotaz do databáze.
@@ -355,7 +357,113 @@ konverguje k nule, složitost je tedy $\O(N)$.
 \clearpage
 \zadani{2}{4}
 
+\noindent
+Uvažme posloupnost ($5, 1, 1, 100, 10$) pro počty operací na počítači A, posloupnost
+($1,1,10,1,1$) pro počítač B. Algoritmus s daným hladovým kritériem napočítá
+plán ($A,P,B,P,A$), jehož cena je $25$. Plán ($A,A,A,A,A$) má však
+cenu $117$, a to je spor s
+optimalitou hladového kritéria.
 
+\noindent
+Navrhneme algoritmus založený na principech dynamického programování. 
+Nechť posloupnost $$A[i] \mid 1\leq i \leq n$$ označuje maximální počet operací, který je
+možno provést za $i$ minut, přičemž v minutě $i+1$ je úloha na počítači A.
+Posloupnost $A'[i]$ označuje počítač, na kterém byl výpočet v minutě $i$.
+Symetricky pro počítač B.
+
+\noindent
+Pak algoritmus:
+\begin{algorithm}
+\textsc{Scheduler}($(a_1,\dots,a_n),(b_1,\dots,b_n)$)
+\begin{algorithmic}[1]
+\STATE $A[1] \la a_1$; $B[1] \la b_1$
+\FOR {$i \la 2~to~n$}
+\STATE $A[i] \la$ \textsc{Max}($A[i-1]+a_i$, $B[i-1]$)
+\STATE $A'[i] \la$ $A$ pokud $A[i-1]+a_i \geq B[i-1]$, $P$ jinak
+\STATE $B[i] \la$ \textsc{Max}($B[i-1]+b_i$, $A[i-1]$)
+\STATE $B'[i] \la$ $B$ pokud $B[i-1]+b_i \geq A[i-1]$, $P$ jinak
+\ENDFOR
+\IF {$A[n] > B[n]$}
+\RETURN zrekonstruuj plán z $A',B'$, přičemž $p_n = A$
+\ELSE
+\RETURN zrekonstruuj plán z $A',B'$, přičemž $p_n = B$
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\noindent
+Rekonstrukce plánu:
+\begin{equation*}
+p_{i-1} = \left\{
+	\begin{array}{cl}
+	A'[i-1] & \text{pokud $p_{i} = A~\vee (p_i=P \wedge p_{i+1}=B)$}\\
+	B'[i-1] & \text{pokud $p_{i} = B~\vee (p_i=P \wedge p_{i+1}=A)$}\\
+	\bot & \text{jinak}
+	\end{array} \right.
+\end{equation*}
+
+%\begin{algoritmic}
+%\FOR {$i \la n~downto~1$}
+%\IF {$p_i = A$}
+%\STATE $p_{i-1} \la A'[i-1]$
+%\ELSIF {$p_i = B$}
+%\STATE $p_{i-1} \la B'[i-1]$
+%\ELSIF {$p_i = P$}
+%\STATE pokud $p_{i+1} = A$, tak 
+%\ENDIF
+%\ENDFOR
+%\RETURN (p_1, \dots, p_n)
+%\end{algoritmic}
+
+\bigskip
+%\vskip 1cm
+\noindent
+Analýza algoritmu \textsc{Scheduler}:\\
+\textbf{Složitost}\\
+Uvnitř \textit{for} cyklu z řádku $2$ jsou pouze operace se složitostí~$\in~\mathcal{O}(1)$, tedy cena tohoto \textit{for} cyklu je~$\in~\mathcal{O}(n)$.
+Cena rekonstrukce plánu je~$\in
+\mathcal{O}(n)$. Tedy složitost algorimtu \textsc{Scheduler} je~$\in~\mathcal{O}(n)$.
+
+\clearpage
+\zadani{2}{4}
+\noindent
+\textbf{Korektnost}\\
+\renewcommand{\labelenumi}{\textbf{\alph{enumi})}}
+Nejdříve dokážeme tvrzení
+\begin{quotation}
+$A[i] \mid 1\leq i \leq n$ je maximální počet operací, který je
+možno provést za $i$ minut, přičemž v minutě $i+1$ je úloha na počítači A.
+\end{quotation}
+Důkaz indukcí vzhledem k parametru $i$.
+\begin{description}
+\item [Báze]{$i=1$} -- triviální -- $a_1 \geq $ počet operací při přesunu
+\item [Krok]{$i=n$} -- z indukčního předpokladu známe $A[i-1]$ a $B[i-1]$, které
+jsou maximální. Existují $2$
+možnosti jak skončit výpočet na počítači A. Buď se v $i$-té minutě přesunujeme z
+počítače B, nebo v $i$-té minutě počítáme na počítači A. Pokud tedy napočítáme
+výsledné počty operací, nutně větší z nich musí být součástí maximálního plánu
+pro $i$ minut.
+\end{description}
+Symtricky platí pro počítač B.
+
+\noindent
+Po $n$ minutách jeden z optimálních výpočtů skončí na počítači A, nebo B. Pokud by
+se výpočet přesouval, jistě by se nevykonalo více operací než bez přesunu.
+Větší z čísel $A[n], B[n]$ tedy udává maximální počet operací po $n$ minutách a
+zároveň známe počítač, na kterém tento výpočet skončil. 
+
+\noindent
+Nyní dokážeme korektnost zrekonstruování plánu indukcí dle $n-i$.
+Předpokládejme, že výpočet skončil na počítači A, tedy $p_n=A$.
+\begin{description}
+\item [Báze]{$i=0$} -- triviální -- $p_n=A$.
+\item [Krok]{$1\leq i \leq n$} -- triviální pokud $p_{n-i-1} = A~\vee p_{n-i-1}
+= B$. Pokud $p_{n-i-1} = P$ tak se výpočet v $n-i-1.$ minutě přesouval, tedy
+předchozí minutu musel být na opačném stroji.
+\end{description}
+Symetricky pro počítač $p_n=B$.\\
+\textbf{Konvergence} -- zřejmé -- pouze konečné cykly.
+\hfill$\square$
 
 \clearpage
 \zadani{2}{5}
