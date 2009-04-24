@@ -8,6 +8,7 @@
 \usepackage{algorithm}
 %\usepackage{tikz}
 
+
 \pagestyle{plain}
 
 \topmargin -5mm
@@ -42,43 +43,123 @@
 \begin{document}
 
 \zadani{2}{1}
-% TODO:
-% obě poloviny mají lichý počet studentů
-% pole studentů obsahuje přesně dvě poloviny spolužáků
 
 \noindent
 %Nechť $d:student \times student \move \{yes, no\}$ je dotaz do databáze.
+Nechť pole \var{students}[1..N] reprezentuje soubor studentů.
+Nechť výsledek funkce \textsc{Schoolmates} je kódovaný takto:
 \begin{equation*}
-\textsc{Schoolmates} = \left\{
+\textsc{Schoolmates}(1,N) = \left\{
 	\begin{array}{rl}
-	0 & \text{pole studentů neobsahuje alespoň $\left\lceil \frac{n}{2}
+	0 & \text{\var{students}[1..N] neobsahuje alespoň $\left\lceil \frac{N}{2}
 	\right\rceil$ spolužáků}\\
-	1 & \text{\var{students}[1..t] jsou spolužáci $\mid t \geq \left\lceil \frac{n}{2}
+	1 & \text{\var{students}[1..t] jsou spolužáci $\mid t \geq \left\lceil \frac{N}{2}
 	\right\rceil$}\\
-	2 & \text{\var{students}[1..$\left\lceil \frac{n}{2}
-	\right\rceil$], \var{students}[$\left\lceil \frac{n}{2}
-	\right\rceil+1$..N] jsou
-	spolužáci (avšak různí)}\\
+	2 & \text{\var{students}[1..$\frac{N}{2}
+	$], \var{students}[$(\frac{N}{2}
+	+1)$..N] jsou
+	spolužáci $\mid N$ sudé}
 	\end{array} \right.
 \end{equation*}
+Hodnota $2$ značí, že \var{students}[1..N] obsahuje $2$ různé skupiny
+spolužáků.\\
+Tedy hodnota $1$ nebo $2$ reprezentuje odpověď \textbf{ano}, zatímco hodnota $0$
+reprezentuje odpověď \textbf{ne}.\\
+Algoritmus využívá toho, že pokud známe výsledek pro~$2$ podobně dlouhé
+podposloupnosti, lehce určíme výsledek i pro~jejich sloučení (máme $3$ různé
+možnosti). Pro~zjednodušení řadíme v~poli studenty tak, aby vždy v~první části byli
+spolužáci (pro~výsledky $1$, $2$).
 
+\bigskip
+%\vskip 1cm
+\noindent
+Analýza algoritmu \textsc{Schoolmates}:\\
+\textbf{Složitost}\footnote{Počet dotazů do databáze by bylo možné optimalizovat.}
+\begin{itemize}
+\item \textbf{if} na řádku $4$ obsahuje $2\cdot\left\lceil\frac{N}{2}\right\rceil \leq
+N+1$ dotazů.
+\item \textbf{if} na řádku $16$ obsahuje $\left\lceil\frac{N}{2}\right\rceil +
+\left\lfloor\frac{N}{4}\right\rfloor \leq N$ dotazů. Víme, že v jednom z polí je
+alespoň $\left\lceil\frac{N}{4}\right\rceil$ spolužáků za sebou. Pro zjištění
+hodnoty $x$ stačí tedy $\left\lfloor\frac{N}{4}\right\rfloor$ dotazů.
+\item \textbf{if} na řádku $25$ obsahuje $0$ dotazů.
+\end{itemize}
+Tedy rekurentně $T(1) = 0, T(2) = 0, T(N) \leq 2\cdot T(N/2) + (N+1)$ dotazů.\\
+Dle \textit{Master Theorem} je tedy počet dotazů $\in \mathcal{O}(N\log N)$.\\
+\textbf{Korektnost} -- Důkaz indukcí k počtu studentů (délce pole $N = R - L + 1$).
+
+\renewcommand{\labelenumi}{\textbf{\alph{enumi})}}
+\begin{itemize}
+\item \textbf{Báze} -- počet studentů $N=1$, $N=2$ -- triviální -- žák je sám sobě spolužákem
+\item \textbf{Krok} -- z indukčního předpokladu víme, že \var{Schoolm1} a
+\var{Schoolm2} mají správný výsledek pro počet studentů $ < N$. Nyní existují
+následující $3$ možnosti:\begin{enumerate}
+\item \var{Schoolm1} $ = 2~\vee $ \var{Schoolm2} $ = 2$ -- v jednom z polí jsou
+$2$ skupiny spolužáků (každá skupina má $\frac{N}{4}$ spolužáků). BÚNO je to
+\var{Schoolm1}. Pokud \var{Schoolm2} obsahuje $2$ totožné skupiny spolužáků,
+bude sloučené pole obsahovat $2$ skupiny po $\frac{N}{2}$ spolužácích. Jinak pokud
+\var{Schoolm2} obsahuje alespoň $\frac{N}{4}$ spolužáků s jednou ze skupin v
+\var{Schoolm1}, bude i sloučené pole obsahovat alespoň $\frac{N}{2}$ těchto
+spolužáků. Jinak sloučené pole nebude obsahovat alespoň $\frac{N}{2}$ spolužáků.
+\item \var{Schoolm1} $ = 1~\vee $ \var{Schoolm2} $ = 1$ -- jedno z polí obsahuje
+alespoň $\left\lceil\frac{N}{4}\right\rceil$ spolužáků. BÚNO je to
+\var{Schoolm1} a těchto spolužáků je \var{x}. Pokud najdeme v \var{Schoolm2}
+alespoň $\left\lceil\frac{N}{2}\right\rceil-x$ stejných spolužáků, bude i sloučené pole obsahovat alespoň
+$\left\lceil\frac{N}{2}\right\rceil$ spolužáků, jinak ne.
+
+\clearpage
+\zadani{1}{1}
+\item \var{Schoolm1} $ = 0~\wedge $ \var{Schoolm2} $ = 0$ -- v ani jednom z obou
+ polí není alespoň $\left\lceil\frac{N}{4}\right\rceil$ spolužáků, ve sloučeném
+ poli tedy může být maximálně $\left\lceil\frac{N}{2}\right\rceil-1$ spolužáků.
+\end{enumerate}
+\end{itemize}
+\textbf{Konvergence} -- při rekurzivním volání funkce \textsc{Schoolmates} na
+řádku $3$ vždy
+snížíme velikost pole, na které je volána. Zřejmě v konečném počtu kroků musí
+velikost pole klesnout pod hodnotu $3$. 
+\hfill$\square$
+
+\clearpage
+\zadani{2}{2}
 \begin{algorithm}
-\textsc{Schoolmates}($students[1..N]$)
-\begin{algorithmic}
+\textsc{Schoolmates}($L,R$)
+\begin{algorithmic}[1]
+\STATE $N \la R-L+1$
 \IF {$N > 2$}
-\STATE $Schoolmates1 \gets$ \textsc{Schoolmates}($students[1..\left\lfloor \frac{N}{2}
-\right\rfloor]$)
-\STATE $Schoolmates2 \gets$ \textsc{Schoolmates}($students[(\left\lfloor \frac{N}{2} \right\rfloor+1)..N]$)
-\IF{Schoolmates1 i Schoolmates2 obsahují alespoň N/2 spolužáků \hfill(1)}
-\STATE máme maximálně 4 různé skupiny spolužáků ($\geq N/2$), srovnáme
-jednotlivé vzorky, pokud se rovnají přeskládáme je tak, aby první část pole byli
-spolužáci, pokud se rovnají i další 2 skupiny, vrátíme $2$, jinak vrátíme $1$.
-Pokud se nerovnají alespoň $2$ skupiny, vrátíme $0$.
-\ELSIF{Schoolmates1 nebo Schoolmates2 obsahují alespoň N/2 spolužáků\hfill(2)}
-\STATE Postupně porovnáme všechny studenty z části pole, kde není alespoň $N/2$
-spolužáků (pokud najdeme spolužáka, umístíme ho na konec N/2 spolužáků). Pokud
-najdeme alespoň $<N/2$ dalších spolužáků, vrátíme $1$, jinak vrátíme $0$.
-\ELSIF{Schoolmates1 ani Schoolmates2 neobsahují alespoň N/2 spolužáků \hfill(3)}
+\STATE $Schoolm1 \gets$ \textsc{Schoolmates}($L,\left\lfloor \frac{R}{2}
+\right\rfloor$); $Schoolm2 \gets$ \textsc{Schoolmates}($\left\lfloor \frac{R}{2} \right\rfloor+1,R$)
+\IF{$Schoolm1 = 2 \vee Schoolm2 = 2$}
+\STATE Určíme tu část pole, která vrátila výsledek $2$. BÚNO je to
+$Schoolm1$.
+\STATE Postupně porovnáváme všechny prvky z části pole $Schoolm2$ s vybraným
+žákem z první a poté druhé části pole $Schoolm1$.
+\IF {najdeme dalších $\frac{N}{4}$ spolužáků první části $\wedge$ dalších
+$\frac{N}{4}$ spolužáků druhé části $\mid N$ sudé}
+\STATE přeskládáme studenty tak, aby první polovina spojeného pole
+byli spolužáci
+\RETURN $2$
+\ELSIF {najdeme dalších alespoň $\left\lceil\frac{N}{4}\right\rceil$
+spolužáků}
+\STATE přeskládáme studenty tak, aby první část spojeného pole tvořili tito spolužáci
+\RETURN $1$
+\ELSE
+\RETURN $0$
+\ENDIF
+\ELSIF{$Schoolm1 = 1 \vee Schoolm2 = 1$}
+\STATE Určíme tu část pole, která vrátila výsledek $1$ a počet spolužáků v její
+první části. BÚNO je to
+$Schoolm1$ a $x$.
+\STATE Postupně porovnáme všechny studenty z části pole $Schoolm2$ s
+vybraným žákem z první části pole $Schoolm2$
+\IF{najdeme dalších alespoň $y$ spolužáků $\mid y+x\geq
+\left\lceil\frac{N}{2}\right\rceil$}
+\STATE přeskládáme studenty tak, aby první část spojeného pole tvořili tito spolužáci
+\RETURN $1$
+\ELSE
+\RETURN $0$
+\ENDIF
+\ELSIF{$Schoolm1 = 0 \wedge Schoolm2 = 0$}
 \RETURN $0$
 \ENDIF
 \ELSE
@@ -87,27 +168,6 @@ najdeme alespoň $<N/2$ dalších spolužáků, vrátíme $1$, jinak vrátíme $
 \end{algorithmic}
 \end{algorithm}
 
-\noindent
-\textbf{Složitost} - (1) maximálně $4$ dotazy\\
-                     (2) maximálně $N/2$ dotazů\\
-		     (3) $0$ dotazů\\
-		     Tedy $T(0) = c, T(n) \leq T(n/2)+T(n/2) + n/2$\\
-		     Dle Master Theorem $\mathcal{O}(n\log n)$\\
-\textbf{Korektnost} - Indukcí k délce paramteru pole
-\begin{itemize}
-\item Báze - pole délky $1$, $2$ - triviální - žák je sám sobě spolužákem
-\item Předpoklad - funguje pro pole délky $n$
-\item Krok - existují následující $3$ možnosti:\begin{itemize}
-\item (1) - dikuze jednotlivých možností
-\item (2) - opět diskuze
-\item (3) - v obou slučovaných polích je ($<N/2$) spolužáků, maximálně by tedy
-mohlo ve sloučeném poli mohlo být $N/2-1$ spolužáků.
-\end{itemize}
-\end{itemize}
-\textbf{Konvergence} - při rekurzivním volání funkce \textsc{Schoolmates} vždy
-snížíme velikost pole, na které je volána. Zřejmě v konečném počtu kroků musí
-velikost pole klesnout pod hodnotu $2$. 
-\hfill$\square$
 
 
 \clearpage
