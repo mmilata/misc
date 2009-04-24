@@ -180,7 +180,8 @@ vybraným žákem z první části pole $Schoolm2$
 \noindent
 Zřejmě nezáleží na čase, kdy závodník běží a kdy jede na kole, záleží pouze na jejich součtu.
 Označme si proto $s_i = k_i + b_i$.  Problém má optimální substrukturu, kterou můžeme
-charakterizovat funkcí pro výpočet minimální délky závodu:
+charakterizovat funkcí pro výpočet minimální délky závodu ($I$ je množina indexů označujících
+účastníky závodu):
 $$t(\emptyset) = 0$$
 $$t(I) = 
 \min_{i \in I} \left(
@@ -189,7 +190,7 @@ $$t(I) =
 		\right\}
 \right)$$
 
-Ukážeme, že při využití hladového kritéria podle kterého vybíráme jako prvního závodníka s největším
+Ukážeme, že při využití hladového kritéria podle kterého vybíráme nejdříve závodníky s největším
 $s_i$ získáme optimální výsledek. Tedy že $t(I) = p_m + max(s_m, t(I \smallsetminus \{m\}))$, kde $m
 \in I$ je takové, že $s_m$ je maximální.
 
@@ -216,70 +217,140 @@ Celkově je tedy algoritmus v $\O(N\log N)$.
 \bigskip
 
 \noindent
-Nyní chceme dokázat, že posloupnost $S = \langle i_1,i_2,...,i_N \rangle$ indexů závodníků získaná tímto
-algoritmem, tedy seřazená sestupně podle $s_i$ je optimální.
+Nyní chceme dokázat, že posloupnost (permutace) $S = \langle a_1,a_2,...,a_N \rangle$ indexů
+závodníků získaná tímto algoritmem, tedy seřazená sestupně podle $s_i$, je optimální.
 
-Definujme si funkci, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
-%$$ v(a_1,a_2,\cdots,a_m) = \sum_{i=1}^N p_{a_i} + \max_{i=1}^N \left(s_{a_i} - \Sigma_{j=i}^N p_{a_j}\right)$$
+Definujme si funkci $v$, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
+%$$ v(\langle a_1,a_2,\cdots,a_m \rangle) = \sum_{i=1}^m p_{a_i} + \max_{i=1}^m u(i)$$
+%$$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_i$$
 $$ v(\langle a_1,a_2,\cdots,a_m \rangle) = \sum_{i=1}^m p_{a_i} + \max_{i=1}^m u(i)$$
-$$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_i$$
+$$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_{a_j}$$
 tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějáký závodník poběží od
-chvíle, kdy všichni doplavali. Funkce $u(i)$ říká kolik času uběhlo mezi tím co doplaval poslední
-závodník a mezi tím, co závodník $a_i$ doběhl do cíle. Její hodnota může být záporná, nicméně
-alespoň pro index $m$ bude vždy kladná.
+chvíle, kdy všichni doplavali. Pomocná funkce $u(i)$ říká kolik času uběhlo mezi tím co doplaval
+poslední závodník a mezi tím, co závodník $a_i$ doběhl do cíle. Její hodnota může být záporná,
+nicméně alespoň pro index $m$ bude vždy kladná.
 
 \clearpage
 \zadani{2}{2}
 
 \noindent
-Předpokládejme existenci posloupnosti $T = \langle j_1,j_2,...,j_N \rangle$, pro kterou platí $S
-\neq T$ a jejíž cena je optimální. Protože $S \neq T$, existují indexy $j_k, j_{k+1}$ takové, že
-$s_{j_k} < s_{j_{k+1}}$. Ukážeme, že prohodíme-li tyto dva prvky posloupnosti (kterou si označíme
+Předpokládejme existenci posloupnosti $T = \langle b_1,b_2,\cdots,b_N \rangle$, pro kterou platí $S
+\neq T$ a jejíž cena je optimální. Protože $S \neq T$, existují indexy $b_k, b_{k+1}$ takové, že
+$s_{b_k} < s_{b_{k+1}}$. Ukážeme, že prohodíme-li tyto dva prvky posloupnosti (kterou si označíme
 $T'$), její cena se nezvýší.
 
 Označme si $u'(i)$ hodnotu $u(i)$ na takto vzniklé posloupnosti. Zřejmě platí, že $u'(i) = u(i)$ pro
 $i \notin \{k, k+1\}$ -- pro $i < k$ se změní pouze pořadí indexů větší než $i$, ne součet jejich
-$p$; pro $i > k+1$ pak $p_{j_k}, p_{j_{k+1}}$ nejsou ani v sumě obsaženy. Dále platí:
+$p$; pro $i > k+1$ pak $p_{b_k}, p_{b_{k+1}}$ nejsou ani v sumě obsaženy. Dále platí:
 
 $$
 \begin{array}{rclclcl}
-u(k)    & = & s_{j_k}     & - & p_{j_{k+1}} & - & \Sigma_{j=k+2}^N p_j \\
-u(k+1)  & = & s_{j_{k+1}} &     &               & - & \Sigma_{j=k+2}^N p_j \\
-u'(k)   & = & s_{j_k}     &     &               & - & \Sigma_{j=k+2}^N p_j \\
-u'(k+1) & = & s_{j_{k+1}} & - & p_k         & - & \Sigma_{j=k+2}^N p_j \\
+u(k)    & = & s_{b_k}     & - & p_{b_{k+1}} & - & \sum_{j=k+2}^N p_{b_j} \\
+u(k+1)  & = & s_{b_{k+1}} &   &             & - & \sum_{j=k+2}^N p_{b_j} \\
+u'(k)   & = & s_{b_k}     &   &             & - & \sum_{j=k+2}^N p_{b_j} \\
+u'(k+1) & = & s_{b_{k+1}} & - & p_{b_k}     & - & \sum_{j=k+2}^N p_{b_j} \\
 \end{array}
 $$
 
 \noindent
-Protože $s_{j_k} < s_{j_{k+1}}$, vyplývá z těchto rovnic, že $u'(k) < u(k+1)$ a také, že $u'(k+1) <
+Protože $s_{b_k} < s_{b_{k+1}}$, vyplývá z těchto rovnic, že $u'(k) < u(k+1)$ a také, že $u'(k+1) <
 u(k+1)$. Takže $\max u'(i)$ nebude větší než $\max u(i)$, cena se nezvýší.
 
 \medskip
 \noindent
-Získáváme tedy jeden ze tří případů:
+Prohozením těchto dvou prvků tedy získáme jeden ze tří případů:
+
 \begin{itemize}
 \item Cena takto změněné posloupnosti je menší. To je spor s optimalitou $T$.
 \item Cena zůstala stejná a $S = T'$. To znamená, že i $S$ je optimální.
 \item Cena zůstala stejná a $S \neq T'$. Pak opět můžeme prohodit dva prvky, což děláme tak dlouho,
-      dokud nedostaneme jeden z předchozích dvou případů.
+      dokud nedostaneme jeden z předchozích dvou případů (protože provádíme de facto BubbleSort,
+      stane se tak v konečném počtu kroků).
 \end{itemize}
 
-%Zavedeme si funkci $v$, která nám pro
-%danou posloupnost závodníků určí celkové trvání závodu a říkejme tomuto trvání cena.
-%
-%$$ v(\langle \rangle) = 0 $$
-%$$ v(\langle a_1,a_2,...,a_m \rangle) = p_{a_1} + \max \{s_{a_1}, v(\langle a_2,...,a_m \rangle)\} $$
-%
-%\noindent
-%Předpokládejme existenci posloupnosti $T = \langle j_1,j_2,...,j_N \rangle$, pro kterou platí $S
-%\neq T$ a která je optimální. %Podle definice $v$ existuje $k$ takové, že
-%%$$ v(T) = p_{j_1} + p_{j_2} + ... + p_{j_k} + s_{j_k}. $$
-
+\noindent
+Permutace závodníků $S$ je tedy optimálním řešením problému.
+\hfill$\square$
 
 \clearpage
 \zadani{2}{3}
 
+\noindent
+Problém má optimální substrukturu, kterou můžeme popsat funkcí $v$, která udává optimální cenu
+rozdělení $st$ studentů do tří skupin o kapacitách $s_1, s_2$ resp. $s_3$. První případ nám říká, že
+jakékoliv rozdělení nula studentů má hodnotu nula. Druhý případ ošetřuje možnost, kdy se nějáká
+skupina dostane na zápornou kapacitu. Význam třetího případu je ten, že optimální rozdělení vznikne
+umístěním studenta $st$ do některé ze skupin a rekurzivní umístění ostatních studentů do ostatních
+skupin s odpovídajícím způsobem sníženou kapacitou; ze tří možností vybíráme maximum. Cenou
+optimálního řešení celého problému je potom $v\left(N,\frac{N}{3},\frac{N}{3},\frac{N}{3}\right)$,
+výsledné rozdělení je možné získat analogickým postupem jakým počítáme cenu.
 
+%uglyhack
+\newlength{\xlen}\settowidth{\xlen}{$\max \{$}
+$$v(st,s_1,s_2,s_3) = \begin{cases}
+0       & \text{pokud } st = 0 \\
+-\infty & \text{pokud } s_1 < 0 \vee s_2 < 0 \vee s_3 < 0 \\
+\max \{ P[st,1] + v(st-1,s_1-1,s_2,s_3), & \\
+        \hspace{\xlen} P[st,2] + v(st-1,s_1,s_2-1,s_3), & \text{jinak}\\
+        \hspace{\xlen} P[st,3] + v(st-1,s_1,s_2,s_3-1)\} &
+\end{cases}$$
+
+\noindent
+Můžeme si všimnout, že $st = s_1 + s_2 + s_3$, takže můžeme tento parametr v algoritmu vynechat.
+Algoritmus na základě výše uvedené rovnosti odspoda vyplní trojrozměrnou tabulku $C$ s hodotami
+$v(s_1,s_2,s_3)\ \forall 0 \leq s_1,s_2,s_3 \leq \frac{N}{3}$. V tabulce $G$ si pak uchovává
+skupinu, do které je přiřazen student $s_1+s_2+s_3$ při těchto kapacitách skupin. To se děje na
+řádcích 3 až 23. Tři cykly for zajistí postupné projití skupin podle vzrůstajícího $s_1+s_2+s_3$,
+$C[s_1,s_2,s_3]$ se pak vypočte pomocí hodnot, které byly vypočítané předtím. Odpovídajícím způsobem
+se vypočítá i hodnota v poli $G$. Protože je vnější cyklus omezen $N$ iteracemi a oba vnější
+$\frac{N}{3}$ iteracemi, má tato část algoritmu časovou složitost $\O(N^3)$.
+
+Na řádcích 24 až 35 se pak z tabulky $G$ vytvoří pole $Res$, kde $Res[st]$ obsahuje číslo skupiny,
+do které patří student $st$. Tělo while cyklu se provede $N$-krát, protože součet $s_1+s_2+s_3$
+konverguje k nule, složitost je tedy $\O(N)$.
+
+\begin{algorithm}
+\textsc{MakeSchedule}$(N,P)$
+\begin{algorithmic}[1]
+\STATE $C, G \la$ vytvoř trojrozměrné pole o velikosti $ N/3 \times N/3 \times N/3 $
+\STATE $C[0,0,0] \la 0$
+\FOR{$d \la 1$ to $N$}
+\FOR{$s_1 \la 0$ to $\min(N/3,d)$}
+\FOR{$s_2 \la 0$ to $\min(N/3,d-s_1)$}
+\STATE $s_3 \la d-s_1-s_2$
+\STATE $st \la s_1+s_2+s_3$
+\IF{$s_3 \leq N/3$}
+\STATE $C[s_1,s_2,s_3] \la -\infty$
+\IF{$s_1 > 0 \wedge P[st,1] + C[s_1-1,s_2,s_3] > C[s_1,s_2,s_3]$}
+\STATE $C[s_1,s_2,s_3] \la P[st,1] + C[s_1-1,s_2,s_3]$
+\STATE $G[s_1,s_2,s_3] \la 1$
+\ELSIF{$s_2 > 0 \wedge P[st,2] + C[s_1,s_2-1,s_3] > C[s_1,s_2,s_3]$}
+\STATE $C[s_1,s_2,s_3] \la P[st,2] + C[s_1,s_2-1,s_3]$
+\STATE $G[s_1,s_2,s_3] \la 2$
+\ELSIF{$s_3 > 0 \wedge P[st,3] + C[s_1,s_2,s_3-1] > C[s_1,s_2,s_3]$}
+\STATE $C[s_1,s_2,s_3] \la P[st,3] + C[s_1,s_2,s_3-1]$
+\STATE $G[s_1,s_2,s_3] \la 3$
+\ENDIF
+\ENDIF
+\ENDFOR
+\ENDFOR
+\ENDFOR
+
+\STATE $s_1,s_2,s_3 \la N/3$
+\STATE $Result \la$ vytvoř pole o délce $N$
+\WHILE{$s_1+s_2+s_3 > 0$}
+\STATE $Result[s_1+s_2+s_3] \la G[s_1,s_2,s_3]$
+\IF{$G[s_1,s_2,s_3] = 1$}
+\STATE $s_1 \la s_1 - 1$
+\ELSIF{$G[s_1,s_2,s_3] = 2$}
+\STATE $s_2 \la s_2 - 1$
+\ELSE
+\STATE $s_3 \la s_3 - 1$
+\ENDIF
+\ENDWHILE
+\RETURN $Result$
+\end{algorithmic}
+\end{algorithm}
 
 \clearpage
 \zadani{2}{4}
