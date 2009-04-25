@@ -25,6 +25,9 @@
 \newcommand{\move}{\rightarrow}
 \newcommand{\la}{\leftarrow}
 \newcommand{\var}[1]{\textit{#1}}
+\newcommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
+\newcommand{\ceil}[2]{\left\lceil\frac{#1}{#2}\right\rceil}
+\newcommand{\floor}[2]{\left\lfloor\frac{#1}{#2}\right\rfloor}
 
 \renewcommand{\O}{\mathcal{O}}
 
@@ -43,132 +46,202 @@
 \begin{document}
 
 \zadani{2}{1}
-% Asi zbytečně ukecaný.
-% A hlavně nefungující!
+% celkem hodně zmatené (snad ne příliš)
+% funkční (snad až na překlepy a off-by-one chyby)
+% nesjednocené značení (nedotexované)
 
 \noindent
 %Nechť $d:student \times student \move \{yes, no\}$ je dotaz do databáze.
 Nechť pole \var{students}[1..N] reprezentuje soubor studentů.
 Nechť výsledek funkce \textsc{Schoolmates} je kódovaný takto:
 \begin{equation*}
-\textsc{Schoolmates}(1,N) = \left\{
+\textsc{Schoolmates}(L,R) = \left\{
 	\begin{array}{rl}
-	0 & \text{\var{students}[1..N] neobsahuje alespoň $\left\lceil \frac{N}{2}
-	\right\rceil$ spolužáků}\\
-	1 & \text{\var{students}[1..t] jsou spolužáci $\mid t \geq \left\lceil \frac{N}{2}
-	\right\rceil$}\\
-	2 & \text{\var{students}[1..$\frac{N}{2}
-	$], \var{students}[$(\frac{N}{2}
-	+1)$..N] jsou
-	spolužáci $\mid N$ sudé}
+	true & \text{alespoň $\left\lceil\frac{R-L+1}{2}\right\rceil$ studentů
+	jsou spolužáci}\\
+	false & \text{jinak}
 	\end{array} \right.
 \end{equation*}
-Hodnota $2$ značí, že \var{students}[1..N] obsahuje $2$ různé skupiny
-spolužáků.\\
-Tedy hodnota $1$ nebo $2$ reprezentuje odpověď \textbf{ano}, zatímco hodnota $0$
-reprezentuje odpověď \textbf{ne}.\\
 Algoritmus využívá toho, že pokud známe výsledek pro~$2$ podobně dlouhé
-podposloupnosti, lehce určíme výsledek i pro~jejich sloučení (máme $3$ různé
-možnosti). Pro~zjednodušení řadíme v~poli studenty tak, aby vždy v~první části byli
-spolužáci (pro~výsledky $1$, $2$).
+podposloupnosti, snadno určíme výsledek i pro~jejich sloučení. Invariantem
+algoritmu je struktura pole studentů. Pokud pole obsahuje, alespoň $\ceil{N}{2}$
+spolužáků, pak jsou všichni tito spolužáci v první části pole za sebou.
 
-\bigskip
-%\vskip 1cm
-\noindent
-Analýza algoritmu \textsc{Schoolmates}:\\
-\textbf{Složitost}\footnote{Počet dotazů do databáze by bylo možné optimalizovat.}
-\begin{itemize}
-\item \textbf{if} na řádku $4$ obsahuje $2\cdot\left\lceil\frac{N}{2}\right\rceil \leq
-N+1$ dotazů.
-\item \textbf{if} na řádku $16$ obsahuje $\left\lceil\frac{N}{2}\right\rceil +
-\left\lfloor\frac{N}{4}\right\rfloor \leq N$ dotazů. Víme, že v jednom z polí je
-alespoň $\left\lceil\frac{N}{4}\right\rceil$ spolužáků za sebou. Pro zjištění
-hodnoty $x$ stačí tedy $\left\lfloor\frac{N}{4}\right\rfloor$ dotazů.
-\item \textbf{if} na řádku $25$ obsahuje $0$ dotazů.
-\end{itemize}
-Tedy rekurentně $T(1) = 0, T(2) = 0, T(N) \leq 2\cdot T(N/2) + (N+1)$ dotazů.\\
-Dle \textit{Master Theorem} je tedy počet dotazů $\in \mathcal{O}(N\log N)$.\\
-\textbf{Korektnost} -- Důkaz indukcí k počtu studentů (délce pole $N = R - L + 1$).
-
-\renewcommand{\labelenumi}{\textbf{\alph{enumi})}}
-\begin{itemize}
-\item \textbf{Báze} -- počet studentů $N=1$, $N=2$ -- triviální -- žák je sám sobě spolužákem
-\item \textbf{Krok} -- z indukčního předpokladu víme, že \var{Schoolm1} a
-\var{Schoolm2} mají správný výsledek pro počet studentů $ < N$. Nyní existují
-následující $3$ možnosti:\begin{enumerate}
-\item \var{Schoolm1} $ = 2~\vee $ \var{Schoolm2} $ = 2$ -- v jednom z polí jsou
-$2$ skupiny spolužáků (každá skupina má $\frac{N}{4}$ spolužáků). BÚNO je to
-\var{Schoolm1}. Pokud \var{Schoolm2} obsahuje $2$ totožné skupiny spolužáků,
-bude sloučené pole obsahovat $2$ skupiny po $\frac{N}{2}$ spolužácích. Jinak pokud
-\var{Schoolm2} obsahuje alespoň $\frac{N}{4}$ spolužáků s jednou ze skupin v
-\var{Schoolm1}, bude i sloučené pole obsahovat alespoň $\frac{N}{2}$ těchto
-spolužáků. Jinak sloučené pole nebude obsahovat alespoň $\frac{N}{2}$ spolužáků.
-\item \var{Schoolm1} $ = 1~\vee $ \var{Schoolm2} $ = 1$ -- jedno z polí obsahuje
-alespoň $\left\lceil\frac{N}{4}\right\rceil$ spolužáků. BÚNO je to
-\var{Schoolm1} a těchto spolužáků je \var{x}. Pokud najdeme v \var{Schoolm2}
-alespoň $\left\lceil\frac{N}{2}\right\rceil-x$ stejných spolužáků, bude i sloučené pole obsahovat alespoň
-$\left\lceil\frac{N}{2}\right\rceil$ spolužáků, jinak ne.
-
-\clearpage
-\zadani{1}{1}
-\item \var{Schoolm1} $ = 0~\wedge $ \var{Schoolm2} $ = 0$ -- v ani jednom z obou
- polí není alespoň $\left\lceil\frac{N}{4}\right\rceil$ spolužáků, ve sloučeném
- poli tedy může být maximálně $\left\lceil\frac{N}{2}\right\rceil-1$ spolužáků.
-\end{enumerate}
-\end{itemize}
-\textbf{Konvergence} -- při rekurzivním volání funkce \textsc{Schoolmates} na
-řádku $3$ vždy
-snížíme velikost pole, na které je volána. Zřejmě v konečném počtu kroků musí
-velikost pole klesnout pod hodnotu $3$. 
-\hfill$\square$
-
-\clearpage
-\zadani{2}{2}
 \begin{algorithm}
 \textsc{Schoolmates}($L,R$)
 \begin{algorithmic}[1]
 \STATE $N \la R-L+1$
 \IF {$N > 2$}
-\STATE $Schoolm1 \gets$ \textsc{Schoolmates}($L,\left\lfloor \frac{R}{2}
-\right\rfloor$); $Schoolm2 \gets$ \textsc{Schoolmates}($\left\lfloor \frac{R}{2} \right\rfloor+1,R$)
-\IF{$Schoolm1 = 2 \vee Schoolm2 = 2$}
-\STATE Určíme tu část pole, která vrátila výsledek $2$. BÚNO je to
-$Schoolm1$.
-\STATE Postupně porovnáváme všechny prvky z části pole $Schoolm2$ s vybraným
-žákem z první a poté druhé části pole $Schoolm1$.
-\IF {najdeme dalších $\frac{N}{4}$ spolužáků první části $\wedge$ dalších
-$\frac{N}{4}$ spolužáků druhé části $\mid N$ sudé}
-\STATE přeskládáme studenty tak, aby první polovina spojeného pole
-byli spolužáci
-\RETURN $2$
-\ELSIF {najdeme dalších alespoň $\left\lceil\frac{N}{4}\right\rceil$
-spolužáků}
-\STATE přeskládáme studenty tak, aby první část spojeného pole tvořili tito spolužáci
-\RETURN $1$
+\STATE \textsc{Schoolmates}($L,\left\lfloor\frac{L+R}{2} \right\rfloor$)
+\STATE \textsc{Schoolmates}($\left\lfloor\frac{L+R}{2} \right\rfloor+1,R$)
+\IF {\textsc{TF}(L,R,N)}
+\STATE přeskládej studenty tak, aby první část pole \var{students[L..R]} byli
+všichni spolužáci, kterých je alespoň $\left\lceil\frac{N}{2} \right\rceil$
+\RETURN true
 \ELSE
-\RETURN $0$
+\RETURN false
 \ENDIF
-\ELSIF{$Schoolm1 = 1 \vee Schoolm2 = 1$}
-\STATE Určíme tu část pole, která vrátila výsledek $1$ a počet spolužáků v její
-první části. BÚNO je to
-$Schoolm1$ a $x$.
-\STATE Postupně porovnáme všechny studenty z části pole $Schoolm2$ s
-vybraným žákem z první části pole $Schoolm2$
-\IF{najdeme dalších alespoň $y$ spolužáků $\mid y+x\geq
-\left\lceil\frac{N}{2}\right\rceil$}
-\STATE přeskládáme studenty tak, aby první část spojeného pole tvořili tito spolužáci
-\RETURN $1$
+
+%\STATE $Schoolm1 \gets$ \textsc{Schoolmates}($L,\left\lfloor \frac{R}{2}
+%\right\rfloor$); $Schoolm2 \gets$ \textsc{Schoolmates}($\left\lfloor \frac{R}{2} \right\rfloor+1,R$)
+%\IF{$Schoolm1 = 2 \vee Schoolm2 = 2$}
+%\STATE Určíme tu část pole, která vrátila výsledek $2$. BÚNO je to
+%$Schoolm1$.
+%\STATE Postupně porovnáváme všechny prvky z části pole $Schoolm2$ s vybraným
+%žákem z první a poté druhé části pole $Schoolm1$.
+%\IF {najdeme dalších $\frac{N}{4}$ spolužáků první části $\wedge$ dalších
+%$\frac{N}{4}$ spolužáků druhé části $\mid N$ sudé}
+%\STATE přeskládáme studenty tak, aby první polovina spojeného pole
+%byli spolužáci
+%\RETURN $2$
+%\ELSIF {najdeme dalších alespoň $\left\lceil\frac{N}{4}\right\rceil$
+%spolužáků}
+%\STATE přeskládáme studenty tak, aby první část spojeného pole tvořili tito spolužáci
+%\RETURN $1$
+%\ELSE
+%\RETURN $0$
+%\ENDIF
+%\ELSIF{$Schoolm1 = 1 \vee Schoolm2 = 1$}
+%\STATE Určíme tu část pole, která vrátila výsledek $1$ a počet spolužáků v její
+%první části. BÚNO je to
+%$Schoolm1$ a $x$.
+%\STATE Postupně porovnáme všechny studenty z části pole $Schoolm2$ s
+%vybraným žákem z první části pole $Schoolm2$
+%\IF{najdeme dalších alespoň $y$ spolužáků $\mid y+x\geq
+%\left\lceil\frac{N}{2}\right\rceil$}
+%\STATE přeskládáme studenty tak, aby první část spojeného pole tvořili tito spolužáci
+%\RETURN $1$
+%\ELSE
+%\RETURN $0$
+%\ENDIF
+%\ELSIF{$Schoolm1 = 0 \wedge Schoolm2 = 0$}
+%\RETURN $0$
+%\ENDIF
+
 \ELSE
-\RETURN $0$
-\ENDIF
-\ELSIF{$Schoolm1 = 0 \wedge Schoolm2 = 0$}
-\RETURN $0$
-\ENDIF
-\ELSE
-\RETURN $2$
+\RETURN true
 \ENDIF
 \end{algorithmic}
 \end{algorithm}
+Operace \uv{přeskládání studentů} -- jistě umíme studenty přeskládat za použítí
+lineárního počtu dotazů do databáze vzhledem k délce sloučeného pole $N$. Známe
+reprezentanta skupiny spolužáků (je v první části podpole, na které byla
+rekurentně volána funkce \textsc{Schoolmates} s výsledkem true), které chceme přeskládat do první části
+výsledného pole. Můžeme tedy s tímto reprezentantem srovnat všechny žáky z
+jednoho podpole a pak všechny žáky z druhého podpole. Příslušné spolužáky pak
+přeskládat do první části pole. Algoritmus je zřejmě korektní (dokázalo by se
+indukcí k délce pole $N$).
+
+\begin{equation*}
+\textsc{TF}(L,R,N) = \left\{
+	\begin{array}{cl}
+	true & \text{$(t-L+1)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$
+	students[L..t] spolužáci,} \\ 
+	& \text{f počet jejich spolužáků ve
+	students[$\left\lfloor\frac{L+R}{2}\right\rfloor+1$,R]}\\
+
+	true & \text{$(t-(\floor{L+R}{2}+1)+1)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$
+	students[$\floor{L+R}{2}+1..R$] spolužáci,} \\ 
+	& \text{f počet jejich spolužáků ve
+	students[L..$\left\lfloor\frac{L+R}{2}\right\rfloor$]}\\
+
+	true &
+	\text{$students[\left\lfloor\frac{L+R}{4}\right\rfloor+1..\floor{R+L}{2}]
+	spoluzaci \wedge \floor{N}{4}+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$}\\
+	& \text{f počet jejich spolužáků ve
+	students[$\left\lfloor\frac{L+R}{2}\right\rfloor+1$..R]}\\
+
+	true & \text{$students[\left\lfloor\frac{3(L+R)}{4}\right\rfloor+1..R]
+	spoluzaci \wedge \floor{N}{4}+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$}\\
+	& \text{f počet jejich spolužáků ve
+	students[$\left\lfloor\frac{L+R}{4}\right\rfloor+1..\floor{L+R}{2}$]}\\
+
+	false & \text{jinak}
+	\end{array} \right.
+\end{equation*}
+Důkaz, že funkce správně vrací hodnotu true, je triviální (plyne z definice
+funkce pro výsledek true). Sporem dokážeme, že v ostaních případech správně
+vrací false. Nechť tedy existuje podpole A a podpole B, jejichž sloučením je
+alespoň $\ceil{N}{2}$ spolužáků a přitom by funkce TF vrátila false. Má-li
+výsledné pole obsahovat alespoň $\ceil{N}{2}$ spolužáků, musí A nebo B obsahovat
+alespoň $\ceil{N}{4}$ spolužáků ($\ceil{N}{4}+\ceil{N}{4}-1\leq\ceil{N}{2}$).
+BÚNO je to A a těchto spolužáku je $a$ (A může dokonce obsahovat 2 takové
+skupiny). Pak tedy B musí obsahovat alespoň $b \geq
+\ceil{N}{2}-a$ jejich spolužáků ($b \geq 0$). V tomto případě, ale funkce TF
+vrátí true (1. nebo 2. případ). Symetricky pokud předpokládáme, že podpole B
+obsahuje alespoň $\ceil{N}{2}$ spolužáků (3. nebo 4. případ). Což je
+spor s tím, že existuje A a B.
+
+\noindent
+Pro zjištění $t \mid students[i..t] \text{ spolužáci}$ nám stačí lineární počet
+dotazů do databáze vzhledem k velikosti pole $N$. Jednoduše porovnáme
+students[i] se students[i+1], students[i+1] se students[i+2] atd. až najdeme
+první neshodu (popř. konec intervalu). Nechť je to students[n] se students[n+1],
+pak $t=n$. Algoritmus je zřejmě korektní (dokázalo by se indukcí vzhledem k $t$).
+
+\noindent
+Pro zjištění počtu spolužáků vybraného žáka v poli o délce $N$ nám zřejmě
+stačí lineární počet dotazů do databáze. Porovnáme všechny žáky pole s vybraným
+žákem. Algoritmus je zřejmě korektní (dokázalo by se indukcí k délce pole $N$).
+%\begin{equation*}
+%\textsc{TF}(true,false) = \left\{
+%	\begin{array}{cl}
+%	true & \text{$(t-L)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$
+%	students[L..t] spolužáci,} \\ 
+%	& \text{f počet jejich spolužáků ve
+%	students[$\left\lfloor\frac{L+R}{2}\right\rfloor+1$,R]}\\
+%	% zde je zachyceno i pokud jsou spoluzaci cele podpole
+%	% pokud je druha pulka taky spoluzaci, tak protoze ve druhem poli neni
+%	%+ani polovina studentu spoluzaci, tedy dohromady taky nemuzou byt
+%	%+spoluzaci
+%	false & \text{jinak}
+%	\end{array} \right.
+%\end{equation*}
+
+%\begin{equation*}
+%\textsc{TF}(false,true) = \left\{
+%	\begin{array}{cl}
+%	true & \text{$(R-t)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$
+%	students[t..R] spolužáci,} \\ 
+%	& \text{f počet jejich spolužáků ve
+%	students[L..$\left\lfloor\frac{L+R}{2}\right\rfloor$]}\\
+%	false & \text{jinak}
+%	\end{array} \right.
+%\end{equation*}
+
+%\begin{equation*}
+%\textsc{TF}(false,false) = false
+%\end{equation*}
+
+\bigskip
+\noindent
+Analýza algoritmu \textsc{Schoolmates}:\\
+\textbf{Složitost}\footnote{Počet dotazů do databáze by bylo možné
+optimalizovat.}\\
+Složitost funkce \textsc{TF} $\in \mathcal{O}{n}$, dále jen operace s konstantní
+složitostí (kromě rekurentního volání \textsc{Schoolmates}).
+Tedy rekurentně $T(1) \leq c, T(2) \leq c, T(N) \leq 2\cdot T(\ceil{N}{2}) +
+c\cdot N) \mid c \text{ vhodná konstanta}$ dotazů.\\
+Dle \textit{Master Theorem} je tedy počet dotazů $\in \mathcal{O}(N\log N)$.\\
+\textbf{Korektnost}\\
+Důkaz indukcí k počtu studentů (délce pole $N = R - L + 1$).
+\renewcommand{\labelenumi}{\textbf{\alph{enumi})}}
+\begin{itemize}
+\item \textbf{Báze} -- počet studentů $N=1$, $N=2$ -- triviální -- žák je sám sobě spolužákem
+\item \textbf{Krok} -- počet studentů $N$. Z indukčního předpokladu víme, že funkce
+\textsc{Schoolmates} funguje správně pro pole délky $\leq N$. 
+%Pokud tedy jedno
+%ze dvou jejích rekurentních volání vrátilo true, bude platit invariant o
+%struktuře příslušného podpole. 
+Funkce \textsc{TF} tedy správně vrátí true nebo
+false. Čímž jsme dokázali i platnost invariantu o struktuře pole.
+\end{itemize}
+\textbf{Konvergence}\\ 
+Při rekurzivním volání funkce \textsc{Schoolmates} na
+řádku $3$ a $4$ vždy
+snížíme velikost pole, na které je volána. Zřejmě v konečném počtu kroků musí
+parametr $N$ klesnout pod hodnotu $3$. 
+\hfill$\square$
 
 
 
