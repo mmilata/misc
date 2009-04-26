@@ -46,13 +46,11 @@
 \begin{document}
 
 \zadani{2}{1}
-% celkem hodně zmatené (snad ne příliš)
-% funkční (snad až na překlepy a off-by-one chyby)
-% nesjednocené značení (nedotexované)
+% snad ne příliš zmatené
 
 \noindent
 %Nechť $d:student \times student \move \{yes, no\}$ je dotaz do databáze.
-Nechť pole \var{students}[1..N] reprezentuje soubor studentů.
+Nechť pole \var{students[1..N]} reprezentuje soubor studentů.
 Nechť výsledek funkce \textsc{Schoolmates} je kódovaný takto:
 \begin{equation*}
 \textsc{Schoolmates}(L,R) = \left\{
@@ -63,9 +61,9 @@ Nechť výsledek funkce \textsc{Schoolmates} je kódovaný takto:
 	\end{array} \right.
 \end{equation*}
 Algoritmus využívá toho, že pokud známe výsledek pro~$2$ podobně dlouhé
-podposloupnosti, snadno určíme výsledek i pro~jejich sloučení. Invariantem
-algoritmu je struktura pole studentů. Pokud pole obsahuje, alespoň $\ceil{N}{2}$
-spolužáků, pak jsou všichni tito spolužáci v první části pole za sebou.
+podposloupnosti, relativně snadno určíme výsledek i pro~jejich sloučení. Invariantem
+algoritmu je struktura souboru studentů. Pokud soubor obsahuje, alespoň $\ceil{N}{2}$
+spolužáků, pak jsou všichni tito spolužáci v~první části pole za~sebou.
 
 \begin{algorithm}
 \textsc{Schoolmates}($L,R$)
@@ -74,7 +72,7 @@ spolužáků, pak jsou všichni tito spolužáci v první části pole za sebou.
 \IF {$N > 2$}
 \STATE \textsc{Schoolmates}($L,\left\lfloor\frac{L+R}{2} \right\rfloor$)
 \STATE \textsc{Schoolmates}($\left\lfloor\frac{L+R}{2} \right\rfloor+1,R$)
-\IF {\textsc{TF}(L,R,N)}
+\IF {\textsc{TF}($L,R,N$)}
 \STATE přeskládej studenty tak, aby první část pole \var{students[L..R]} byli
 všichni spolužáci, kterých je alespoň $\left\lceil\frac{N}{2} \right\rceil$
 \RETURN true
@@ -123,66 +121,80 @@ všichni spolužáci, kterých je alespoň $\left\lceil\frac{N}{2} \right\rceil$
 \ENDIF
 \end{algorithmic}
 \end{algorithm}
-Operace \uv{přeskládání studentů} -- jistě umíme studenty přeskládat za použítí
-lineárního počtu dotazů do databáze vzhledem k délce sloučeného pole $N$. Známe
-reprezentanta skupiny spolužáků (je v první části podpole, na které byla
-rekurentně volána funkce \textsc{Schoolmates} s výsledkem true), které chceme přeskládat do první části
-výsledného pole. Můžeme tedy s tímto reprezentantem srovnat všechny žáky z
-jednoho podpole a pak všechny žáky z druhého podpole. Příslušné spolužáky pak
-přeskládat do první části pole. Algoritmus je zřejmě korektní (dokázalo by se
-indukcí k délce pole $N$).
+Operace \uv{přeskládání studentů} -- jistě umíme studenty přeskládat za~použítí
+lineárního počtu dotazů do~databáze vzhledem k~délce sloučeného souboru~$N$. Známe
+reprezentanta skupiny spolužáků (je v~první polovině podsouboru, na~které byla
+rekurentně volána funkce \textsc{Schoolmates} s~výsledkem $true$), které chceme přeskládat do~první části
+výsledného souboru. Můžeme tedy s~tímto reprezentantem srovnat všechny žáky
+z~jednoho podsouboru a pak všechny žáky ze~druhého podsouboru. Příslušné spolužáky pak
+přeskládáme do~první části sloučeného souboru. Algoritmus je zřejmě korektní (dokázalo by se
+indukcí k~délce souboru~$N$).
+
+\clearpage
+\zadani{2}{1}
 
 \begin{equation*}
 \textsc{TF}(L,R,N) = \left\{
 	\begin{array}{cl}
-	true & \text{$(t-L+1)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$
-	students[L..t] spolužáci,} \\ 
+	true & \text{$(t-L+1)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid
+	students[L..t]$ spolužáci,} \\ 
 	& \text{f počet jejich spolužáků ve
-	students[$\left\lfloor\frac{L+R}{2}\right\rfloor+1$,R]}\\
+	$students[\left\lfloor\frac{L+R}{2}\right\rfloor+1$..R]}\\
 
-	true & \text{$(t-(\floor{L+R}{2}+1)+1)+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$
-	students[$\floor{L+R}{2}+1..R$] spolužáci,} \\ 
+	true & \text{$(t-(\floor{L+R}{2}+1)+1)+f \geq
+	\left\lceil\frac{N}{2}\right\rceil \mid$}\\
+	&\text{$students[\floor{L+R}{2}+1..t$] spolužáci,} \\ 
 	& \text{f počet jejich spolužáků ve
-	students[L..$\left\lfloor\frac{L+R}{2}\right\rfloor$]}\\
+	$students[L..\left\lfloor\frac{L+R}{2}\right\rfloor$]}\\
 
 	true &
 	\text{$students[\left\lfloor\frac{L+R}{4}\right\rfloor+1..\floor{R+L}{2}]
-	spoluzaci \wedge \floor{N}{4}+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$}\\
+	$ spolužáci $\wedge \floor{N}{4}+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$}\\
 	& \text{f počet jejich spolužáků ve
-	students[$\left\lfloor\frac{L+R}{2}\right\rfloor+1$..R]}\\
+	$students[\left\lfloor\frac{L+R}{2}\right\rfloor+1$..R]}\\
 
 	true & \text{$students[\left\lfloor\frac{3(L+R)}{4}\right\rfloor+1..R]
-	spoluzaci \wedge \floor{N}{4}+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$}\\
+	$ spolužáci $\wedge \floor{N}{4}+f \geq \left\lceil\frac{N}{2}\right\rceil \mid$}\\
 	& \text{f počet jejich spolužáků ve
-	students[$\left\lfloor\frac{L+R}{4}\right\rfloor+1..\floor{L+R}{2}$]}\\
+	$students[L..\floor{L+R}{2}$]}\\
 
 	false & \text{jinak}
 	\end{array} \right.
 \end{equation*}
-Důkaz, že funkce správně vrací hodnotu true, je triviální (plyne z definice
-funkce pro výsledek true). Sporem dokážeme, že v ostaních případech správně
-vrací false. Nechť tedy existuje podpole A a podpole B, jejichž sloučením je
-alespoň $\ceil{N}{2}$ spolužáků a přitom by funkce TF vrátila false. Má-li
-výsledné pole obsahovat alespoň $\ceil{N}{2}$ spolužáků, musí A nebo B obsahovat
-alespoň $\ceil{N}{4}$ spolužáků ($\ceil{N}{4}+\ceil{N}{4}-1\leq\ceil{N}{2}$).
-BÚNO je to A a těchto spolužáku je $a$ (A může dokonce obsahovat 2 takové
-skupiny). Pak tedy B musí obsahovat alespoň $b \geq
-\ceil{N}{2}-a$ jejich spolužáků ($b \geq 0$). V tomto případě, ale funkce TF
-vrátí true (1. nebo 2. případ). Symetricky pokud předpokládáme, že podpole B
-obsahuje alespoň $\ceil{N}{2}$ spolužáků (3. nebo 4. případ). Což je
-spor s tím, že existuje A a B.
 
 \noindent
-Pro zjištění $t \mid students[i..t] \text{ spolužáci}$ nám stačí lineární počet
-dotazů do databáze vzhledem k velikosti pole $N$. Jednoduše porovnáme
-students[i] se students[i+1], students[i+1] se students[i+2] atd. až najdeme
-první neshodu (popř. konec intervalu). Nechť je to students[n] se students[n+1],
-pak $t=n$. Algoritmus je zřejmě korektní (dokázalo by se indukcí vzhledem k $t$).
+Důkaz, že funkce správně vrací hodnotu $true$, je triviální (plyne z~definice
+funkce pro~výsledky $true$). Sporem dokážeme, že v~ostaních případech správně
+vrací $false$. 
 
 \noindent
-Pro zjištění počtu spolužáků vybraného žáka v poli o délce $N$ nám zřejmě
-stačí lineární počet dotazů do databáze. Porovnáme všechny žáky pole s vybraným
-žákem. Algoritmus je zřejmě korektní (dokázalo by se indukcí k délce pole $N$).
+Nechť tedy existuje podsoubor $A$ a podsoubor $B$, jejichž sloučením je
+alespoň $\ceil{N}{2}$ spolužáků a přitom by funkce \textsc{TF} vrátila $false$. Má-li
+výsledný soubor obsahovat alespoň $\ceil{N}{2}$ spolužáků, musí $A$ nebo $B$ obsahovat
+alespoň $\ceil{N}{4}$ spolužáků ($\ceil{N}{4}+(\ceil{N}{4}-1)<\ceil{N}{2}$).
+BÚNO je to $A$ a těchto spolužáku je $a$ ($A$ může dokonce obsahovat $2$ takové
+skupiny). Pak tedy $B$ musí obsahovat $b \geq
+\ceil{N}{2}-a$ jejich spolužáků ($b \geq 0$). V~tom případě, ale funkce
+\textsc{TF}
+vrátí $true$ ($1.$ nebo $3.$ případ). Symetricky pokud předpokládáme, že
+podsoubor $B$
+obsahuje alespoň $\ceil{N}{2}$ spolužáků ($2.$ nebo $4.$ případ). Což je
+spor s~tím, že existuje $A$ a $B$.
+
+\noindent
+Pro~zjištění $t$ (\var{students[i..t]} spolužáci) nám stačí lineární počet
+dotazů do~databáze vzhledem k~velikosti souboru~$N$. Jednoduše porovnáme
+\var{students[i]} se \var{students[i+1]}, \var{students[i+1]} se
+\var{students[i+2]} atd. až najdeme
+první neshodu (popř. konec intervalu). Nechť první neshoda je při porovnání
+\var{students[n]} se \var{students[n+1]},
+pak $t=n$. Algoritmus je zřejmě korektní (dokázalo by se indukcí vzhledem
+k~délce souboru $N$).
+
+\noindent
+Pro zjištění počtu spolužáků vybraného žáka v~souboru o délce $N$ nám zřejmě
+opět stačí lineární počet dotazů do~databáze. Porovnáme všechny žáky souboru s~vybraným
+žákem. Algoritmus je zřejmě korektní (dokázalo by se indukcí k~délce pole $N$).
 %\begin{equation*}
 %\textsc{TF}(true,false) = \left\{
 %	\begin{array}{cl}
@@ -213,34 +225,37 @@ stačí lineární počet dotazů do databáze. Porovnáme všechny žáky pole 
 %\textsc{TF}(false,false) = false
 %\end{equation*}
 
-\bigskip
+\clearpage
+\zadani{2}{1}
 \noindent
 Analýza algoritmu \textsc{Schoolmates}:\\
-\textbf{Složitost}\footnote{Počet dotazů do databáze by bylo možné
+\textbf{Složitost}\footnote{Počet dotazů do~databáze by bylo možné
 optimalizovat.}\\
-Složitost funkce \textsc{TF} $\in \mathcal{O}{n}$, dále jen operace s konstantní
+Složitost funkce \textsc{TF} $\in \mathcal{O}(n)$, dále jen operace s~konstantní
 složitostí (kromě rekurentního volání \textsc{Schoolmates}).
-Tedy rekurentně $T(1) \leq c, T(2) \leq c, T(N) \leq 2\cdot T(\ceil{N}{2}) +
-c\cdot N) \mid c \text{ vhodná konstanta}$ dotazů.\\
+Tedy rekurentní rovnice pro funkci \textsc{Schoolmates}, kde parametr funkce $T$ udává počet
+studentů v souboru je $T(1) \leq c, T(2) \leq c, T(N) \leq 2\cdot T(\ceil{N}{2}) +
+c\cdot N) \mid c \text{ vhodná konstanta}$.\\
 Dle \textit{Master Theorem} je tedy počet dotazů $\in \mathcal{O}(N\log N)$.\\
 \textbf{Korektnost}\\
-Důkaz indukcí k počtu studentů (délce pole $N = R - L + 1$).
+Důkaz indukcí k~počtu studentů (délce souboru $N = R - L + 1$).
 \renewcommand{\labelenumi}{\textbf{\alph{enumi})}}
 \begin{itemize}
-\item \textbf{Báze} -- počet studentů $N=1$, $N=2$ -- triviální -- žák je sám sobě spolužákem
-\item \textbf{Krok} -- počet studentů $N$. Z indukčního předpokladu víme, že funkce
-\textsc{Schoolmates} funguje správně pro pole délky $\leq N$. 
+\item \textbf{Báze} -- počet studentů $N=1$, $N=2$ -- triviální -- žák je sám
+sobě spolužákem, v~první části souboru studentů je alespoň $\ceil{N}{2}$
+spolužáků.
+\item \textbf{Krok} -- počet studentů $N$. Z~indukčního předpokladu víme, že funkce
+\textsc{Schoolmates} funguje správně pro~soubory délky $< N$. 
 %Pokud tedy jedno
 %ze dvou jejích rekurentních volání vrátilo true, bude platit invariant o
 %struktuře příslušného podpole. 
-Funkce \textsc{TF} tedy správně vrátí true nebo
-false. Čímž jsme dokázali i platnost invariantu o struktuře pole.
+Funkce \textsc{TF} tedy správně vrátí $true$ nebo
+$false$ (platí invariant o struktuře podsouborů dle IP). Čímž jsme dokázali i platnost invariantu o~struktuře souboru.
 \end{itemize}
 \textbf{Konvergence}\\ 
-Při rekurzivním volání funkce \textsc{Schoolmates} na
-řádku $3$ a $4$ vždy
-snížíme velikost pole, na které je volána. Zřejmě v konečném počtu kroků musí
-parametr $N$ klesnout pod hodnotu $3$. 
+Při~rekurzivním volání funkce \textsc{Schoolmates} na~řádku $3$ a $4$ vždy
+snížíme velikost souboru, na~které je volána. Zřejmě v~konečném počtu kroků musí
+parametr~$N$ klesnout pod~hodnotu~$3$. 
 \hfill$\square$
 
 
@@ -431,18 +446,18 @@ konverguje k nule, složitost je tedy $\O(N)$.
 \zadani{2}{4}
 
 \noindent
-Uvažme posloupnost ($5, 1, 1, 100, 10$) pro počty operací na počítači A, posloupnost
-($1,1,10,1,1$) pro počítač B. Algoritmus s daným hladovým kritériem napočítá
+Uvažme posloupnost ($5, 1, 1, 100, 10$) pro~počty operací na~počítači $A$, posloupnost
+($1,1,10,1,1$) pro~počítač $B$. Algoritmus s~daným hladovým kritériem napočítá
 plán ($A,P,B,P,A$), jehož cena je $25$. Plán ($A,A,A,A,A$) má však
-cenu $117$, a to je spor s
-optimalitou hladového kritéria.
+cenu $117$, a to je spor s~optimalitou hladového kritéria.
 
 \noindent
-Navrhneme algoritmus založený na principech dynamického programování. 
+Navrhneme algoritmus založený na~principech dynamického programování. 
 Nechť posloupnost $$A[i] \mid 1\leq i \leq n$$ označuje maximální počet operací, který je
-možno provést za $i$ minut, přičemž v minutě $i+1$ je úloha na počítači A.
-Posloupnost $A'[i]$ označuje počítač, na kterém byl výpočet v minutě $i$.
-Symetricky pro počítač B.
+možno provést za~$i$ minut, přičemž po~těchto $i$ minutách je úloha na~počítači~$A$.
+Posloupnost $A'[i]$ označuje počítač, na~kterém byl výpočet v~minutě~$i$ (popř.
+$P$ pro~přesun).
+Symetricky pro~počítač $B$.
 
 \noindent
 Pak algoritmus:
@@ -488,54 +503,52 @@ p_{i-1} = \left\{
 %\RETURN (p_1, \dots, p_n)
 %\end{algoritmic}
 
-\bigskip
-%\vskip 1cm
-\noindent
-Analýza algoritmu \textsc{Scheduler}:\\
-\textbf{Složitost}\\
-Uvnitř \textit{for} cyklu z řádku $2$ jsou pouze operace se složitostí~$\in~\mathcal{O}(1)$, tedy cena tohoto \textit{for} cyklu je~$\in~\mathcal{O}(n)$.
-Cena rekonstrukce plánu je~$\in
-\mathcal{O}(n)$. Tedy složitost algorimtu \textsc{Scheduler} je~$\in~\mathcal{O}(n)$.
-
 \clearpage
 \zadani{2}{4}
 \noindent
+Analýza algoritmu \textsc{Scheduler}:\\
+\textbf{Složitost}\\
+Uvnitř \textit{for} cyklu z~řádku $2$ jsou pouze operace se složitostí~$\in~\mathcal{O}(1)$, tedy cena tohoto \textit{for} cyklu je~$\in~\mathcal{O}(n)$.
+Cena rekonstrukce plánu je~$\in
+\mathcal{O}(n)$. Tedy složitost algorimtu \textsc{Scheduler}
+je~$\in~\mathcal{O}(n)$.\\
 \textbf{Korektnost}\\
 \renewcommand{\labelenumi}{\textbf{\alph{enumi})}}
 Nejdříve dokážeme tvrzení
 \begin{quotation}
 $A[i] \mid 1\leq i \leq n$ je maximální počet operací, který je
-možno provést za $i$ minut, přičemž v minutě $i+1$ je úloha na počítači A.
+možno provést za~$i$~minut, přičemž po~těchto $i$ minutách je úloha na~počítači
+$A$.
 \end{quotation}
 Důkaz indukcí vzhledem k parametru $i$.
 \begin{description}
 \item [Báze]{$i=1$} -- triviální -- $a_1 \geq $ počet operací při přesunu
-\item [Krok]{$i=n$} -- z indukčního předpokladu známe $A[i-1]$ a $B[i-1]$, které
+\item [Krok]{$i=n$} -- z~indukčního předpokladu známe $A[i-1]$ a $B[i-1]$, které
 jsou maximální. Existují $2$
-možnosti jak skončit výpočet na počítači A. Buď se v $i$-té minutě přesunujeme z
-počítače B, nebo v $i$-té minutě počítáme na počítači A. Pokud tedy napočítáme
-výsledné počty operací, nutně větší z nich musí být součástí maximálního plánu
-pro $i$ minut.
+možnosti jak skončit výpočet na~počítači $A$. Buď se v~$i$-té minutě přesunujeme
+z~počítače $B$, nebo v~$i$-té minutě počítáme na~počítači $A$. Pokud tedy napočítáme
+výsledné počty operací, nutně větší z~nich musí být součástí maximálního plánu
+pro~$i$ minut se skončením na~počítači $A$.
 \end{description}
-Symtricky platí pro počítač B.
+Symtricky pro~počítač $B$ a posloupnost $B[i]$.
 
 \noindent
-Po $n$ minutách jeden z optimálních výpočtů skončí na počítači A, nebo B. Pokud by
+Po~$n$ minutách jeden z~optimálních výpočtů skončí na~počítači $A$, nebo $B$. Pokud by
 se výpočet přesouval, jistě by se nevykonalo více operací než bez přesunu.
-Větší z čísel $A[n], B[n]$ tedy udává maximální počet operací po $n$ minutách a
-zároveň známe počítač, na kterém tento výpočet skončil. 
+Větší z~čísel $A[n], B[n]$ tedy udává maximální počet operací po~$n$ minutách a
+zároveň známe počítač, na~kterém tento výpočet skončil. 
 
 \noindent
 Nyní dokážeme korektnost zrekonstruování plánu indukcí dle $n-i$.
-Předpokládejme, že výpočet skončil na počítači A, tedy $p_n=A$.
+BÚNO předpokládejme, že výpočet skončil na~počítači $A$, tedy $p_n=A$.
 \begin{description}
 \item [Báze]{$i=0$} -- triviální -- $p_n=A$.
-\item [Krok]{$1\leq i \leq n$} -- triviální pokud $p_{n-i-1} = A~\vee p_{n-i-1}
-= B$. Pokud $p_{n-i-1} = P$ tak se výpočet v $n-i-1.$ minutě přesouval, tedy
-předchozí minutu musel být na opačném stroji.
+\item [Krok]{$1\leq i \leq n$} -- triviální pokud $p_{n-i+1} = A~\vee p_{n-i+1}
+= B$. Pokud $p_{n-i+1} = P$, tak se výpočet v~$n-i+1.$ minutě přesouval, tedy
+předchozí minutu musel být na~opačném stroji.
 \end{description}
-Symetricky pro počítač $p_n=B$.\\
-\textbf{Konvergence} -- zřejmé -- pouze konečné cykly.
+Symetricky pro~$p_n=B$.\\
+\textbf{Konvergence} -- zřejmé -- pouze cykly s~přesně definovaným počtem opakování.
 \hfill$\square$
 
 \clearpage
