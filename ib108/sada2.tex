@@ -265,7 +265,7 @@ parametr~$N$ klesnout pod~hodnotu~$3$.
 
 % TODO:
 % - odstranit ten algoritmus? je docela zbytecny ...
-% - vyresit kolize v namespacu promennych
+% - pripsat nejaky komentar k hornim rovnicim (a mozna i k dolnim)
 
 \noindent
 Zřejmě nezáleží na čase, kdy závodník běží a kdy jede na kole, záleží pouze na jejich součtu.
@@ -311,8 +311,6 @@ Nyní chceme dokázat, že posloupnost (permutace) $S = \langle a_1,a_2,...,a_N 
 závodníků získaná tímto algoritmem, tedy seřazená sestupně podle $s_i$, je optimální.
 
 Definujme si funkci $v$, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
-%$$ v(\langle a_1,a_2,\cdots,a_m \rangle) = \sum_{i=1}^m p_{a_i} + \max_{i=1}^m u(i)$$
-%$$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_i$$
 $$ v(\langle a_1,a_2,\cdots,a_m \rangle) = \sum_{i=1}^m p_{a_i} + \max_{i=1}^m u(i)$$
 $$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_{a_j}$$
 tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějáký závodník poběží od
@@ -390,12 +388,12 @@ Můžeme si všimnout, že $st = s_1 + s_2 + s_3$, takže můžeme tento paramet
 Algoritmus na základě výše uvedené rovnosti odspoda vyplní trojrozměrnou tabulku $C$ s hodotami
 $v(s_1,s_2,s_3)\ \forall 0 \leq s_1,s_2,s_3 \leq \frac{N}{3}$. V tabulce $G$ si pak uchovává
 skupinu, do které je přiřazen student $s_1+s_2+s_3$ při těchto kapacitách skupin. To se děje na
-řádcích 3 až 23. Tři cykly for zajistí postupné projití skupin podle vzrůstajícího $s_1+s_2+s_3$,
+řádcích 3 až 25. Tři cykly for zajistí postupné projití skupin podle vzrůstajícího $s_1+s_2+s_3$,
 $C[s_1,s_2,s_3]$ se pak vypočte pomocí hodnot, které byly vypočítané předtím. Odpovídajícím způsobem
 se vypočítá i hodnota v poli $G$. Protože je vnější cyklus omezen $N$ iteracemi a oba vnější
 $\frac{N}{3}$ iteracemi, má tato část algoritmu časovou složitost $\O(N^3)$.
 
-Na řádcích 24 až 35 se pak z tabulky $G$ vytvoří pole $Res$, kde $Res[st]$ obsahuje číslo skupiny,
+Na řádcích 26 až 37 se pak z tabulky $G$ vytvoří pole $Res$, kde $Res[st]$ obsahuje číslo skupiny,
 do které patří student $st$. Tělo while cyklu se provede $N$-krát, protože součet $s_1+s_2+s_3$
 konverguje k nule, složitost je tedy $\O(N)$.
 
@@ -414,10 +412,12 @@ konverguje k nule, složitost je tedy $\O(N)$.
 \IF{$s_1 > 0 \wedge P[st,1] + C[s_1-1,s_2,s_3] > C[s_1,s_2,s_3]$}
 \STATE $C[s_1,s_2,s_3] \la P[st,1] + C[s_1-1,s_2,s_3]$
 \STATE $G[s_1,s_2,s_3] \la 1$
-\ELSIF{$s_2 > 0 \wedge P[st,2] + C[s_1,s_2-1,s_3] > C[s_1,s_2,s_3]$}
+\ENDIF
+\IF{$s_2 > 0 \wedge P[st,2] + C[s_1,s_2-1,s_3] > C[s_1,s_2,s_3]$}
 \STATE $C[s_1,s_2,s_3] \la P[st,2] + C[s_1,s_2-1,s_3]$
 \STATE $G[s_1,s_2,s_3] \la 2$
-\ELSIF{$s_3 > 0 \wedge P[st,3] + C[s_1,s_2,s_3-1] > C[s_1,s_2,s_3]$}
+\ENDIF
+\IF{$s_3 > 0 \wedge P[st,3] + C[s_1,s_2,s_3-1] > C[s_1,s_2,s_3]$}
 \STATE $C[s_1,s_2,s_3] \la P[st,3] + C[s_1,s_2,s_3-1]$
 \STATE $G[s_1,s_2,s_3] \la 3$
 \ENDIF
@@ -559,22 +559,6 @@ Algoritmus ověří, zda je aktuálně zpracovávaný vrchol extremální a poku
 alespoň jednoho podstromu má menší hodnotu. Na tento podstrom se algoritmus rekurzivně zavolá (pokud
 mají menší hodnotu vrcholy obou podstromů, zavolá se na levý). Takto vždy dojde k extremálnímu
 vrcholu -- viz níže.
-
-%\begin{algorithm}
-%\begin{algorithmic}
-%\STATE $node \la root$
-%\WHILE{not $\textsc{Leaf}(node)$}
-%\IF{$\textsc{Value}(node.left) < \textsc{Value}(node)$}
-%\STATE $node \la node.left$
-%\ELSIF{$\textsc{Value}(node.right) < \textsc{Value}(node)$}
-%\STATE $node \la node.right$
-%\ELSE
-%\RETURN $node$
-%\ENDIF
-%\ENDWHILE
-%\RETURN $node$
-%\end{algorithmic}
-%\end{algorithm}
 
 \begin{algorithm}
 \textsc{FindExtremal}($node$)
