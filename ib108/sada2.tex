@@ -280,29 +280,39 @@ $$t(I) =
 		\right\}
 \right)$$
 
+První rovnice říká, že závod prázdné množiny závodníků trvá nula minut. Druhá pak, že je-li množina
+neprázdná, pak je délka závodu rovna délce času, který bude nějáký závodník plavat plus délka času,
+kdy bude závodit na suché trati nebo délka času, kterou by trval závod ostatních -- podle
+toho, co trvá déle. ,,Nějáký závodník`` v tomto případě znamená, že z možných součtů vybíráme
+optimum.
+
 Ukážeme, že při využití hladového kritéria podle kterého vybíráme nejdříve závodníky s největším
 $s_i$ získáme optimální výsledek. Tedy že $t(I) = p_m + max(s_m, t(I \smallsetminus \{m\}))$, kde $m
 \in I$ je takové, že $s_m$ je maximální.
 
-Algoritmus, který do pole $A$ zapíše optimální pořadí závodníků a spočítá čas, kdy doběhne poslední,
-může vypadat následovně.
+Algoritmus pro nalezení optimálního pořadí závodníků je tedy pouze sestupně seřadí podle $s_i$ -- na
+to můžeme použít některý ze známých řadících algoritmů, například \textsc{MergeSort} se složitostí
+$\O(N\log N)$.
 
-\begin{algorithm}
-\begin{algorithmic}
-\STATE $A \la$ indexy závodníků seřazené \textsc{MergeSort}em sestupně podle $s_i$
-\STATE $pmax \la 0$
-\STATE $smax \la 0$
-\FOR{$i \la 1 $ to $N$}
-\STATE $pmax \la pmax + p_{A[i]}$
-\STATE $smax \la \max(pmax+s_{A[i]},smax)$
-\ENDFOR
-\RETURN $smax$
-\end{algorithmic}
-\end{algorithm}
-
-\noindent
-\textsc{MergeSort} má časovou složitost $\O(N\log N)$, for cyklus se provede pouze $N$-krát.
-Celkově je tedy algoritmus v $\O(N\log N)$.
+%Algoritmus, který do pole $A$ zapíše optimální pořadí závodníků a spočítá čas, kdy doběhne poslední,
+%může vypadat následovně.
+%
+%\begin{algorithm}
+%\begin{algorithmic}
+%\STATE $A \la$ indexy závodníků seřazené \textsc{MergeSort}em sestupně podle $s_i$
+%\STATE $pmax \la 0$
+%\STATE $smax \la 0$
+%\FOR{$i \la 1 $ to $N$}
+%\STATE $pmax \la pmax + p_{A[i]}$
+%\STATE $smax \la \max(pmax+s_{A[i]},smax)$
+%\ENDFOR
+%\RETURN $smax$
+%\end{algorithmic}
+%\end{algorithm}
+%
+%\noindent
+%\textsc{MergeSort} má časovou složitost $\O(N\log N)$, for cyklus se provede pouze $N$-krát.
+%Celkově je tedy algoritmus v $\O(N\log N)$.
 
 \bigskip
 
@@ -385,19 +395,28 @@ $$v(st,s_1,s_2,s_3) = \begin{cases}
 
 \noindent
 Můžeme si všimnout, že $st = s_1 + s_2 + s_3$, takže můžeme tento parametr v algoritmu vynechat.
-Algoritmus na základě výše uvedené rovnosti odspoda vyplní trojrozměrnou tabulku $C$ s hodotami
-$v(s_1,s_2,s_3)\ \forall 0 \leq s_1,s_2,s_3 \leq \frac{N}{3}$. V tabulce $G$ si pak uchovává
-skupinu, do které je přiřazen student $s_1+s_2+s_3$ při těchto kapacitách skupin. To se děje na
-řádcích 3 až 25. Tři cykly for zajistí postupné projití skupin podle vzrůstajícího $s_1+s_2+s_3$,
-$C[s_1,s_2,s_3]$ se pak vypočte pomocí hodnot, které byly vypočítané předtím. Odpovídajícím způsobem
-se vypočítá i hodnota v poli $G$. Protože je vnější cyklus omezen $N$ iteracemi a oba vnější
-$\frac{N}{3}$ iteracemi, má tato část algoritmu časovou složitost $\O(N^3)$.
+Algoritmus (na řádcích 3 až 25) na základě výše uvedené rovnosti vyplní trojrozměrnou tabulku $C$
+hodnotami $v(s_1,s_2,s_3)\ \forall 0 \leq s_1,s_2,s_3 \leq \frac{N}{3}$.  Protože hodnota
+$v(s_1,s_2,s_3)$ závisí na hodnotách $v$ s~o~jedna sníženými kapacitami skupin, probíhá vyplňování
+tabulky v takovém pořadí, ve kterém součet $s_1 + s_2 + s_3$ neklesá.  V tabulce $G$ si algoritmus
+uchovává skupinu, do které je přiřazen student $s_1+s_2+s_3$ při těchto kapacitách skupin. Tři cykly
+for zajistí postupné projití skupin podle vzrůstajícího $s_1+s_2+s_3$, $C[s_1,s_2,s_3]$ se pak na
+řádcích 9 až 21 vypočte pomocí hodnot, které byly vypočítané předtím; volba skupiny se uloží do pole
+$G$.  Protože $d = s_1 + s_2 + s_3$, je alespoň jedna z kapacit skupin větší než nula, takže se
+provede alespoň jeden if-blok a v $C[s_1,s_2,s_3]$ nikdy nezůstane hodnota $-\infty$.
 
-Na řádcích 26 až 37 se pak z tabulky $G$ vytvoří pole $Res$, kde $Res[st]$ obsahuje číslo skupiny,
-do které patří student $st$. Tělo while cyklu se provede $N$-krát, protože součet $s_1+s_2+s_3$
-konverguje k nule, složitost je tedy $\O(N)$.
+Vnější cyklus je omezen $N$ iteracemi a oba vnější $\frac{N}{3}$ iteracemi, takže má tato část
+algoritmu časovou složitost $\O(N^3)$.
 
-\begin{algorithm}
+Na řádcích 26 až 37 se pak z tabulky $G$ rekonstruuje přiřazení studentů do skupin, které se zapíše
+do pole $Result$. $Result[st]$ obsahuje číslo skupiny, do které patří student $st$. Tělo while cyklu
+se provede $N$-krát, protože součet $s_1+s_2+s_3$ konverguje k nule, složitost je tedy $\O(N)$.
+
+Celková složitost algortimu je tím pádem $\O(N^3)$.
+
+\clearpage
+\zadani{2}{3}
+
 \textsc{MakeSchedule}$(N,P)$
 \begin{algorithmic}[1]
 \STATE $C, G \la$ vytvoř trojrozměrné pole o velikosti $ N/3 \times N/3 \times N/3 $
@@ -440,7 +459,6 @@ konverguje k nule, složitost je tedy $\O(N)$.
 \ENDWHILE
 \RETURN $Result$
 \end{algorithmic}
-\end{algorithm}
 
 \clearpage
 \zadani{2}{4}
