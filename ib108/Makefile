@@ -8,4 +8,4 @@ $(files): %.pdf: %.tex
 	pdflatex $<
 
 clean:
-	-rm *.log *.aux *.out
+	-rm -f *.log *.aux *.out
