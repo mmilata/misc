@@ -281,7 +281,7 @@ $$t(I) =
 \right)$$
 
 První rovnice říká, že závod prázdné množiny závodníků trvá nula minut. Druhá pak, že je-li množina
-neprázdná, pak je délka závodu rovna délce času, který bude nějáký závodník plavat plus délka času,
+neprázdná, pak je délka závodu rovna délce času, který bude nějaký závodník plavat plus délka času,
 kdy bude závodit na suché trati nebo délka času, kterou by trval závod ostatních -- podle
 toho, co trvá déle. ,,Nějáký závodník`` v tomto případě znamená, že z možných součtů vybíráme
 optimum.
@@ -323,7 +323,7 @@ závodníků získaná tímto algoritmem, tedy seřazená sestupně podle $s_i$,
 Definujme si funkci $v$, která pro danou permutaci indexů závodníků určí trvání závodu (říkejme mu cena),
 $$ v(\langle a_1,a_2,\cdots,a_m \rangle) = \sum_{i=1}^m p_{a_i} + \max_{i=1}^m u(i)$$
 $$ u(i) = s_{a_i} - \sum_{j=i+1}^m p_{a_j}$$
-tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějáký závodník poběží od
+tedy celkové trvání, kdy budou závodníci plavat plus nejdelší čas, který nějaký závodník poběží od
 chvíle, kdy všichni doplavali. Pomocná funkce $u(i)$ říká kolik času uběhlo mezi tím co doplaval
 poslední závodník a mezi tím, co závodník $a_i$ doběhl do cíle. Její hodnota může být záporná,
 nicméně alespoň pro index $m$ bude vždy kladná.
