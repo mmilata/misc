@@ -1,0 +1,3 @@
+!([]mutual_exclusion)
+
+- There is at most one thread in critical section.

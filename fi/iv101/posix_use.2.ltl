@@ -1,0 +1,3 @@
+!([]<>somethread_in_cs)
+
+- Critical section is visited infinitely often.
