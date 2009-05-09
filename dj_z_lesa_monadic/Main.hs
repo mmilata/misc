@@ -23,12 +23,12 @@ printUsage pname = putStrLn ("usage: " ++ pname ++ " <declarations-file> [expres
 
 -- zkontroluje prostredi a pokud je ok, vyhodnoti program
 checkDefsAndRun :: [String] -> Env -> IO ()
-checkDefsAndRun args env = do case checkDefs env of
-                                Just err -> putStrLn err
-                                Nothing  -> do putStrLn ("Loaded " ++ show (length env) ++ " functions\n")
-                                               if length args == 1
-                                                 then runStdIn env
-                                                 else runCmdLine env (args!!1)
+checkDefsAndRun args env = case checkDefs env of
+                              Just err -> putStrLn err
+                              Nothing  -> do putStrLn ("Loaded " ++ show (length env) ++ " functions\n")
+                                             if length args == 1
+                                               then runStdIn env
+                                               else runCmdLine env (args!!1)
 
 checkDefs :: Env -> Maybe String
 checkDefs e = if not $ null fvo
