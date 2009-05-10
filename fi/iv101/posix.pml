@@ -46,7 +46,7 @@
   	mutex = 0;
   }
 
-#endif /* QUEUED_MUTEXES */
+#endif /* SIMPLE_MUTEXES */
 
 // condition variable model
 

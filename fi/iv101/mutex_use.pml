@@ -10,7 +10,7 @@ byte in_cs = 0;
 proctype Thread()
 {
 want:	do
-	:: skip ->	pthread_mutex_lock(cs_mutex);
+	::	pthread_mutex_lock(cs_mutex);
 
 		printf("Thread %d entered CS\n", _pid);
 cs:		in_cs++;
@@ -37,7 +37,7 @@ init
 }
 
 // atomic propositions
-#ifdef QUEUED_MUTEXES
+#ifndef SIMPLE_MUTEXES
 # define lock_consistent	(0 <= cs_mutex.mutex && cs_mutex.mutex <= 1)
 #else
 # define lock_consistent	(0 <= cs_mutex && cs_mutex <= 1)
