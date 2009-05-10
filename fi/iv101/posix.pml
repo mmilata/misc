@@ -1,4 +1,4 @@
-#ifdef QUEUED_MUTEXES
+#ifndef SIMPLE_MUTEXES
 
   typedef pthread_mutex_t {
   	byte mutex;
@@ -50,20 +50,7 @@
 
 // condition variable model
 
-#ifdef SPURIOUS_WAKEUPS
-
-  #define pthread_cond_t bool
-  #define pthread_cond_init(c) skip
-  #define pthread_cond_signal(c) skip
-  #define pthread_cond_broadcast(c) skip
-
-  inline pthread_cond_wait(cond_var, mutex)
-  {
-  	pthread_mutex_unlock(mutex);
-  	pthread_mutex_lock(mutex);
-  }
-
-#else
+#ifndef SPURIOUS_WAKEUPS
 
   typedef pthread_cond_t {
   	byte enqueued;
@@ -112,6 +99,19 @@
   		:: else -> skip;
   		fi
   	}
+  }
+
+#else
+
+  #define pthread_cond_t bool
+  #define pthread_cond_init(c) skip
+  #define pthread_cond_signal(c) skip
+  #define pthread_cond_broadcast(c) skip
+
+  inline pthread_cond_wait(cond_var, mutex)
+  {
+  	pthread_mutex_unlock(mutex);
+  	pthread_mutex_lock(mutex);
   }
 
 #endif /* SPURIOUS_WAKEUPS */

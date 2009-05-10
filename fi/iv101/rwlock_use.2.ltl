@@ -1,3 +1,5 @@
-![](<>writers_in_cs)
+![]((writers_in_cs -> one_writer) && (readers_in_cs -> !writers_in_cs) && (writers_in_cs -> !readers_in_cs))
 
-- Some writer enters CS infinitely often. Requires -DQUEUED_MUTEXES.
+- If there are writers in CS, there's actually only one.
+- If there are readers in CS, then there are no writers there.
+- Converse.
