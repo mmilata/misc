@@ -48,59 +48,70 @@
 
 #endif /* QUEUED_MUTEXES */
 
-typedef pthread_cond_t {
-	byte enqueued;
-	byte ready
-};
+// condition variable model
 
-inline pthread_cond_init(cond_var)
-{
-	cond_var.enqueued = 0;
-	cond_var.ready = 0;
-}
+#ifdef SPURIOUS_WAKEUPS
 
-inline pthread_cond_wait(cond_var, mutex)
-{
-	atomic {
-		cond_var.enqueued++;
-		pthread_mutex_unlock(mutex);
-	}
+  #define pthread_cond_t bool
+  #define pthread_cond_init(c) skip
+  #define pthread_cond_signal(c) skip
+  #define pthread_cond_broadcast(c) skip
 
-	if
-	:: atomic{ (cond_var.ready > 0) -> cond_var.ready--; };
+  inline pthread_cond_wait(cond_var, mutex)
+  {
+  	pthread_mutex_unlock(mutex);
+  	pthread_mutex_lock(mutex);
+  }
 
-#ifdef COND_WAIT_SPURIOUS_WAKEUPS
-	:: atomic{ true ->
-			if :: cond_var.enqueued > 0 -> cond_var.enqueued--;
-			   :: else -> cond_var.ready--;
-			fi;
-		};
-#endif
-	fi;
+#else
 
-	pthread_mutex_lock(mutex);
-}
+  typedef pthread_cond_t {
+  	byte enqueued;
+  	byte ready
+  };
 
-inline pthread_cond_signal(cond_var)
-{
-	atomic {
-		if
-		:: cond_var.enqueued > 0 ->
-			cond_var.ready++;
-			cond_var.enqueued--;
-		:: else -> skip;
-		fi
-	}
-}
+  inline pthread_cond_init(cond_var)
+  {
+  	cond_var.enqueued = 0;
+  	cond_var.ready = 0;
+  }
 
-inline pthread_cond_broadcast(cond_var)
-{
-	atomic {
-		if
-		:: cond_var.enqueued > 0 ->
-			cond_var.ready = cond_var.enqueued;
-			cond_var.enqueued = 0;
-		:: else -> skip;
-		fi
-	}
-}
+  inline pthread_cond_wait(cond_var, mutex)
+  {
+  	atomic {
+  		cond_var.enqueued++;
+  		pthread_mutex_unlock(mutex);
+  	}
+  
+  	atomic{
+		(cond_var.ready > 0) -> cond_var.ready--;
+	};
+  
+  	pthread_mutex_lock(mutex);
+  }
+
+  inline pthread_cond_signal(cond_var)
+  {
+  	atomic {
+  		if
+  		:: cond_var.enqueued > 0 ->
+  			cond_var.ready++;
+  			cond_var.enqueued--;
+  		:: else -> skip;
+  		fi
+  	}
+  }
+  
+  inline pthread_cond_broadcast(cond_var)
+  {
+  	atomic {
+  		if
+  		:: cond_var.enqueued > 0 ->
+  			cond_var.ready = cond_var.enqueued;
+  			cond_var.enqueued = 0;
+  		:: else -> skip;
+  		fi
+  	}
+  }
+
+#endif /* SPURIOUS_WAKEUPS */

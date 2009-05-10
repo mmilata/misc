@@ -35,9 +35,9 @@ inline mylib_rwlock_rlock(l)
 inline mylib_rwlock_wlock(l)
 {
 	pthread_mutex_lock(l.read_write_lock);
+	l.pending_writers++;
 	do
 	:: (l.writer > 0) || (l.readers > 0) ->
-		l.pending_writers++;
 		pthread_cond_wait(l.writer_proceed, l.read_write_lock);
 	:: else ->
 		break;

@@ -1,3 +1,6 @@
 !([]<>somethread_in_cs)
 
+!([]<>thread1_cs)
+!([]thread1_wantlock -> (<>thread1_cs))
+
 - Critical section is visited infinitely often.
