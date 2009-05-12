@@ -14,6 +14,7 @@
 #include <linux/errno.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
+#include <linux/sched.h>
 
 #include <asm/uaccess.h>
 
@@ -73,7 +74,7 @@ static void dev_one_cleanup(void)
 	if (initialized)
 		cdev_del(&cdev);
 	if (class) {
-		class_device_destroy(class,device);
+		device_destroy(class,device);
 		class_destroy(class);
 	}
 	if (sea_of_ones)
@@ -111,7 +112,7 @@ static int __init dev_one_init(void)
 		res = -PTR_ERR(class);
 		goto fail;
 	}
-	class_device_create(class, NULL, device, NULL, "one");
+	device_create(class, NULL, device, NULL, "one");
 
 	res = cdev_add(&cdev, device, 1);
 	if (res) {
