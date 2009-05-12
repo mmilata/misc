@@ -1,4 +1,4 @@
-files = sada2.pdf
+files = sada3.pdf
 
 all: $(files)
 	xpdf -remote latex -reload
