@@ -62,15 +62,17 @@ minimální kostry v původním grafu a zda-li se její cena zvýšila nebo sní
 zvýší-li se cena hrany, která není součástí minimální kostry, minimální kostra se nezmění. Stejně
 tak se nezmění kostra v případě, že se sníží cena hrany, která do kostry patří.
 
-Pokud se zvýšila cena hrany ležící v původní kostře, odstraníme ji. Tím nám vzniknou dva minimální
-stromy (pokud by nebyly minimální, byl by to spor s minimalitou původní kostry). Novou kostru
+Pokud se zvýšila cena hrany ležící v původní kostře, odstraníme ji. Tím nám vzniknou dva stromy,
+které jsou na svých vrcholech minimální
+(pokud by nebyly minimální, byl by to spor s minimalitou původní kostry). Novou kostru
 vytvoříme přidáním nejlevnější hrany, která oba vzniklé stromy opět spojí do jednoho (argument
 korektnosti je stejný jako u Kruskalova algoritmu).
 
 Podobně, pokud se snížila cena hrany neležící v původní kostře, do kostry ji přidáme. Tím vznikne graf
 s právě jedním cyklem (pokud by vzniklo více cyklů, znamenalo by to, že před přidáním hrany už tam nějaký
 cyklus byl, a že se tedy nejednalo o strom). Z tohoto cyklu poté odebereme hranu s nejvyšší cenou. Tento
-postup je korektní, protože pokud bychom odstranili celý cyklus, získáme les minimálních stromů.
+postup je korektní, protože pokud bychom odstranili celý cyklus, získáme les stromů, které jsou
+minimální na svých vrcholech.
 Ty poté spojujeme postupným přidáním hran na cyklu (kdybychom museli přidat hranu která leží mimo
 tento cyklus, dostali bychom spor s minimalitou původní kostry), které přidáme všechny kromě té nejdražší
 -- tu tedy stačí odstranit.
@@ -79,7 +81,7 @@ Nechť $V$ je množina vrcholů, $E$ množina hran, $E'$ původní minimální k
 se změnila, $w$ původní ohodnocení (cena) hrany a $w'$ nové ohodnocení hrany $e$.
 
 \begin{algorithm}
-\textsc{UpdateMST}$(V,E,E',e=(u,v),w,w')$
+\textsc{UpdateMST}$(V, E, E', e, w, w')$
 \begin{algorithmic}[1]
 \IF{$e \in E' \wedge w' < w$}
 	\RETURN $(V,E')$
@@ -100,11 +102,12 @@ se změnila, $w$ původní ohodnocení (cena) hrany a $w'$ nové ohodnocení hra
 \end{algorithmic}
 \end{algorithm}
 
-%\clearpage
-%\zadani{3}{4}
+\clearpage
+\zadani{3}{4}
 \noindent
 Algoritmus realizuje výše uvedený postup. Prohledávání do hloubky trvá $\O(|E|)$, stejně tak procházení množin hran
 (pokud jsou v nějaké rozumné datové struktuře, například pokud je graf reprezentován maticí sousednosti). Složitost
-algoritmu je tedy $\O(|E|)$.
+algoritmu je tedy $\O(|E|)$. Konvergence algoritmu vyplývá z konvergence podprogramů a absence
+cyklů.
 
 \end{document}
