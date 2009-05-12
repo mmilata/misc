@@ -57,18 +57,18 @@
 \zadani{3}{4}
 
 \noindent
-Změnu ohodnocení hrany můžeme rozdělit na čtyři případy podle toho, zda je daná hrana
-součástí minimální kostry v původním grafu a podle toho, zda-li se její cena zvýšila nebo snížila.
-Snadno nahlédneme, že zvýší-li se cena hrany, která není součástí minimální kostry, minimální kostra
-se nezmění. Stejně tak se nezmění kostra v případě, že se sníží cena hrany, která do kostry patří.
+Změnu ohodnocení hrany můžeme rozdělit na čtyři případy podle toho, zda je daná hrana součástí
+minimální kostry v původním grafu a zda-li se její cena zvýšila nebo snížila.  Snadno nahlédneme, že
+zvýší-li se cena hrany, která není součástí minimální kostry, minimální kostra se nezmění. Stejně
+tak se nezmění kostra v případě, že se sníží cena hrany, která do kostry patří.
 
 Pokud se zvýšila cena hrany ležící v původní kostře, odstraníme ji. Tím nám vzniknou dva minimální
-stromy (pokud by nebyly minimální, byl by to spor s minimalitou původní kostry). Novou kostru vytvoříme
-přidáním nejlevnější hrany, která oba vzniklé stromy opět spojí do jednoho (argument korektnosti je
-stejný jako u Kruskalova algoritmu).
+stromy (pokud by nebyly minimální, byl by to spor s minimalitou původní kostry). Novou kostru
+vytvoříme přidáním nejlevnější hrany, která oba vzniklé stromy opět spojí do jednoho (argument
+korektnosti je stejný jako u Kruskalova algoritmu).
 
 Podobně, pokud se snížila cena hrany neležící v původní kostře, do kostry ji přidáme. Tím vznikne graf
-s právě jedním cyklem (pokud by vzniklo více cyklů, znamenalo by to, že před přidáním hrany už tam nějáký
+s právě jedním cyklem (pokud by vzniklo více cyklů, znamenalo by to, že před přidáním hrany už tam nějaký
 cyklus byl, a že se tedy nejednalo o strom). Z tohoto cyklu poté odebereme hranu s nejvyšší cenou. Tento
 postup je korektní, protože pokud bychom odstranili celý cyklus, získáme les minimálních stromů.
 Ty poté spojujeme postupným přidáním hran na cyklu (kdybychom museli přidat hranu která leží mimo
@@ -85,13 +85,13 @@ se změnila, $w$ původní ohodnocení (cena) hrany a $w'$ nové ohodnocení hra
 	\RETURN $(V,E')$
 \ELSIF{$e \in E' \wedge w' > w$}
 	\STATE $E' \la E' \smallsetminus \{e\}$
-	\STATE Z vrcholu $u$ spusť \textsc{Dfs}, které všechny dosažené vrcholy označí $1$.
-	\STATE Z vrcholu $v$ spusť \textsc{Dfs}, které všechny dosažené vrcholy označí $2$.
-	\STATE Projdi všechny hrany takové, že jejich vrcholy jsou označeny různými čísly a vyber z nich hranu $f$ s nejmenší cenou.
+	\STATE Z vrcholu $u$ spusť na grafu $(V,E')$ \textsc{Dfs}, které všechny dosažené vrcholy označí $1$.
+	\STATE Z vrcholu $v$ spusť na grafu $(V,E')$ \textsc{Dfs}, které všechny dosažené vrcholy označí $2$.
+	\STATE Projdi všechny hrany takové, že jejich vrcholy jsou označeny různými čísly a vyber z~nich hranu $f$ s nejmenší cenou.
 	\RETURN $(V,E' \cup \{f\})$
 \ELSIF{$e \not\in E' \wedge w' < w$}
 	\STATE $E' \la E' \cup \{e\}$
-	\STATE Pomocí \textsc{Dfs} z vrcholu $u$ najdi cyklus, hrany na něm ulož do množiny $C$.
+	\STATE Pomocí \textsc{Dfs} z vrcholu $u$ najdi v $(V,E')$ cyklus, hrany na něm ulož do množiny $C$.
 	\STATE Nechť $f$ je hrana z $C$ s nejvyšší cenou.
 	\RETURN $(V,E' \smallsetminus \{f\})$
 \ELSIF{$e \not\in E' \wedge w' > w$}
@@ -104,7 +104,7 @@ se změnila, $w$ původní ohodnocení (cena) hrany a $w'$ nové ohodnocení hra
 %\zadani{3}{4}
 \noindent
 Algoritmus realizuje výše uvedený postup. Prohledávání do hloubky trvá $\O(|E|)$, stejně tak procházení množin hran
-(pokud jsou v nějáké rozumné datové struktuře, například pokud je graf reprezentován maticí sousednosti). Složitost
+(pokud jsou v nějaké rozumné datové struktuře, například pokud je graf reprezentován maticí sousednosti). Složitost
 algoritmu je tedy $\O(|E|)$.
 
 \end{document}
