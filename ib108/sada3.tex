@@ -46,6 +46,8 @@
 \begin{document}
 
 \zadani{3}{1}
+\noindent
+
 
 \clearpage
 \zadani{3}{2}
@@ -66,7 +68,7 @@ cest délky~$0$ (záleží na~definici).
 Nechť $u \in U$ všechny ostatní vrcholy, 
  $t \in T$ vrcholy, které jsou z~$u$ dosažitelné po~jedné hraně, pak
 
-$$ D[u] = \textsc{min}\{D[t]\}+1,~N[u] = \sum_{i \in T \wedge D[i] == D[u]-1} N[i]$$
+$$ D[u] = \textsc{min}\{D[t]\}+1,~N[u] = \sum_{i \in T \wedge D[i] = D[u]-1} N[i]$$
 Jinými slovy vezmeme všechny vrcholy, které mají minimální vzdálenost z~$s$ a
 zároveň jsou dosažitelné z~$u$ po~jedné hraně. Když poté sečteme počty
 minimálních cest do~těchto vrcholů, dostaneme počet minimálních cest do~vrcholu~$u$. Pokud do~vrcholu~$t$ existuje~$N[t]$ minimálních cest, pak jistě všechny
@@ -84,15 +86,15 @@ zvyšující se hodnotou. Dále pokud $D[t] < \infty$, pak už se hodnota $D[t]$
 \begin{algorithm}
 \textsc{CountSSSP}$(s, V, E)$
 \begin{algorithmic}[1]
-\STATE $D[v] \la \infty \mid v \in V$ // délka nekratší cesty z~$s$ do~$v$
-\STATE $N[v] \la 0 \mid v \in V$ // počet nejkratších cest z~$s$ do~$v$
+\STATE $D[v] \la \infty \mbox{ pro všechny } v \in V$ // délka nekratší cesty z~$s$ do~$v$
+\STATE $N[v] \la 0 \mbox{ pro všechny } v \in V$ // počet nejkratších cest z~$s$ do~$v$
 \STATE $Queue.init()$ // inicializuj frontu
 \STATE $D[s] \la 0; N[s] \la 0$
 \STATE $Queue.enqueue((s,\_))$; // všechny hrany z~vrcholu~$s$
 \WHILE {$Queue.notempty()$}
 \STATE $(u,v) \la Queue.dequeue()$
 \STATE označ $(u,v)$ za~navštívenou hranu
-\STATE $Queue.enqueue((v,\_)) \mid (v,\_)$ nenavštívená hrana
+\STATE $Queue.enqueue((v,\_)) \mbox{, kde } (v,\_)$ je nenavštívená hrana
 \IF {$D[u] \leq D[v]$}
 \STATE $D[v] \la D[u]+1$; $N[v] \la N[u] + N[v]$
 \ENDIF
