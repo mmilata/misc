@@ -107,8 +107,12 @@ Podrobnějším zkoumáním zjistíme, že složitost \textsc{CountSSSP} je
 $\O\left(\sum_{i\in V} T[i]\right)$. Pro každý vrchol ve frontě se příkaz
 $T[Node]++$ na řádku $8$ provede právě jedenkrát. Vrcholy se do fronty přidávají
 pouze v nejvnitřnějším cyklu na řádku $10$ (samozřejmě jeden vrchol se přidá i
-na řádku $3$). Tedy cena algoritmu je ohraničena maximálním součtem všech
-minimálních cest z vrcholu $s$ do jednotlivých vrcholů grafu $G$.
+na řádku $3$). Tedy cena algoritmu je ohraničena maximálním počtem všech
+minimálních cest z vrcholu $s$ do jednotlivých vrcholů grafu $G$. Do kteréhokoli
+vrcholu grafu $G$ může vést nanejvýš tolik cest, jaký má stupeň. Vrchol má stupeň
+nejvýše $|V|$, vrcholů je $|V|$, tedy maximální počet cest (ne nutně
+minimálních) je $|V|^2$. Zřejmě neexistuje neorientovaný graf, který obsahuje
+více než $|V|^2$ hran. Složitost algoritmu je tedy $\O(|H|)$.
 \hfill$\square$
 
 \clearpage
