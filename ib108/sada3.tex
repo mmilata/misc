@@ -49,51 +49,49 @@
 
 \clearpage
 \zadani{3}{2}
+\noindent
+Označme graf daných vlastností~$G$. Dále označme~$D[v]$ minimální vzdálenost
+vrcholu~$v$~od~$s$, $N[v]$ počet minimálních cest do~vrcholu~$v$~z~$s$. 
 
 \noindent
-Označme graf daných vlastností $G$. Dále označme $D[v]$ minimální vzdálenost vrcholu $v$
-od $s$, $N[v]$ počet minimálních cest do vrcholu $v$ z $s$. 
-
-\noindent
-Princip algoritmu založíme na následujícím pozorování. Do vrcholu $s$ z vrcholu
-$s$ vede $1$ nejkratší 
-cesta délky $0$ (záleží na definici). Všechny vrcholy 
-dosažitelné z vrcholu $s$ po jedné hraně mají délku nejkratší cesty $1$ a taková
-cesta existuje právě $1$. Mezi dvěmi různými vrcholy v grafu $G$ nemůže existovat
-kratší cesta než délky $1$, zároveň může být taková cesta nejvýše $1$ (zřejmé).
+Princip algoritmu založíme na~následujícím pozorování. Do~vrcholu~$s$
+z~vrcholu~$s$ vede~$0$ nejkratších 
+cest délky~$0$ (záleží na~definici). 
+%Všechny vrcholy 
+%dosažitelné z~vrcholu~$s$ po~jedné hraně mají délku nejkratší cesty $1$ a taková
+%cesta existuje právě~$1$. Mezi~dvěmi různými vrcholy v~grafu~$G$ nemůže existovat
+%kratší cesta než délky~$1$, zároveň může být taková cesta nejvýše~$1$ (zřejmé).
 
 \noindent
 Nechť $u \in U$ všechny ostatní vrcholy, 
- $t \in T$ vrcholy, kde $t$ je dosažitelné z $u$ po jedné hraně, pak
-$$ D[u] = \textsc{min}\{D[t]\}+1$$
-$$ N[u] = \sum_{i \in T \mid D[i] == D[u]-1} N[i]$$
-Jinými slovy vezmeme všechny vrcholy, které mají minimální vzdálenost z $s$ a
-zároveň jsou dosažitelné z $u$ po jedné hraně. Když poté sečteme počty
-minimálních cest do těchto vrcholů, dostaneme počet minimálních cest do vrcholu
-$u$. Pokud do vrcholu $t$ existuje $N[t]$ minimálních cest, pak jistě všechny
-tyto cesty + hrana spojující $u$ s $t$ jsou stejně dlouhé. Pokud by taková cesta
-nebyla minimální (jedna z minimálních), pak by ani $D[t]$ nemohlo být minimální
-(v grafu $G$ neexistuje mezi dvěma různými vrcholy cesta kratší než $1$), což je
-spor s minimalitou $D[t]$.
+ $t \in T$ vrcholy, které jsou z~$u$ dosažitelné po~jedné hraně, pak
+
+$$ D[u] = \textsc{min}\{D[t]\}+1,~N[u] = \sum_{i \in T \wedge D[i] == D[u]-1} N[i]$$
+Jinými slovy vezmeme všechny vrcholy, které mají minimální vzdálenost z~$s$ a
+zároveň jsou dosažitelné z~$u$ po~jedné hraně. Když poté sečteme počty
+minimálních cest do~těchto vrcholů, dostaneme počet minimálních cest do~vrcholu~$u$. Pokud do~vrcholu~$t$ existuje~$N[t]$ minimálních cest, pak jistě všechny
+tyto cesty + hrana spojující~$t$ s~$u$ jsou stejně dlouhé. Pokud by taková cesta
+nebyla minimální (jedna z minimálních), pak by ani~$D[t]$ nemohlo být minimální
+(v~grafu~$G$ neexistuje mezi dvěmi různými vrcholy cesta kratší než~$1$), což je
+spor s~minimalitou $D[t]$.
 
 \noindent
-Nyní již stačí vyřešit problém, jak procházet vrcholy $t$ pro všechny vrcholy
-$u$. A dále z nich vybrat ty s minimální $D[t]$ a sečíst jejich $N[t]$. K tomu
-využijeme algoritmus \textsc{BFS}, protože prochází dříve vrcholy s menší
-minimální cestou z $s$. Tedy hodnoty $D[t]$ se budou grafem propagovat se
-zvyšující se hodnotou. Pokud $D[t] < \infty$, pak už se hodnota $D[t]$ nezmění.
+Nyní stačí vyřešit problém, jak procházet vrcholy~$t$ pro~všechny vrcholy~$u$. A dále z~nich vybrat ty s~minimální~$D[t]$ a sečíst jejich~$N[t]$. K~tomu
+využijeme algoritmus \textsc{BFS}, protože prochází dříve vrcholy s~menší
+minimální cestou z~$s$. Hodnoty~$D[t]$ se budou grafem propagovat se
+zvyšující se hodnotou. Dále pokud $D[t] < \infty$, pak už se hodnota $D[t]$ nezmění.
 
 \begin{algorithm}
 \textsc{CountSSSP}$(s, V, E)$
 \begin{algorithmic}[1]
-\STATE $D[v] \la \infty \mid v \in V$ // délka nekratší cesty z $s$ do $v$
-\STATE $N[v] \la 0 \mid v \in V$ // počet nejkratších cest z $s$ do $v$
+\STATE $D[v] \la \infty \mid v \in V$ // délka nekratší cesty z~$s$ do~$v$
+\STATE $N[v] \la 0 \mid v \in V$ // počet nejkratších cest z~$s$ do~$v$
 \STATE $Queue.init()$ // inicializuj frontu
 \STATE $D[s] \la 0; N[s] \la 0$
-\STATE $Queue.enqueue((s,\_))$; // všechny hrany z vrcholu $s$
+\STATE $Queue.enqueue((s,\_))$; // všechny hrany z~vrcholu~$s$
 \WHILE {$Queue.notempty()$}
 \STATE $(u,v) \la Queue.dequeue()$
-\STATE označ $(u,v)$ za navštívenou hranu
+\STATE označ $(u,v)$ za~navštívenou hranu
 \STATE $Queue.enqueue((v,\_)) \mid (v,\_)$ nenavštívená hrana
 \IF {$D[u] \leq D[v]$}
 \STATE $D[v] \la D[u]+1$; $N[v] \la N[u] + N[v]$
@@ -102,12 +100,10 @@ zvyšující se hodnotou. Pokud $D[t] < \infty$, pak už se hodnota $D[t]$ nezm�
 \RETURN $N$
 \end{algorithmic}
 \end{algorithm}
-
-Řádky $1$,$2$ mají cenu $\O(|V|)$. V každém průchodu cyklem
-\textit{while} ($6$-$13$) se označí jedna hrana grafu $G$ za navštívenou. Tato
-hrana už se nikdy nepřidá do fronty. Fronta se tedy musí nejvýše po $|H|$
-průchodech cyklem vyprázdnit. Algoritmus skončí. Výsledná složitost je
-$\O(|H|)$.
+Řádky $1$,$2$ mají cenu~$\O(|V|)$. V~každém průchodu cyklem
+\textit{while} ($6$-$13$) se označí jedna hrana grafu~$G$ za~navštívenou. Tato
+hrana už se nikdy nepřidá do~fronty. Fronta se tedy musí nejvýše po~$|H|$
+průchodech cyklem vyprázdnit. Algoritmus skončí. Výsledná složitost je~$\O(|V|+|H|)$.
 
 \hfill$\square$
 
