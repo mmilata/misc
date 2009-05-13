@@ -69,6 +69,10 @@ Nechť $u \in U = V \setminus \{s\}$ všechny ostatní vrcholy,
  $t \in T \subseteq V$ vrcholy, které jsou z~$u$ dosažitelné po~jedné hraně, pak
 
 $$ D[u] = \textsc{min}\{D[t]\}+1,~N[u] = \sum_{i \in T \wedge D[i] = D[u]-1} N[i]$$
+
+%Pro každé $u \in V \smallsetminus \{s\}$ pak platí
+%$$ D[u] = \min_{(t,u) \in H}(D[t])+1,~N[u] = \sum_{i \in V \wedge D[i] = D[u]-1} N[i].$$
+
 Jinými slovy vezmeme všechny vrcholy, které mají minimální vzdálenost z~$s$ a
 zároveň jsou dosažitelné z~$u$ po~jedné hraně. Když poté sečteme počty
 minimálních cest do~těchto vrcholů, dostaneme počet minimálních cest do~vrcholu~$u$. Pokud do~vrcholu~$t$ existuje~$N[t]$ minimálních cest, pak jistě všechny
