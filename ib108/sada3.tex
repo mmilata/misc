@@ -42,11 +42,44 @@
 \bigskip\bigskip}
 }
 
-
 \begin{document}
 
 \zadani{3}{1}
 \noindent
+Pro modifikaci algoritmu $\textsc{KMP}$ využijeme následující vlastnosti
+metasymbolů \uv{?} a \uv{*}. Metasymbol \uv{?} odpovídá jakémukoli znaku, tedy
+porovnání s \uv{?} vždy vrací \textbf{true}. Metasymbol \uv{*} reprezentuje
+libovolně dlouhý řetězec, jinými slovy pokud narazíme na \uv{*} znamená to, že
+potřebujeme ve zbývajícím textu nalézt zbývající část vzorku.
+
+\begin{algorithm}
+$\textsc{Ext\_KMP}(T[1..n],P[1..m])$
+\begin{algorithmic}[1]
+\STATE $\pi \la \textsc{Ext\_Prefixova\_funkce(P)}; q \la 0$
+\FOR {$i \la 1 \mbox{ to } n$}
+\WHILE {$q > 0 \wedge P[q+1] \neq T[i]$}
+\STATE $q \la \pi[q]$
+\ENDWHILE
+\IF {$P[q+1] = T[i]$} \STATE $q \la q+1$ \ENDIF
+\IF {$q = m$} \STATE $i-m$ je platný posun \STATE $q \la \pi[q]$ \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+$\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
+\begin{algorithmic}[1]
+\STATE $\pi[1] \la 0; k \la 0$
+\FOR {$q \la 2 \mbox{ to } m$}
+\WHILE {$k > 0 \wedge P[k+1] \neq P[q]$}
+\STATE $k \la \pi[k]$
+\ENDWHILE
+\IF {$P[k+1] = T[q]$} \STATE $k \la k+1$ \ENDIF
+\STATE $\pi[q] \la k$
+\ENDFOR
+\RETURN $\pi$
+\end{algorithmic}
+\end{algorithm}
 
 
 \clearpage
