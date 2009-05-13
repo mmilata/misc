@@ -50,6 +50,67 @@
 \clearpage
 \zadani{3}{2}
 
+\noindent
+K řešení problému využijeme algoritmus prohledávání grafu do šířky.
+
+\noindent
+Graf $G$ je neorientovaný, s jednotkovou délkou hran. Tedy nejkratší cesta do všech vrcholů, které
+jsou dosažitelné z kořene $s$ po jedné hraně, má délku $1$. Zároveň žádná jiná
+cesta délky $1$ z kořene do těchto vrcholů nevede (zřejmě každá jiná cesta musí
+obsahovat alespoň $2$ hrany). Dále můžeme pozorovat, že máme-li všechny vrcholy
+$V_d$ s
+minimální délkou $d$ z kořene $s$, pak jejich následníci (vrcholy spojené s nimi
+jednou hranou, zatím nezpracované) mají minimální délku z kořene $d+1$. Kdyby
+tomu
+tak nebylo, tak by musela existovat cesta s délkou $<d$ do nějakého
+vrcholu z $V_d$, popřípadě by následník musel být již zpracovaný.\\
+Algoritmus \textsc{BFS} postupně dává do fronty všechny vrcholy, které jsou
+dosažitelné z $s$ po jedné hraně, dále pak po dvou hranách, \dots Pokud tedy
+spočítáme, kolikrát se nějaký vrchol vyskytuje ve frontě po iteraci $i$,
+zjistíme, kolik minimálních cest délky $i$ do něj vede z $s$. Všechny
+vrcholy ve frontě pak označíme jako zpracované, víme, že dále bychom našli delší
+cesty do těchto vrcholů z $s$.
+
+\noindent
+Modifikovaný \textsc{BFS} pak vypadá takto:
+\begin{algorithm}
+\textsc{CountSSSP}$(s, V, E)$
+\begin{algorithmic}[1]
+\STATE $T \la$ tabulka velikosti $|V| \times 1$, $T[v]$ představuje počet
+nejkratších cest z $s$ do $v$, inicializuj hodnoty tabulky na $0$ (nedosažitelné
+vrcholy z $s$).
+\STATE $Queue \la$ inicializuj frontu
+\STATE $Queue.enqueue(s)$;
+\WHILE {$not~Queue.empty()$}
+\STATE $Count = Queue.size()$
+\STATE Označ každý uzel ve frontě $Queue$ za navštívený
+\WHILE {$Count > 0$}
+\STATE $Node \la Queue.dequeue()$; $Count--$; $T[Node]++$;
+\FORALL {nenavštívené uzly $u$ dosažitelné z uzlu $Node$ po jedné hraně}
+\STATE $Queue.enqueu(u)$;
+\ENDFOR
+\ENDWHILE
+\ENDWHILE
+\RETURN $T$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent
+Vnější \textit{WHILE} cyklus na řádku $4$ se provede nejvýše $|V|$ krát -- v
+každém průchodu cyklem označíme alespoň jeden vrchol za navštívený. Vnitřní
+\textit{WHILE} cyklus na řádku $7$ se provede nejvýše $|V|$ krát -- ve frontě
+mohou být nejvýše všechny uzly. \textit{FOR} cyklus na řádku $9$ se provede
+nejvýše $|V|$ krát -- pro všechny uzly. Tedy algoritmus skončí.
+
+\noindent
+Podrobnějším zkoumáním zjistíme, že složitost \textsc{CountSSSP} je
+$\O\left(\sum_{i\in V} T[i]\right)$. Pro každý vrchol ve frontě se příkaz
+$T[Node]++$ na řádku $8$ provede právě jedenkrát. Vrcholy se do fronty přidávají
+pouze v nejvnitřnějším cyklu na řádku $10$ (samozřejmě jeden vrchol se přidá i
+na řádku $3$). Tedy cena algoritmu je ohraničena maximálním součtem všech
+minimálních cest z vrcholu $s$ do jednotlivých vrcholů grafu $G$.
+\hfill$\square$
+
 \clearpage
 \zadani{3}{3}
 
