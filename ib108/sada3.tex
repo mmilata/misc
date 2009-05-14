@@ -110,6 +110,9 @@ $\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
 
 \noindent
 Ošetříme tedy tyto~$2$ metasymboly a zbytek algoritmu ponecháme původní~\textsc{KMP}.
+\\
+\textbf{\Large{Dodělat $P \notin T[x..n] \Rightarrow P \notin T[y..n] \forall y
+\geq x$}}
 
 \begin{algorithm}
 $\textsc{Ext\_KMP}(T[1..n],P[1..m])$
@@ -126,6 +129,7 @@ $\textsc{Ext\_KMP}(T[1..n],P[1..m])$
 \ELSE
 \IF {$\textsc{Ext\_KMP}(T[i..n],P[q+1..m])$ vrátilo platný posun}
 \RETURN $i-q-1$ je platný posun
+\ELSE \RETURN neexistuje platný posun
 \ENDIF
 \ENDIF
 \ENDFOR
@@ -142,10 +146,13 @@ původní~\textsc{KMP}, musí nutně skončit i~\textsc{Ext\_KMP}.
 \noindent
 Složitost funkce \textsc{Ext\_Prefixova\_funkce} je stejná jako v~původním
 algoritmu, tedy~$\Theta(m)$. Složitost původního~\textsc{KMP} je~$\Theta(n)$.
-Pro~\textsc{Ext\_KMP} pak platí
+V~rekurzivním zanoření jistě algoritmus \textsc{Ext\_KMP} neudělá více práce
+než~původní, platí tedy pro něj následující rekurzivní vztah 
 $$ T(n,0) = c, T(n,m) \leq T(n,m-1)+m+n$$
-V~rekurzivním zanoření jistě algoritmus neudělá více práce než~původní.\\ Tedy
+Tedy
 \textsc{Ext\_KMP}$\in \O(m\cdot n+m^2)$.
+\\
+\textbf{\Large{Předělat na lineární}}
 \hfill$\square$
 
 
