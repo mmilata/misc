@@ -227,11 +227,12 @@ Složitost:
 \begin{itemize}
 \item \textsc{InitFlow} má složitost $\O(|E|\cdot|V|)$ (předpokládáme, že graf je souvislý).
 \item Zlepšujících cest může být (analogicky s algoritmem pro maximální tok) až tolik, kolik je
-největší tok hrany po inicializaci.  Nechť $|c| = \max\{c(e) \mid e \in E\}$. O tuto hodnotu mohou být
+největší tok nějaké hrany po inicializaci krát počet hran.  Nechť $|c| = \max\{c(e) \mid e \in E\}$. O tuto hodnotu mohou být
 hrany při inicializaci zvýšeny až $2|E|$-krát, počet iterací vnějšího cyklu tedy bude $\O(|c|\cdot|E|)$.
 \item Tělo cyklu pracuje s cestami, které jsou na délku omezeny $|V|$.
 \end{itemize}
-Složitost \textsc{MinFlow} je tedy $\O(|E|\cdot|V| + M|E|\cdot|V|) = \O(M|E|\cdot|V|)$.
+Složitost \textsc{MinFlow} je tedy $\O(|E|\cdot|V| + |c|\cdot|E|\cdot|V|) =
+\O(|c|\cdot|E|\cdot|V|)$. Konvergence plyne ze složitosti.\hfill$\square$
 
 
 
