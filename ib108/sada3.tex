@@ -201,13 +201,13 @@ $\O(|E|\cdot|V| + |V|^2)$.
 \noindent
 Druhá část algoritmu je mírnou modifikací Ford-Fulkersonova algoritmu -- zlepšující cesta v
 našem případě znamená takovou cestu, na které každá hrana má větší tok než je její kapacita,
-vylepšením cesty pak rozumíme odečtením nejmenší reziduální kapacity od všech hran na této cestě.
+vylepšením cesty pak rozumíme odečtení nejmenší reziduální kapacity od všech hran na této cestě.
 
 \begin{algorithm}
 \textsc{MinFlow}$(V,E,s,t,c)$
 \begin{algorithmic}
 \STATE $f \la $ \textsc{InitFlow}$(V,E,s,t,c)$
-\WHILE{existuje zlepšující cesta}
+\WHILE{existuje zlepšující cesta p}
 \STATE $d \la \min\{f(u,v) - c(u,v) \mid (u,v) \text{leží na p}\}$
 \FORALL{$(u,v)$ na $p$}
 \STATE $f(u,v) \la f(u,v) - d$
