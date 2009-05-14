@@ -46,40 +46,105 @@
 
 \zadani{3}{1}
 \noindent
-Pro modifikaci algoritmu $\textsc{KMP}$ využijeme následující vlastnosti
-metasymbolů \uv{?} a \uv{*}. Metasymbol \uv{?} odpovídá jakémukoli znaku, tedy
-porovnání s \uv{?} vždy vrací \textbf{true}. Metasymbol \uv{*} reprezentuje
-libovolně dlouhý řetězec, jinými slovy pokud narazíme na \uv{*} znamená to, že
-potřebujeme ve zbývajícím textu nalézt zbývající část vzorku.
+Pro~modifikaci algoritmu~$\textsc{KMP}$ využijeme následující vlastnosti
+metasymbolů~\uv{?} a~\uv{*}. 
 
-\begin{algorithm}
-$\textsc{Ext\_KMP}(T[1..n],P[1..m])$
-\begin{algorithmic}[1]
-\STATE $\pi \la \textsc{Ext\_Prefixova\_funkce(P)}; q \la 0$
-\FOR {$i \la 1 \mbox{ to } n$}
-\WHILE {$q > 0 \wedge P[q+1] \neq T[i]$}
-\STATE $q \la \pi[q]$
-\ENDWHILE
-\IF {$P[q+1] = T[i]$} \STATE $q \la q+1$ \ENDIF
-\IF {$q = m$} \STATE $i-m$ je platný posun \STATE $q \la \pi[q]$ \ENDIF
-\ENDFOR
-\end{algorithmic}
-\end{algorithm}
+\noindent
+Metasymbol~\uv{?} odpovídá jakémukoli znaku, tedy
+porovnání znaku s~\uv{?} vždy vrací \textbf{true}. Toto zřejmě zachovává i
+vlastnosti
+funkce $\pi$ a nijak zásadně neovlivňuje korektnost \textsc{KMP}.
+%Dokážeme, že i nová
+%\textsc{Ext\_prefixova\_funkce} zachovává vlastnost původní. Tedy $$ \pi[q]
+%=_{def} \max\{k\mid k < q \wedge P_k \text{ je sufixem } P_q\} $$
+%Důkaz povedeme indukcí vzhledem ke $q$. BÚNO ignorujeme řádky $1$-$3$.
+%\begin{description}
+%\item[Báze] -- $\pi[1] = 0$ zřejmé
+%\item[Krok] -- $\pi[i]$
+%\end{description}
+%Korektnost tohoto rozšíření je už dále zřejmá.
+
+\noindent
+Metasymbol~\uv{*} reprezentuje
+libovolně dlouhý řetězec znaků, jinými slovy pokud narazíme na~\uv{*} znamená to, že
+potřebujeme ve~zbývajícím textu nalézt zbývající část vzorku. Chceme tedy ukázat
+$$ P=u.\{*\}.v \in T[1..n] \Leftrightarrow T[x..y] = u \wedge
+v \in T[y+1..n] \mid u,v \in \Sigma^*, 1 \leq x \leq y$$
+Snadno nahlédneme, že to je pouze přepsaná definice metasymbolu \uv{*}. 
+%($\Leftarrow$) BÚNO
+%$v = T[z..a] \mid y+1\leq z \leq a \leq n$, pak můžeme \uv{*} expandovat na text
+%$T[y+1..z-1]$.\\
+%($\Rightarrow$) pokud $v \notin T[y+1..n]$, pak $P \notin T[1..n]$. 
+Dále
+pokud při~vyhodnocování \textsc{Ext\_prefixova\_funkce} narazíme na~\uv{*}, tak
+nemusíme počítat další hodnoty $\pi$, protože v~aktuálním rekurzivním zanoření
+nebudou použity.
 
 \begin{algorithm}
 $\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
 \begin{algorithmic}[1]
+\IF {$P[1] = \text{\uv{*}}$}
+\RETURN $\pi$
+\ENDIF
 \STATE $\pi[1] \la 0; k \la 0$
 \FOR {$q \la 2 \mbox{ to } m$}
-\WHILE {$k > 0 \wedge P[k+1] \neq P[q]$}
+\IF {$P[q] \neq \text{\uv{*}}$}
+\WHILE {$k > 0 \wedge P[k+1] \neq P[q] \wedge P[k+1] \neq \text{\uv{?}}$}
 \STATE $k \la \pi[k]$
 \ENDWHILE
-\IF {$P[k+1] = T[q]$} \STATE $k \la k+1$ \ENDIF
+\IF {$P[k+1] = T[q] \vee P[k+1] = \text{\uv{?}}$} \STATE $k \la k+1$ \ENDIF
 \STATE $\pi[q] \la k$
+\ELSE
+\RETURN $\pi$
+\ENDIF
 \ENDFOR
 \RETURN $\pi$
 \end{algorithmic}
 \end{algorithm}
+
+
+\clearpage
+\zadani{3}{1}
+
+\noindent
+Ošetříme tedy tyto~$2$ metasymboly a zbytek algoritmu ponecháme původní~\textsc{KMP}.
+
+\begin{algorithm}
+$\textsc{Ext\_KMP}(T[1..n],P[1..m])$
+\begin{algorithmic}[1]
+\IF {$m = 0$} \RETURN $0$ je platný posun \ENDIF
+\STATE $\pi \la \textsc{Ext\_Prefixova\_funkce(P)}; q \la 0$
+\FOR {$i \la 1 \mbox{ to } n$}
+\IF {$P[q+1] \neq \text{\uv{*}}$}
+\WHILE {$q > 0 \wedge P[q+1] \neq T[i] \wedge P[q+1] \neq \text{\uv{?}}$}
+\STATE $q \la \pi[q]$
+\ENDWHILE
+\IF {$P[q+1] = T[i] \vee P[q+1] = \text{\uv{?}}$} \STATE $q \la q+1$ \ENDIF
+\IF {$q = m$} \RETURN $i-m$ je platný posun \STATE $q \la \pi[q]$ \ENDIF
+\ELSE
+\IF {$\textsc{Ext\_KMP}(T[i..n],P[q+1..m])$ vrátilo platný posun}
+\RETURN $i-q-1$ je platný posun
+\ENDIF
+\ENDIF
+\ENDFOR
+\RETURN neexistuje platný posun
+\end{algorithmic}
+\end{algorithm}
+
+
+\noindent
+Každé rekurzivní volání~\textsc{KMP} se volá na~alespoň o~jeden znak kratší
+vzorek. Rekurzivní zanoření tedy nemůže být hlubší než~$m$. Protože skončí
+původní~\textsc{KMP}, musí nutně skončit i~\textsc{Ext\_KMP}.
+
+\noindent
+Složitost funkce \textsc{Ext\_Prefixova\_funkce} je stejná jako v~původním
+algoritmu, tedy~$\Theta(m)$. Složitost původního~\textsc{KMP} je~$\Theta(n)$.
+Pro~\textsc{Ext\_KMP} pak platí
+$$ T(n,0) = c, T(n,m) \leq T(n,m-1)+m+n$$
+V~rekurzivním zanoření jistě algoritmus neudělá více práce než~původní.\\ Tedy
+\textsc{Ext\_KMP}$\in \O(m\cdot n+m^2)$.
+\hfill$\square$
 
 
 \clearpage
