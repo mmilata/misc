@@ -68,8 +68,9 @@ funkce $\pi$ a nijak zásadně neovlivňuje korektnost \textsc{KMP}.
 Metasymbol~\uv{*} reprezentuje
 libovolně dlouhý řetězec znaků, jinými slovy pokud narazíme na~\uv{*} znamená to, že
 potřebujeme ve~zbývajícím textu nalézt zbývající část vzorku. Chceme tedy ukázat
-$$ P=u.\{*\}.v \in T[1..n] \Leftrightarrow T[x..y] = u \wedge
-v \in T[y+1..n] \mid u,v \in \Sigma^*, 1 \leq x \leq y$$
+$$ P = u.\{*\}.v \text{ se nachází v } T[1..n] \Leftrightarrow T[x..y] = u \wedge
+v \text{ se nachází v } T[y+1..n] $$ $$\forall u,v \in \Sigma^*, 1 \leq x \leq y \leq
+n$$
 Snadno nahlédneme, že to je pouze přepsaná definice metasymbolu \uv{*}. 
 %($\Leftarrow$) BÚNO
 %$v = T[z..a] \mid y+1\leq z \leq a \leq n$, pak můžeme \uv{*} expandovat na text
@@ -83,10 +84,11 @@ nebudou použity.
 \begin{algorithm}
 $\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
 \begin{algorithmic}[1]
+\STATE $\pi[1..m] \la 0$ // pole s hodnotami funkce $\pi$
+\STATE $k \la 0$
 \IF {$P[1] = \text{\uv{*}}$}
 \RETURN $\pi$
 \ENDIF
-\STATE $\pi[1] \la 0; k \la 0$
 \FOR {$q \la 2 \mbox{ to } m$}
 \IF {$P[q] \neq \text{\uv{*}}$}
 \WHILE {$k > 0 \wedge P[k+1] \neq P[q] \wedge P[k+1] \neq \text{\uv{?}}$}
