@@ -168,12 +168,6 @@ Definujme si pojem \emph{dvoucesta} jako sled, který každý vrchol obsahuje ne
 zaručeno, že každý vrchol leží na cestě z $s$ do $t$, z toho ale nevyplývá, že na takové cestě leží
 každá hrana -- ta může ležet na nějakém cyklu, aniž by byla součástí nějaké cesty z $s$ do $t$.
 Proto musíme na začátku vnějšího cyklu hledat dvoucesty.
-%Inicializace sítě je podobná hledání optimálního toku, nicméně na jejím konci získáme tok, který
-%nemusí být minimální. Rozdíl je také v tom, že místo cesty hledáme tah (posloupnost
-%\uv{navazujících} hran, ve které se žádná hrana neopakuje) místo cesty. To se děje z toho důvodu, že
-%ačkoliv máme zaručeno, že každý vrchol leží na cestě z $s$ do $t$, o hranách to obecně platit
-%nemusí, protože mohou ležet na cyklu a nebýt součástí žádné cesty z $s$ do $t$; nicméně na nějakém
-%tahu už ležet musí.
 
 \begin{algorithm}
 \textsc{InitFlow}$(V,E,s,t,c)$
@@ -195,20 +189,19 @@ tok na celé dvoucestě z $s$ do $t$ (pokud se na ní nějaká hrana vyskytne dv
 dvakrát), tedy pro každý vrchol na dvoucestě zvýšíme jak jeho přítok, tak odtok. Po skončení
 algoritmu je $f$ tok splňující podmínku symetrie (řádek 6, triv.), kontinuity (viz invariant) i
 kapacitní ohraničení (na každé hraně byl zvýšen tok alespoň o její kapacitu). Vnější cyklus se vykoná
-$|E|$-krát, vnitřní nejvýše $2|V|$-krát, řádek č.1 zabere $|V|^2$ operací; algoritmus je tedy v
-$\O(|E||V| + |V|^2)$.
+$|E|$-krát, vnitřní nejvýše $2|V|$-krát, řádek č.1 trvá $|V|^2$ operací; algoritmus je tedy v
+$\O(|E|\cdot|V| + |V|^2)$.
 
 % korektnost - rezy?
 % slozitost, konvergence
 
+\clearpage
+\zadani{3}{3}
+
+\noindent
 Druhá část algoritmu je mírnou modifikací Ford-Fulkersonova algoritmu -- zlepšující cesta v
 našem případě znamená takovou cestu, na které každá hrana má větší tok než je její kapacita,
 vylepšením cesty pak rozumíme odečtením nejmenší reziduální kapacity od všech hran na této cestě.
-
-Důkaz korektnosti takového postupu je prakticky shodný s důkazem původního algoritmu, nicméně musíme
-vzít do úvahy to, že tok nemá vždy \uv{směr} z $s$ do $t$ -- minimální kapacita hran může zapříčinit
-vznik cyklů, ve kterých bude tok téct i opačným směrem. Pokud ale definujeme kapacitu řezu
-$(S,T)$ jako $c(S,T) - c(T,S)$, bude důkaz korektní.
 
 \begin{algorithm}
 \textsc{MinFlow}$(V,E,s,t,c)$
@@ -224,7 +217,23 @@ $(S,T)$ jako $c(S,T) - c(T,S)$, bude důkaz korektní.
 \end{algorithmic}
 \end{algorithm}
 
-cykly cykly cykly a hlavne {\Huge{dukaz}}
+Důkaz korektnosti takového postupu je prakticky shodný s důkazem původního algoritmu, nicméně musíme
+vzít do úvahy to, že tok nemá vždy \uv{směr} z $s$ do $t$ -- minimální kapacita hran může zapříčinit
+vznik cyklů, ve kterých bude tok téct i opačným směrem. Pokud ale definujeme kapacitu řezu
+$(S,T)$ jako $c(S,T) - c(T,S)$, bude důkaz korektní.
+
+\noindent
+Složitost:
+\begin{itemize}
+\item \textsc{InitFlow} má složitost $\O(|E|\cdot|V|)$ (předpokládáme, že graf je souvislý).
+\item Zlepšujících cest může být (analogicky s algoritmem pro maximální tok) až tolik, kolik je
+největší tok hrany po inicializaci.  Nechť $|c| = \max\{c(e) \mid e \in E\}$. O tuto hodnotu mohou být
+hrany při inicializaci zvýšeny až $2|E|$-krát, počet iterací vnějšího cyklu tedy bude $\O(|c|\cdot|E|)$.
+\item Tělo cyklu pracuje s cestami, které jsou na délku omezeny $|V|$.
+\end{itemize}
+Složitost \textsc{MinFlow} je tedy $\O(|E|\cdot|V| + M|E|\cdot|V|) = \O(M|E|\cdot|V|)$.
+
+
 
 \clearpage
 \zadani{3}{4}
