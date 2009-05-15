@@ -25,7 +25,7 @@
 \newcommand{\move}{\rightarrow}
 \newcommand{\la}{\leftarrow}
 \newcommand{\var}[1]{\textit{#1}}
-\newcommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
+%\newcommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
 \newcommand{\ceil}[2]{\left\lceil\frac{#1}{#2}\right\rceil}
 \newcommand{\floor}[2]{\left\lfloor\frac{#1}{#2}\right\rfloor}
 
@@ -80,6 +80,8 @@ Dále
 pokud při~vyhodnocování \textsc{Ext\_prefixova\_funkce} narazíme na~\uv{*}, tak
 nemusíme počítat další hodnoty $\pi$, protože v~aktuálním rekurzivním zanoření
 nebudou použity.
+Další užitečné pozorování je, že pokud nám rekurzivně volaná funkce \textsc{Ext\_KMP} vrátí \textit{neúspěch}, pak již nemusíme prohledávat další část textu a můžeme rovnou vrátit \textit{neúspěch}. Tuto vlastnost můžeme jednoduše přepsat jako $$P \text{ se nenachází v } T[x..n] \Rightarrow P \text{ se nenachází v } T[y..n]~\forall y
+\geq x$$
 
 \begin{algorithm}
 $\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
@@ -110,9 +112,6 @@ $\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
 
 \noindent
 Ošetříme tedy tyto~$2$ metasymboly a zbytek algoritmu ponecháme původní~\textsc{KMP}.
-\\
-\textbf{\Large{Dodělat $P \notin T[x..n] \Rightarrow P \notin T[y..n] \forall y
-\geq x$}}
 
 \begin{algorithm}
 $\textsc{Ext\_KMP}(T[1..n],P[1..m])$
