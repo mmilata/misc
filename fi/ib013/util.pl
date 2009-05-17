@@ -19,6 +19,7 @@
 	edges_neighbors/3, % neighbors kolidovalo s nejakou std funkci
 	connected/1,
 	edges_to_ugraph/2,
+	ugraph_to_edges/2,
 	count_degrees/3,
 	components/2,
 
@@ -183,6 +184,16 @@ seq_strip_times([del(A-B, _) | T], [A-B | NT]) :- seq_strip_times(T, NT).
 edges_to_ugraph(Edges, Ugraph) :-
 	vertices_edges_to_ugraph([], Edges, Dgraph),
 	symmetric_closure(Dgraph, Ugraph).
+
+% prevede ugraph na seznam hran
+ugraph_to_edges(Ugraph, Edges) :-
+	edges(Ugraph, DoubleEdges),
+	desymmetrify(DoubleEdges, Edges).
+
+desymmetrify([], []).
+desymmetrify([X-Y|Tail], [X-Y|NTail]) :-
+	delete(Tail, Y-X, Tail1),
+	desymmetrify(Tail1, NTail).
 
 %symmetrify(Edges, SymmEdges) :-
 %	symm(Edges, E),
