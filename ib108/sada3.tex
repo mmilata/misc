@@ -25,7 +25,7 @@
 \newcommand{\move}{\rightarrow}
 \newcommand{\la}{\leftarrow}
 \newcommand{\var}[1]{\textit{#1}}
-%\newcommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
+\newcommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
 \newcommand{\ceil}[2]{\left\lceil\frac{#1}{#2}\right\rceil}
 \newcommand{\floor}[2]{\left\lfloor\frac{#1}{#2}\right\rfloor}
 
@@ -51,7 +51,7 @@ metasymbolů~\uv{?} a~\uv{*}.
 
 \noindent
 Metasymbol~\uv{?} odpovídá jakémukoli znaku, tedy
-porovnání znaku s~\uv{?} vždy vrací \textbf{true}. Toto zřejmě zachovává i
+porovnání znaku s~\uv{?} vždy vrací \textbf{true}. Toto zřejmě zachovává
 vlastnosti
 funkce $\pi$ a nijak zásadně neovlivňuje korektnost \textsc{KMP}.
 %Dokážeme, že i nová
@@ -86,7 +86,7 @@ Další užitečné pozorování je, že pokud nám rekurzivně volaná funkce \
 \begin{algorithm}
 $\textsc{Ext\_Prefixova\_funkce}(P[1..m])$
 \begin{algorithmic}[1]
-\STATE $\pi[1..m] \la 0$ // pole s hodnotami funkce $\pi$
+\STATE $\pi[1] \la 0$ // pole s hodnotami funkce $\pi$
 \STATE $k \la 0$
 \IF {$P[1] = \text{\uv{*}}$}
 \RETURN $\pi$
@@ -124,9 +124,10 @@ $\textsc{Ext\_KMP}(T[1..n],P[1..m])$
 \STATE $q \la \pi[q]$
 \ENDWHILE
 \IF {$P[q+1] = T[i] \vee P[q+1] = \text{\uv{?}}$} \STATE $q \la q+1$ \ENDIF
-\IF {$q = m$} \RETURN $i-m$ je platný posun \STATE $q \la \pi[q]$ \ENDIF
+\IF {$q = m$} \RETURN $i-m$ je platný posun %\STATE $q \la \pi[q]$ 
+\ENDIF
 \ELSE
-\IF {$\textsc{Ext\_KMP}(T[i..n],P[q+1..m])$ vrátilo platný posun}
+\IF {$\textsc{Ext\_KMP}(T[i..n],P[q+2..m])$ vrátilo platný posun}
 \RETURN $i-q-1$ je platný posun
 \ELSE \RETURN neexistuje platný posun
 \ENDIF
@@ -138,20 +139,15 @@ $\textsc{Ext\_KMP}(T[1..n],P[1..m])$
 
 
 \noindent
-Každé rekurzivní volání~\textsc{KMP} se volá na~alespoň o~jeden znak kratší
-vzorek. Rekurzivní zanoření tedy nemůže být hlubší než~$m$. Protože skončí
-původní~\textsc{KMP}, musí nutně skončit i~\textsc{Ext\_KMP}.
-
-\noindent
 Složitost funkce \textsc{Ext\_Prefixova\_funkce} je stejná jako v~původním
 algoritmu, tedy~$\Theta(m)$. Složitost původního~\textsc{KMP} je~$\Theta(n)$.
-V~rekurzivním zanoření jistě algoritmus \textsc{Ext\_KMP} neudělá více práce
-než~původní, platí tedy pro něj následující rekurzivní vztah 
-$$ T(n,0) = c, T(n,m) \leq T(n,m-1)+m+n$$
-Tedy
-\textsc{Ext\_KMP}$\in \O(m\cdot n+m^2)$.
-\\
-\textbf{\Large{Předělat na lineární}}
+Jednoduše lze pozorovat, že algoritmus zkoumá každý znak textu i každý znak
+vzorku pouze jedenkrát (stejně jako původní \textsc{KMP}). Při~rekurzivním
+zanoření algoritmus začíná s~prvním dosud neprozkoumaným znakem textu,
+prefixovou funkci počítá pro~první znak vzorku, který ještě nebyl napočítán.
+Složitost \textsc{Ext\_KMP} je tedy stejná jako složitost původního \textsc{KMP}
+(\textsc{Ext\_KMP}$\in \O(n+m)$). Důkaz obdobný jako u~původního \textsc{KMP}.
+\\Z čehož plyne i konečnost algoritmu.
 \hfill$\square$
 
 
