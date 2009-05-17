@@ -20,6 +20,7 @@
 	connected/1,
 	edges_to_ugraph/2,
 	count_degrees/3,
+	components/2,
 
 	% operace nad seznamy
 	filter/3,
@@ -224,13 +225,14 @@ connected(Edges) :-
 	SortedReachable = SortedVertices.
 
 % filter a partition - delaji to same co v haskellu
-filter(_, [], []).
-filter(Pred, [Head | Tail], [Head | Filtered]) :-
-	call(Pred, Head),
-	!,
-	filter(Pred, Tail, Filtered).
-filter(Pred, [_ | Tail], Filtered) :-
-	filter(Pred, Tail, Filtered).
+%filter(_, [], []).
+%filter(Pred, [Head | Tail], [Head | Filtered]) :-
+%	call(Pred, Head),
+%	!,
+%	filter(Pred, Tail, Filtered).
+%filter(Pred, [_ | Tail], Filtered) :-
+%	filter(Pred, Tail, Filtered).
+filter(P, L, R) :- include(P, L, R).
 
 partition(_, [], [], []).
 partition(Pred, [H|T], [H|A], B) :-
@@ -331,3 +333,37 @@ edges_neighbors([N-V | Tail], V, AccNeighbors, Neighbors) :-
 	edges_neighbors(Tail, V, Acc1, Neighbors).
 edges_neighbors([_E | Tail], V, AccNeighbors, Neighbors) :-
 	edges_neighbors(Tail, V, AccNeighbors, Neighbors).
+
+% components(+Edges, -Components)
+% Rozlozi seznam hran Edges na seznam seznamu hran Components,
+% kteryzto reprezentuje jednotlive souvisle komponenty grafu.
+components([], []) :- !.
+components([E], [[E]]) :- !.
+components(Edges, Components) :-
+	length(Edges, NumEdges),
+	Half is NumEdges // 2,
+	append_length(First, Second, Edges, Half),
+	components(First, Compo1),
+	components(Second, Compo2),
+	merge_components(Compo1, Compo2, Components).
+
+merge_components([], C, C) :- !.
+merge_components([H|T], C2s, Result) :-
+	merge_component(H, C2s, NewC2),
+	merge_components(T, NewC2, Result).
+
+merge_component(C1, [], [C1]) :- !.
+merge_component(C1, [C2|T], Result) :-
+	vertices(C1, [], C1Verts),
+	vertices(C2, [], C2Verts),
+	multidelete(C1Verts, C2Verts, Difference),
+	(
+		C1Verts == Difference,
+		!,
+		merge_component(C1, T, Res1),
+		Result = [C2|Res1]
+	;
+		%komponenty maji spolecny vrchol -> spojime
+		append(C1, C2, NewC),
+		merge_component(NewC, T, Result)
+	).

@@ -38,7 +38,6 @@ maxcycle(Graph, MaxCycle) :-
 	vertices(Graph, [], Vertices),
 	maxcycle(Vertices, [], Graph, [], MaxCycle).
 
-%maxcycle([], _Banned, _Graph, [], _) :- !, fail. %(Megafuj, ale dle zpravy)
 maxcycle([], _Banned, _Graph, MaxCycle, MaxCycle).
 maxcycle([V|Rest], Banned, Graph, Acc, MaxCycle) :-
 	maxcycle_from_vertex([V], Graph, Banned, LocalCycle),
