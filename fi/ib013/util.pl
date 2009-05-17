@@ -2,6 +2,8 @@
 	% testovaci vstupy
 	test_input/1,
 	test_input2/1,
+	edges_test/1,
+	domecek/1,
 
 	% manipulace s 'events' (seznam termu add(Time, Hrana), del(Time, Hrana)
 	quadruples_to_events/2,
@@ -14,7 +16,7 @@
 
 	% manipulace se seznamy hran
 	vertices/3,
-	neighbors/3,
+	edges_neighbors/3, % neighbors kolidovalo s nejakou std funkci
 	connected/1,
 	edges_to_ugraph/2,
 	count_degrees/3,
@@ -70,6 +72,30 @@ test_input2(G) :-
 		[b-d, 5, 10],
 		[a-d, 10, 15],
 		[b-c, 10, 15]
+	].
+
+edges_test(G) :-
+	G = [
+		a-b,
+		b-e,
+		e-d,
+		d-a,
+		a-c,
+		b-c,
+		d-c,
+		e-c
+	].
+
+domecek(G) :-
+	G = [
+		a-b,
+		b-e,
+		e-d,
+		d-a,
+		a-e,
+		b-d,
+		a-c,
+		c-b
 	].
 
 % Prevede (serazeny) seznam udalosti na seznam hran, ktery vznikne
@@ -274,7 +300,7 @@ split_packedevents([H|T], Time, [H|NPre], NPost) :-
 
 % apply_packedevent_to_edges(+Graph, +PackedEvent, -NewGraph).
 % Aplikuje udalost PackedEvent na seznam hran Graph.
-apply_packedevent_to_edges(Edges, ev(Time, AddEdges, DelEdges), NewEdges) :-
+apply_packedevent_to_edges(Edges, ev(_Time, AddEdges, DelEdges), NewEdges) :-
 	multidelete(Edges, DelEdges, NewGraph1),
 	append(NewGraph1, AddEdges, NewEdges).
 	%nl, nl, print('time: '), print(Time), print(' new graph: '), print(NewEdges).
@@ -290,18 +316,18 @@ max(A, B, A) :- A >= B, !.
 max(A, B, B) :- B > A.
 
 % Pro dany seznam hran a dany vrchol vrati seznam jeho sousedu.
-neighbors(Edges, Vertice, Neighbors) :-
-	neighbors(Edges, Vertice, [], UnsortedNeighbors),
+edges_neighbors(Edges, Vertice, Neighbors) :-
+	edges_neighbors(Edges, Vertice, [], UnsortedNeighbors),
 	remove_dups(UnsortedNeighbors, Neighbors).
 
-neighbors([], _Vertice, Neighbors, Neighbors).
-neighbors([V-N | Tail], V, AccNeighbors, Neighbors) :-
+edges_neighbors([], _Vertice, Neighbors, Neighbors).
+edges_neighbors([V-N | Tail], V, AccNeighbors, Neighbors) :-
 	!,
 	Acc1 = [N | AccNeighbors],
-	neighbors(Tail, V, Acc1, Neighbors).
-neighbors([N-V | Tail], V, AccNeighbors, Neighbors) :-
+	edges_neighbors(Tail, V, Acc1, Neighbors).
+edges_neighbors([N-V | Tail], V, AccNeighbors, Neighbors) :-
 	!,
 	Acc1 = [N | AccNeighbors],
-	neighbors(Tail, V, Acc1, Neighbors).
-neighbors([_E | Tail], V, AccNeighbors, Neighbors) :-
-	neighbors(Tail, V, AccNeighbors, Neighbors).
+	edges_neighbors(Tail, V, Acc1, Neighbors).
+edges_neighbors([_E | Tail], V, AccNeighbors, Neighbors) :-
+	edges_neighbors(Tail, V, AccNeighbors, Neighbors).

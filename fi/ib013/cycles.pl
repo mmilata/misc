@@ -3,30 +3,6 @@
 :- use_module(library(lists)).
 :- use_module(util).
 
-testgraph(G) :-
-	G = [
-		a-b,
-		b-e,
-		e-d,
-		d-a,
-		a-c,
-		b-c,
-		d-c,
-		e-c
-	].
-
-domecek(G) :-
-	G = [
-		a-b,
-		b-e,
-		e-d,
-		d-a,
-		a-e,
-		b-d,
-		a-c,
-		c-b
-	].
-
 cycles(G, NumCycles) :-
 	quadruples_to_packedevents(G, Seq),
 	seq_ncycles([], Seq, 0, NumCycles).
@@ -86,7 +62,7 @@ cycles_from_vertex([CurVert | Stack], _Graph, _Banned, Cycles) :-
 
 % nejsme v cyklu - rekurze, secist
 cycles_from_vertex([CurVert | Stack], Graph, Banned, Cycles) :-
-	neighbors(Graph, CurVert, Neighbors),
+	edges_neighbors(Graph, CurVert, Neighbors),
 	multidelete(Neighbors, Banned, Neighs1),
 	walk_neighbors(Neighs1, [CurVert | Stack], Graph, Banned, 0, Cycles).
 
