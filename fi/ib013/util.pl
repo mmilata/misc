@@ -1,23 +1,37 @@
 :- module(util, [
+	% testovaci vstupy
 	test_input/1,
 	test_input2/1,
-	sequence_to_edgelist/2,
-	split_events/4,
+
+	% manipulace s 'events' (seznam termu add(Time, Hrana), del(Time, Hrana)
 	quadruples_to_events/2,
+	split_events/4,
+	events_to_edges/2,
+
+	% tabulky
 	table_lookup/3,
 	table_update/4,
+
+	% manipulace se seznamy hran
 	vertices/3,
+	neighbors/3,
+	connected/1,
 	edges_to_ugraph/2,
 	count_degrees/3,
-	even/1,
-	connected/1,
+
+	% operace nad seznamy
 	filter/3,
 	partition/4,
 	multidelete/3,
+
+	% packedevents
+	quadruples_to_packedevents/2,
 	split_packedevents/4,
 	packedevents_to_edges/2,
 	apply_packedevent_to_edges/3,
-	quadruples_to_packedevents/2,
+
+	% ruzne
+	even/1,
 	max/3
 ]).
 
@@ -60,14 +74,14 @@ test_input2(G) :-
 
 % Prevede (serazeny) seznam udalosti na seznam hran, ktery vznikne
 % po provedeni techto udalosti.
-% e.g. sequence_to_edgelist([add(a-b,1),add(b-c,2),del(a-b,3)],[b-c]).
-sequence_to_edgelist(Events, Result) :- sequence_to_edgelist(Events, [], Result).
-sequence_to_edgelist([], G, G).
-sequence_to_edgelist([add(X-Y, _) | Tail], CurGraph, Result) :-
-	sequence_to_edgelist(Tail, [X-Y|CurGraph], Result).
-sequence_to_edgelist([del(X-Y, _) | Tail], CurGraph, Result) :-
+% e.g. events_to_edges([add(a-b,1),add(b-c,2),del(a-b,3)],[b-c]).
+events_to_edges(Events, Result) :- events_to_edges(Events, [], Result).
+events_to_edges([], G, G).
+events_to_edges([add(X-Y, _) | Tail], CurGraph, Result) :-
+	events_to_edges(Tail, [X-Y|CurGraph], Result).
+events_to_edges([del(X-Y, _) | Tail], CurGraph, Result) :-
 	delete(CurGraph, X-Y, NewGraph),
-	sequence_to_edgelist(Tail, NewGraph, Result).
+	events_to_edges(Tail, NewGraph, Result).
 
 % Vezme seznam (serazenych) udalosti a rozdeli je podle hodnoty Time
 % na seznam udalosti co se staly pred Time a co se staly po Time.
@@ -265,8 +279,7 @@ apply_packedevent_to_edges(Edges, ev(Time, AddEdges, DelEdges), NewEdges) :-
 	append(NewGraph1, AddEdges, NewEdges).
 	%nl, nl, print('time: '), print(Time), print(' new graph: '), print(NewEdges).
 
-
-% Dela to same co sequence_to_edgelist, ale nad 'packedevents'.
+% Dela to same co events_to_edges, ale nad 'packedevents'.
 packedevents_to_edges(Events, Result) :- packedevents_to_edges(Events, [], Result).
 packedevents_to_edges([], G, G).
 packedevents_to_edges([Event | Tail], CurGraph, Result) :-
@@ -276,3 +289,19 @@ packedevents_to_edges([Event | Tail], CurGraph, Result) :-
 max(A, B, A) :- A >= B, !.
 max(A, B, B) :- B > A.
 
+% Pro dany seznam hran a dany vrchol vrati seznam jeho sousedu.
+neighbors(Edges, Vertice, Neighbors) :-
+	neighbors(Edges, Vertice, [], UnsortedNeighbors),
+	remove_dups(UnsortedNeighbors, Neighbors).
+
+neighbors([], _Vertice, Neighbors, Neighbors).
+neighbors([V-N | Tail], V, AccNeighbors, Neighbors) :-
+	!,
+	Acc1 = [N | AccNeighbors],
+	neighbors(Tail, V, Acc1, Neighbors).
+neighbors([N-V | Tail], V, AccNeighbors, Neighbors) :-
+	!,
+	Acc1 = [N | AccNeighbors],
+	neighbors(Tail, V, Acc1, Neighbors).
+neighbors([_E | Tail], V, AccNeighbors, Neighbors) :-
+	neighbors(Tail, V, AccNeighbors, Neighbors).

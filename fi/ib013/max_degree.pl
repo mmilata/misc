@@ -7,7 +7,7 @@
 max_degree(G, Time, V) :-
 	quadruples_to_events(G, Seq),
 	split_events(Seq, Time, Events, _),
-	sequence_to_edgelist(Events, InitEdges),
+	events_to_edges(Events, InitEdges),
 	max_degree_seq(InitEdges, [], V).
 
 %interval
@@ -15,7 +15,7 @@ max_degree(G, Start, End, V) :-
 	quadruples_to_events(G, AllSeq),
 	split_events(AllSeq, Start, PreStart, PostStart),
 	split_events(PostStart, End, Seq, _),
-	sequence_to_edgelist(PreStart, InitEdges),
+	events_to_edges(PreStart, InitEdges),
 	max_degree_seq(InitEdges, Seq, V).
 
 %celkove

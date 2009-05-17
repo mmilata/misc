@@ -43,7 +43,6 @@ cycles(G, Start, End, NumCycles) :-
 	split_packedevents(Seq, Start, Pre, Post),
 	split_packedevents(Post, End, Events, _),
 	packedevents_to_edges(Pre, InitEdges),
-	%trace,
 	ncycles(InitEdges, InitNumCycles),
 	%nl, print('graph: '), print(InitEdges), print(' cycles: '), print(InitNumCycles), 
 	seq_ncycles(InitEdges, Events, InitNumCycles, NumCycles).
@@ -96,19 +95,3 @@ walk_neighbors([Neigh|Rest], Stack, Graph, Banned, AccCycles, Cycles) :-
 	cycles_from_vertex([Neigh|Stack], Graph, Banned, NeighCycles),
 	Acc1 is AccCycles + NeighCycles,
 	walk_neighbors(Rest, Stack, Graph, Banned, Acc1, Cycles).
-
-neighbors(Graph, Vertice, Neighbors) :-
-	neighbors(Graph, Vertice, [], UnsortedNeighbors),
-	remove_dups(UnsortedNeighbors, Neighbors).
-
-neighbors([], _Vertice, Neighbors, Neighbors).
-neighbors([V-N | Tail], V, AccNeighbors, Neighbors) :-
-	!,
-	Acc1 = [N | AccNeighbors],
-	neighbors(Tail, V, Acc1, Neighbors).
-neighbors([N-V | Tail], V, AccNeighbors, Neighbors) :-
-	!,
-	Acc1 = [N | AccNeighbors],
-	neighbors(Tail, V, Acc1, Neighbors).
-neighbors([_E | Tail], V, AccNeighbors, Neighbors) :-
-	neighbors(Tail, V, AccNeighbors, Neighbors).
