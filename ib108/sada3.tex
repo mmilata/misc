@@ -160,7 +160,8 @@ vrcholu~$v$~od~$s$, $N[v]$ počet minimálních cest do~vrcholu~$v$~z~$s$.
 \noindent
 Princip algoritmu založíme na~následujícím pozorování. Do~vrcholu~$s$
 z~vrcholu~$s$ vede~$0$ nejkratších 
-cest délky~$0$ (záleží na~definici). 
+cest délky~$0$ (záleží na~definici). Toto na konci algoritmu změníme tak, aby to
+vyhovovalo zadání.
 %Všechny vrcholy 
 %dosažitelné z~vrcholu~$s$ po~jedné hraně mají délku nejkratší cesty $1$ a taková
 %cesta existuje právě~$1$. Mezi~dvěmi různými vrcholy v~grafu~$G$ nemůže existovat
@@ -206,9 +207,12 @@ zvyšující se hodnotou. Dále pokud $D[t] < \infty$, pak už se hodnota $D[t]$
 \STATE $D[v] \la D[u]+1$; $N[v] \la N[u] + N[v]$
 \ENDIF
 \ENDWHILE
+\STATE $N[s] \la 1$
 \RETURN $N$
 \end{algorithmic}
 \end{algorithm}
+
+\noindent
 Řádky $1$,$2$ mají cenu~$\O(|V|)$. V~každém průchodu cyklem
 \textit{while} ($6$-$13$) se označí jedna hrana grafu~$G$ za~navštívenou. Tato
 hrana už se nikdy nepřidá do~fronty. Fronta se tedy musí nejvýše po~$|H|$
