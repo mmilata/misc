@@ -260,7 +260,7 @@ Proto musíme na začátku vnějšího cyklu hledat dvoucesty.
 Invariantem vnějšího cyklu je zachování podmínky kontinuity -- pro nulový tok platí a~zvy\-šu\-je\-me vždy
 tok na celé dvoucestě z $s$ do $t$ (pokud se na ní nějaká hrana vyskytne dvakrát, zvýšíme její tok
 dvakrát), tedy pro každý vrchol na dvoucestě zvýšíme jak jeho přítok, tak odtok. Po skončení
-algoritmu je $f$ tok splňující podmínku symetrie (řádek 6, triv.), kontinuity (viz invariant) i
+algoritmu je $f$ tok splňující podmínku kontinuity (viz invariant) i
 kapacitní ohraničení (na každé hraně byl zvýšen tok alespoň o její kapacitu). Vnější cyklus se vykoná
 $|E|$-krát, vnitřní nejvýše $2|V|$-krát, řádek č.1 trvá $|V|^2$ operací; algoritmus je tedy v
 $\O(|E|\cdot|V| + |V|^2)$.
