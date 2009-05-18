@@ -223,14 +223,16 @@ průchodech cyklem vyprázdnit. Algoritmus skončí. Výsledná složitost je~$\
 
 % nefunguje u grafu s (u,v) a (v,u)
 \noindent
-Algoritmus, tak jak je zadaný, nemůže existovat pro grafy obsahující nenulově ohodnocené hrany $(u,v)$
-a $(v,u)$ pro nějaké vrcholy $u,v$. Kapacitní ohraničení požaduje, aby tok na obou hranách byl vyšší než
-jejich kapacita, zatímco podmínka symetrie požaduje, aby jedna hrana byla negací druhé, což nelze
-najednou splnit. Předpokládejme tedy, že graf na vstupu takové hrany neobsahuje.
+%Algoritmus, tak jak je zadaný, nemůže existovat pro grafy obsahující nenulově ohodnocené hrany $(u,v)$
+%a $(v,u)$ pro nějaké vrcholy $u,v$. Kapacitní ohraničení požaduje, aby tok na obou hranách byl vyšší než
+%jejich kapacita, zatímco podmínka symetrie požaduje, aby jedna hrana byla negací druhé, což nelze
+%najednou splnit. Předpokládejme tedy, že graf na vstupu takové hrany neobsahuje.
+Algoritmus tak, jak je zadaný nemůže existovat, protože podmínka symetrie
+$(f(u,v) = -f(v,u))$ a podmínka kapacitního ohraničení se navzájem vylučují.
+Vypustíme proto po\-ža\-da\-vek na symetrii a podmínku kontinuity nahradíme v
+podstatě ekvivalentní podmínkou, že pro každý vrchol kromě $s$ a $t$ se vstupní
+tok rovná výstupnímu toku.
 
-% dve faze:
-%	vytvoreni inicialniho toku
-%	minimalizace
 Navržený algoritmus pracuje ve dvou fázích. Nejdříve pro zadanou síť najde nějaký tok (který
 vyhovuje dolním limitům hran) a poté modifikací Fordova-Fulkersonova algoritmu tento tok
 minimalizuje.
@@ -248,14 +250,14 @@ Proto musíme na začátku vnějšího cyklu hledat dvoucesty.
 \STATE Najdi nějakou dvoucestu $p$ z $s$ do $t$, která obsahuje hranu $e$
 \FORALL{$(u,v)$ na $p$}
 \STATE $f(u,v) \la f(u,v) + c(e)$
-\STATE $f(v,u) \la -f(u,v)$
+%\STATE $f(v,u) \la -f(u,v)$
 \ENDFOR
 \ENDFOR
 \end{algorithmic}
 \end{algorithm}
 
 \noindent
-Invariantem vnějšího cyklu je zachování podmínky kontinuity -- pro nulový tok platí a zvyšujeme vždy
+Invariantem vnějšího cyklu je zachování podmínky kontinuity -- pro nulový tok platí a~zvy\-šu\-je\-me vždy
 tok na celé dvoucestě z $s$ do $t$ (pokud se na ní nějaká hrana vyskytne dvakrát, zvýšíme její tok
 dvakrát), tedy pro každý vrchol na dvoucestě zvýšíme jak jeho přítok, tak odtok. Po skončení
 algoritmu je $f$ tok splňující podmínku symetrie (řádek 6, triv.), kontinuity (viz invariant) i
@@ -270,8 +272,8 @@ $\O(|E|\cdot|V| + |V|^2)$.
 \zadani{3}{3}
 
 \noindent
-Druhá část algoritmu je mírnou modifikací Ford-Fulkersonova algoritmu -- zlepšující cesta v
-našem případě znamená takovou cestu, na které každá hrana má větší tok než je její kapacita,
+Druhá část algoritmu je mírnou modifikací Ford-Fulkersonova algoritmu -- zlepšující cesta v~našem
+případě znamená takovou cestu, na které každá hrana má větší tok než je její kapacita,
 vylepšením cesty pak rozumíme odečtení nejmenší reziduální kapacity od všech hran na této cestě.
 
 \begin{algorithm}
@@ -282,7 +284,7 @@ vylepšením cesty pak rozumíme odečtení nejmenší reziduální kapacity od 
 \STATE $d \la \min\{f(u,v) - c(u,v) \mid (u,v) \text{leží na p}\}$
 \FORALL{$(u,v)$ na $p$}
 \STATE $f(u,v) \la f(u,v) - d$
-\STATE $f(v,u) \la -f(u,v)$
+%\STATE $f(v,u) \la -f(u,v)$
 \ENDFOR
 \ENDWHILE
 \end{algorithmic}
