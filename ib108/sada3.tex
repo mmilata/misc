@@ -140,14 +140,12 @@ $\textsc{Ext\_KMP}(T[1..n],P[1..m])$
 
 \noindent
 Složitost funkce \textsc{Ext\_Prefixova\_funkce} je stejná jako v~původním
-algoritmu, tedy~$\Theta(m)$. Složitost původního~\textsc{KMP} je~$\Theta(n)$.
-Jednoduše lze pozorovat, že algoritmus zkoumá každý znak textu i každý znak
-vzorku pouze jedenkrát (stejně jako původní \textsc{KMP}). Při~rekurzivním
+algoritmu, tedy~$\O(m)$. Složitost původního~\textsc{KMP} je~$\Theta(n)$.
+Při~rekurzivním
 zanoření algoritmus začíná s~prvním dosud neprozkoumaným znakem textu,
-prefixovou funkci počítá pro~první znak vzorku, který ještě nebyl napočítán.
-Složitost \textsc{Ext\_KMP} je tedy stejná jako složitost původního \textsc{KMP}
-(\textsc{Ext\_KMP}$\in \O(n+m)$). Důkaz obdobný jako u~původního \textsc{KMP}.
-\\Z čehož plyne i konečnost algoritmu.
+prefixovou funkci počítá pro~první znak vzorku, který dosud nebyl napočítán.
+Důkaz, že amortizovaná složitost \textsc{Ext\_KMP} je $\O(n+m)$) by byl obdobný
+jako důkaz amortizované složitosti původního \textsc{KMP}.\\Z čehož plyne i konečnost algoritmu.
 \hfill$\square$
 
 
