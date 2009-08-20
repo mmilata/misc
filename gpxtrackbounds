@@ -1,0 +1,17 @@
+#!/bin/bash
+
+FILE=$1
+
+LATITUDES=`egrep "\<lat" $FILE | sed -r 's/[<]trkpt lat="([.0-9]+)" lon="[.0-9]+"[>]/\1/' | sort -n`
+MINLAT=`echo "$LATITUDES" | head -n1`
+MAXLAT=`echo "$LATITUDES" | tail -n1`
+LONGITUDES=`egrep "\<lon" $FILE | sed -r 's/[<]trkpt lat="[.0-9]+" lon="([.0-9]+)"[>]/\1/' | sort -n`
+MINLON=`echo "$LONGITUDES" | head -n1`
+MAXLON=`echo "$LONGITUDES" | tail -n1`
+
+echo -e "Minimal latitude:\t$MINLAT"
+echo -e "Maximal latitude:\t$MAXLAT"
+echo -e "Minimal longitude:\t$MINLON"
+echo -e "Maximal longitude:\t$MAXLON"
+echo
+echo "<bounds minlat=\"$MINLAT\" minlon=\"$MINLON\" maxlat=\"$MAXLAT\" maxlon=\"$MAXLON\"/>"
