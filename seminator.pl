@@ -7,6 +7,8 @@ use LWP;
 use IO::Handle;
 use DateTime;    # tohle se musi doinstalovat (cpan, apt...)
 use Time::HiRes;
+use Term::ANSIColor qw(:constants);
+use POSIX qw(WIFEXITED WEXITSTATUS);
 
 # usage:
 #
@@ -54,10 +56,38 @@ my $deadline_dt = DateTime->new(
 
 # intervaly ve kterych se posilaji pozadavky
 my @intervals = ( -2.0, -1.0, -0.5, -0.2, -0.1, -0.01, 0.0, 0.1, 0.2, 0.5, 1.0, 2.0 );
+my @orig_intervals = @intervals;
 
 ## pod timto radkem uz by nemelo byt nutne cokoli menit ##
 
+use constant {
+	RET_JESTENE	=> -1,
+	RET_CHYBA	=> 2,
+	RET_NELZE	=> 3,
+	RET_LIMIT	=> 4,
+	RET_JINAM	=> 5,
+	RET_NIC 	=> 6,
+	RET_USPECH	=> 7,
+};
+
+# 0 - pattern ktery se vyhledava v souboru
+# 1 - nazev souboru do ktereho se uklada vystup
+# 2 - navratovy kod
+# 3 - max. petiznakovy retezec ktery bude v tabulce
+# 4 - barva
+my @retezce = (
+	["nelze se",		"nelze",		RET_NELZE,	"nelze",	BLUE],
+	["limit",		"vycerpan_limit",	RET_LIMIT,	"limit",	RED],
+	["jinam",		"prihlasen_jinam",	RET_JINAM,	"jinam",	BLUE],
+	["provedeno",		"uspech",		RET_USPECH,	"OK",		GREEN],
+	["jste do vybra",	"zadna_zmena",		RET_NIC,	"nic",		GREEN],
+	[undef,			"chyba",		RET_CHYBA,	"chyba",	RED],
+	[undef,			undef,			RET_JESTENE,	"cekam",	BLUE],
+);
+
 my $deadline = [$deadline_dt->epoch(), 0];
+my %pids;   # pid forknutych procesu (indexovano podle predmetu a intervalu)
+my %states; # navratove hodnoty (indexovano podle pid)
 
 STDOUT->autoflush(1);
 
@@ -66,53 +96,122 @@ $ua->agent("Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008070206
 $ua->credentials("is.muni.cz:443", "Information System MU", $uco => $heslo);
 
 my $attempt = 1;
+my $forked = 0;
 while(scalar @intervals){
 	my $dif = Time::HiRes::tv_interval($deadline);
 	if($dif > $intervals[0]){
-		my $ival = $intervals[0];
-		print "forking @ $ival\n";
-		shift @intervals;
+		my $ival = shift @intervals;
+		print "Time: $ival, sending requests\n";
 
 		foreach my $kod (keys %predmety){
-			if(!fork){
-				my $skupina = $predmety{$kod};
-				print "$ival: $$: trying $kod - $skupina\n";
+			my $skupina = $predmety{$kod};
+			my $pid = fork;
 
-				my $url = "https://is.muni.cz/auth/seminare/student.pl?fakulta=$fakulta;obdobi=$obdobi;".
-				          "studium=$studium;predmet=$kod;prihlasit=$skupina;akce=podrob;provest=1;stopwindow=1;design=m";
-				my $req = HTTP::Request->new(GET => $url);
-				my $res = $ua->request($req);
-				if($res->is_success){
-					my $content = $res->content;
-					my %s = (
-						"nelze se"	=> "nelze",
-						"limit"		=> "vycerpan_limit",
-						"jinam"		=> "prihlasen_jinam",
-						"provedeno"	=> "uspech",
-						"jste do vybra"	=> "zadna_zmena"
-					);
-					my $status = "unknown";
-
-					foreach my $str (keys %s){
-						if($content =~ /$str/){
-							$status = $s{$str};
-							last;
-						}
-					}
-
-					print "$attempt: $kod: $skupina: $$: $status\n";
-					if(open(FH, ">", "$save_dir/sem-$attempt-$kod-$skupina-$$-$status.html")){
-						print FH $content;
-						close FH;
-					}
-				}else{
-					print "$attempt: $kod: $skupina: $$: error occured: ", $res->status_line, "\n";
-				}
-				exit;
+			if(!defined $pid){
+				print "$ival: forking $kod - $skupina failed\n";
+			}elsif($pid==0){
+				ZkusRegistraci($kod,$skupina,$ival,$attempt);
+			}else{
+				$pids{$kod}->{$ival} = $pid;
+				$states{$pid} = RET_JESTENE;
+				$forked++;
 			}
 		}
 		$attempt++;
 	}else{
 		Time::HiRes::usleep(6666);
 	}
+}
+
+PrekresliStatus();
+while($forked){
+	my $pid = wait;
+	if(WIFEXITED($?)) {
+		$states{$pid} = WEXITSTATUS($?);
+		PrekresliStatus();
+	}else{
+		print "error: child $pid exited abnormally\n";
+	}
+	$forked--;
+}
+
+exit 0;
+
+## definice funkci ##
+
+sub ZkusRegistraci
+{
+	my ($kod,$skupina,$ival) = @_;
+
+	#print "$ival: $$: trying $kod - $skupina\n";
+
+	my $url = "https://is.muni.cz/auth/seminare/student.pl?fakulta=$fakulta;obdobi=$obdobi;".
+		  "studium=$studium;predmet=$kod;prihlasit=$skupina;akce=podrob;provest=1;stopwindow=1;design=m";
+	my $req = HTTP::Request->new(GET => $url);
+	my $res = $ua->request($req);
+
+	if($res->is_success){
+		my $content = $res->content;
+		my $file_status = "unknown";
+		my $return_status = 1;
+
+		foreach my $line (@retezce){
+			my $pattern = $line->[0];
+			next unless (defined $pattern);
+
+			if($content =~ /$line->[0]/){
+				$file_status = $line->[1];
+				$return_status = $line->[2];
+				last;
+			}
+		}
+
+		#print "$attempt: $kod: $skupina: $$: $file_status\n";
+		if(open(FH, ">", "$save_dir/sem-$attempt-$kod-$skupina-$$-$file_status.html")){
+			print FH $content;
+			close FH;
+		}
+		exit $return_status;
+	}else{
+		#print "$attempt: $kod: $skupina: $$: error occured: ", $res->status_line, "\n";
+		exit RET_CHYBA;
+	}
+}
+
+sub PrekresliStatus
+{
+	#print "\033[2J"; # clear the screen, the ugly way
+	print "         ";
+	foreach my $ival (@orig_intervals) {
+		printf("%5s ",$ival);
+	}
+	print "\n";
+
+	foreach my $predmet (keys %predmety) {
+		printf("%8s ",$predmet);
+		foreach my $ival (@orig_intervals) {
+			my $pid = $pids{$predmet}->{$ival};
+			my $retcode = $states{$pid};
+			printf("%5s ",TxtStatus($retcode));
+		}
+		print "\n";
+	}
+	print "\n";
+}
+
+sub TxtStatus
+{
+	my ($retcode) = @_;
+	my $res = "";
+
+	foreach my $line (@retezce) {
+		if ($line->[2] == $retcode) {
+			$res .= $line->[4];
+			$res .= $line->[3];
+			$res .= CLEAR;
+			return $res;
+		}
+	}
+
+	return (RED."chyb2".CLEAR);
 }
