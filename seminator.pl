@@ -75,12 +75,14 @@ use constant {
 # 2 - navratovy kod
 # 3 - max. petiznakovy retezec ktery bude v tabulce
 # 4 - barva
+# FIXME: barvicky rozbily %5s v printf, takze pokud ma status mene nez 5 znaku,
+# vypada to blbe; jako workaround je treba to zatim rucne doplnit mezerama
 my @retezce = (
 	["nelze se",		"nelze",		RET_NELZE,	"nelze",	BLUE],
 	["limit",		"vycerpan_limit",	RET_LIMIT,	"limit",	RED],
 	["jinam",		"prihlasen_jinam",	RET_JINAM,	"jinam",	BLUE],
-	["provedeno",		"uspech",		RET_USPECH,	"OK",		GREEN],
-	["jste do vybra",	"zadna_zmena",		RET_NIC,	"nic",		GREEN],
+	["provedeno",		"uspech",		RET_USPECH,	"   OK",	GREEN],
+	["jste do vybra",	"zadna_zmena",		RET_NIC,	"  nic",	GREEN],
 	[undef,			"chyba",		RET_CHYBA,	"chyba",	RED],
 	[undef,			undef,			RET_JESTENE,	"cekam",	BLUE],
 );
