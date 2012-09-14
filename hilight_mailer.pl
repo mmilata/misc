@@ -7,7 +7,7 @@ $VERSION = "0.2";
 	authors         => "b42",
 	contact         => "b42\@srck.net",
 	name            => "hilight_mailer",
-	description     => "Sends messages matching regexp to email",
+	description     => "Sends email whenever hilight occurs",
 	license         => "WTFPL"
 );
 # parts stolen from Prema's script
