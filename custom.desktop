@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Run .xsession
+Comment=Runs your ~/.xsession
+Exec=$HOME/.xsession
+Terminal=false
+
+[Window Manager]
+SessionManaged=true
+
+# vi: encoding=utf-8
