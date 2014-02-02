@@ -4,6 +4,7 @@ use warnings;
 use strict;
 
 use LWP;
+use HTTP::Request::Common qw{ POST };
 use IO::Handle;
 use DateTime;    # tohle se musi doinstalovat (cpan, apt...)
 use Time::HiRes;
@@ -95,7 +96,23 @@ STDOUT->autoflush(1);
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008070206 Firefox/3.0.1");
-$ua->credentials("is.muni.cz:443", "Information System MU", $uco => $heslo);
+$ua->cookie_jar({});
+
+# login
+my $login_url = 'https://is.muni.cz/system/login_form.pl';
+#my $login_url = 'http://localhost:12345/';
+my $req = POST ($login_url, [
+	destination => '/auth/',
+	'credential_0' => $uco,
+	'credential_1' => $heslo,
+	'credential_2' => '28800',
+	submit => 'Přihlásit se' ]);
+my $res = $ua->request($req);
+if($res->is_success){
+	print 'login successful'
+}else{
+	print "error occured: ", $res->status_line, "\n";
+}
 
 my $attempt = 1;
 my $forked = 0;
